@@ -51,7 +51,7 @@ var serverRequestCallback = function (html) {
             var cents = special.find(".cents").text();
 
             // Unit of measure
-            var measure = special.find(".measure").text();  // <span class="measure">ea</span>
+            var unit = special.find(".measure").text();  // <span class="measure">ea</span>
 
             var comment = special.children().last().text().split("."); // <p><small> Ends 12/02/2017.<br />(Limit 4)</small></p>
             assert(comment.length > 0 && comment.length <= 2);
@@ -63,7 +63,7 @@ var serverRequestCallback = function (html) {
                 limit = comment[1];
             }
 
-            scrappedSpecials.push({ description: description, price: dollars + "." + cents, measure: measure, endDate: endDate.trim(), limit: limit.trim() });
+            scrappedSpecials.push({ description: description, price: dollars + "." + cents, unit: unit, endDate: endDate.trim(), comments: limit.trim() });
 
             /*
             $(this).children().each(function (n, e2) {
