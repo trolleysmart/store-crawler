@@ -35,6 +35,7 @@ var serverRequestCallback = function (html) {
 
     var scrappedSpecials = [];
 
+    var store = "PakNSave " + $(".store").children().first().text();
 
     $(".list-prod").filter(function () {
         var data = $(this);
@@ -77,7 +78,7 @@ var serverRequestCallback = function (html) {
     });
 
     // TODO - send this to an API to he stored in our DB.
-    fs.writeFile("output.json", JSON.stringify(scrappedSpecials), function (err) {
+    fs.writeFile("output.json", JSON.stringify({storeId: store, specials:scrappedSpecials}), function (err) {
         console.log("File successfully written! - Check your project directory for the output.json file");
     });
 
