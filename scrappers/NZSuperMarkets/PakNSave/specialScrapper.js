@@ -8,10 +8,8 @@ var request = require("request");
 var fs = require("fs");
 var cheerio = require("cheerio");   // <-- Fast, flexible, and lean implementation of core jQuery designed specifically for the server.
 var assert = require("assert");     // <-- For asserting assumptions
-
 var app = express();
-
-var specialRepo = require('../ParseServer/specialRepo');
+var parseRepo = require('../ParseServer/parseRepo');
 
 /*----------------------------------------------
                 Constant Declaration
@@ -23,10 +21,7 @@ var urlPakNSavePromo = urlPakNSave + "/promotions-and-deals";
                 Program Logic
 -----------------------------------------------*/
 
-var serverRequestCallback = function (html) {
-    //var cookie_string = j.getCookieString(urlPakNSave); // "key1=value1; key2=value2; ..."
-    //var cookies = j.getCookies(urlPakNSave);
-    //console.log(cookies);
+var serverRequestCallback = function (storeId, html) {
     var $ = cheerio.load(html);
 
     var scrappedSpecials = [];
@@ -51,7 +46,6 @@ var serverRequestCallback = function (html) {
             var unit = special.find(".measure").text();  // <span class="measure">ea</span>
 
             var comment = special.children().last().text().split("."); // <p><small> Ends 12/02/2017.<br />(Limit 4)</small></p>
-            assert(comment.length > 0 && comment.length <= 2);
 
             var limit = undefined;
             var endDate = comment[0];
@@ -60,39 +54,29 @@ var serverRequestCallback = function (html) {
                 limit = comment[1];
             }
 
-            scrappedSpecials.push({ description: description, price: dollars + "." + cents, unit: unit, endDate: endDate.trim(), comments: limit.trim() });
-
-            /*
-            $(this).children().each(function (n, e2) {
-                var special = $(this);
-
-                description = special.
-                console.log("HTML Content: " + $(this).html());
-            });
-            */
+            scrappedSpecials.push(
+                {
+                    description: description,
+                    price: dollars + "." + cents,
+                    unit: unit,
+                    endDate: endDate.trim(),
+                    comments: limit != undefined ? limit.trim() : ''
+                });
         });
     });
 
-    // TODO - send this to an API to he stored in our DB.
-    //fs.writeFile("output.json", JSON.stringify({storeId: store, specials:scrappedSpecials}), function (err) {
-    //    console.log("File successfully written! - Check your project directory for the output.json file");
-    //});
-    specialRepo.saveSpecialHistory(store, scrappedSpecials);
-
-    console.log("/*----------------------------------------------");
-    console.log("               Program Ends");
-    console.log("-----------------------------------------------*/");
+    parseRepo.saveSpecialHistory(storeId, scrappedSpecials);
 };
 
 module.exports = {
     run: function (storeId) {
         var j = request.jar();
-        var cookie = request.cookie("paknsave-store-id=storenodeid=" + argv.code);
+        var cookie = request.cookie("paknsave-store-id=storenodeid=" + storeId);
         j.setCookie(cookie, urlPakNSave);
 
         // Request the promotion page of the PakNSave website
         request({ url: urlPakNSavePromo, jar: j }, function (req, res, html) {
-            serverRequestCallback(html);
+            serverRequestCallback(storeId, html);
         });
     }
 }

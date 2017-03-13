@@ -17,10 +17,8 @@ var request = require("request");
 var fs = require("fs");
 var cheerio = require("cheerio");   // <-- Fast, flexible, and lean implementation of core jQuery designed specifically for the server.
 var assert = require("assert");     // <-- For asserting assumptions
-
+var parseRepo = require('../ParseServer/parseRepo');
 var app = express();
-
-var specialRepo = require('../ParseServer/specialRepo');
 
 /*----------------------------------------------
                 Constant Declaration
@@ -33,44 +31,28 @@ var urlPakNSave = "http://www.paknsave.co.nz";
 
 var serverRequestCallback = function (html) {
     var $ = cheerio.load(html);
-
     var locationIds = [];
+    $(".mar-bot-10 li").each(function (i, elem) {
+        elem.children.forEach(function (elem) {
+            if (elem.attribs !== undefined && elem.attribs.href !== undefined) {
+                var storeInfo = elem.attribs.href.split('=')[1].split('-');
 
-    var store = "PakNSave " + $(".store").children().first().text();
-
-    $(".location").filter(function () {
-        var data = $(this);
-
-        data.find("li").each(function (i, elem) {
-            var locations = $(this);
-
-            var x = elem.children.  find(".mar-bot-10");
-                    console.log(x);
-
-
-               // locationIds.push({ description: description, price: dollars + "." + cents, unit: unit, endDate: endDate.trim(), comments: limit.trim() });
-
-        });
+                locationIds.push({ name: storeInfo[0], storeId: storeInfo[1] });
+            }
+        })
     });
 
-    // TODO - send this to an API to he stored in our DB.
-    //fs.writeFile("output.json", JSON.stringify({storeId: store, specials:scrappedSpecials}), function (err) {
-    //    console.log("File successfully written! - Check your project directory for the output.json file");
-    //});
-    specialRepo.saveSpecialHistory(store, scrappedSpecials);
-
-    console.log("/*----------------------------------------------");
-    console.log("               Program Ends");
-    console.log("-----------------------------------------------*/");
+    parseRepo.saveStores(locationIds);
+    return locationIds;
 };
-
 
 module.exports = {
     run: function (storeId) {
-
-        // Request the promotion page of the PakNSave website
-        request({ url: urlPakNSave }, function (req, res, html) {
-            serverRequestCallback(html);
+        return new Promise((resolve, reject) => {
+            // Request the promotion page of the PakNSave website
+            request({ url: urlPakNSave }, function (req, res, html) {
+                resolve(serverRequestCallback(html));
+            });
         });
     }
 }
