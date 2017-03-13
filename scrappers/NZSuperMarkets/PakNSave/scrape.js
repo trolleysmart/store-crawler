@@ -11,6 +11,8 @@ var assert = require("assert");     // <-- For asserting assumptions
 
 var app = express();
 
+var specialRepo = require('../ParseServer/specialRepo');
+
 /*----------------------------------------------
                 Constant Declaration
 -----------------------------------------------*/
@@ -20,12 +22,6 @@ var urlPakNSavePromo = urlPakNSave + "/promotions-and-deals";
 /*----------------------------------------------
                 Program Logic
 -----------------------------------------------*/
-var argv = require('minimist')(process.argv.slice(2));
-
-if (argv.code === undefined) {
-    console.log("Please provide a store code as parameter. eg. node main.js code=1084");
-    process.exit();
-}
 
 var serverRequestCallback = function (html) {
     //var cookie_string = j.getCookieString(urlPakNSave); // "key1=value1; key2=value2; ..."
@@ -78,35 +74,27 @@ var serverRequestCallback = function (html) {
     });
 
     // TODO - send this to an API to he stored in our DB.
-    fs.writeFile("output.json", JSON.stringify({storeId: store, specials:scrappedSpecials}), function (err) {
-        console.log("File successfully written! - Check your project directory for the output.json file");
-    });
+    //fs.writeFile("output.json", JSON.stringify({storeId: store, specials:scrappedSpecials}), function (err) {
+    //    console.log("File successfully written! - Check your project directory for the output.json file");
+    //});
+    specialRepo.saveSpecialHistory(store, scrappedSpecials);
 
     console.log("/*----------------------------------------------");
     console.log("               Program Ends");
     console.log("-----------------------------------------------*/");
 };
 
-// PakNSave requires to know what store the user is interested on. That is done via session cookies.
-/*
-PakNSave Store Codes:
-Hornby      = 1206
-Albany      = 1084
-Riccarton   = 1209
-*/
+module.exports = {
+    run: function (storeId) {
+        var j = request.jar();
+        var cookie = request.cookie("paknsave-store-id=storenodeid=" + argv.code);
+        j.setCookie(cookie, urlPakNSave);
 
-var j = request.jar();
-var cookie = request.cookie("paknsave-store-id=storenodeid=" + argv.code);
-j.setCookie(cookie, urlPakNSave);
-
-// Request the promotion page of the PakNSave website
-request({ url: urlPakNSavePromo, jar: j }, function (req, res, html) {
-    serverRequestCallback(html);
-});
-
-
-
-
-exports = module.exports = app;
+        // Request the promotion page of the PakNSave website
+        request({ url: urlPakNSavePromo, jar: j }, function (req, res, html) {
+            serverRequestCallback(html);
+        });
+    }
+}
 
 
