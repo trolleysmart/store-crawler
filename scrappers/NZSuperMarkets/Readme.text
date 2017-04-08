@@ -1,5 +1,0 @@
-Usage:
-
-"node paknscrap --code=1209"
-
-code is the PakNSave store code.  You get this if you inspect the website cookies after selecting a preferred store.
