@@ -1,2 +1,1 @@
-export default function () {
-}
+import Countdown from 'countdown';
