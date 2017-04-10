@@ -1,0 +1,142 @@
+'use strict';
+
+var _crawler = require('crawler');
+
+var _crawler2 = _interopRequireDefault(_crawler);
+
+var _immutable = require('immutable');
+
+var _immutable2 = _interopRequireDefault(_immutable);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var defaultUrl = 'https://shop.countdown.co.nz/Shop/Browse/';
+
+var crawlProductCategoryPagingInfomation = function crawlProductCategoryPagingInfomation(productCategories) {
+  var getCategoryPageSize = function getCategoryPageSize($) {
+    var r = $('.paging-container .paging .page-number').last();
+
+    return parseInt(r.text(), 10);
+  };
+
+  return productCategories.map(function (productCategory) {
+    return new Promise(function (resolve, reject) {
+      var crawler = new _crawler2.default({
+        maxConnections: 10,
+        callback: function callback(error, res, done) {
+          if (error) {
+            reject(error);
+
+            return;
+          }
+
+          var pageSize = getCategoryPageSize(res.$);
+          done();
+          resolve({
+            productCategory: productCategory,
+            pageSize: pageSize
+          });
+        }
+      });
+
+      crawler.queue(defaultUrl + productCategory);
+    });
+  });
+};
+
+var getBarcodeFromImagePath = function getBarcodeFromImagePath(imgPath) {
+  var str = imgPath.substr(imgPath.indexOf('big/') + 4);
+  var barcode = str.substr(0, str.indexOf('.jpg'));
+  return barcode;
+};
+
+var extractProducts = function extractProducts($) {
+  // $ is Cheerio by default
+  var products = [];
+  $('#product-list').filter(function () {
+    var data = $(this);
+
+    data.find('.product-stamp .details-container').each(function (i, elem) {
+      var product = $(this);
+      var productImagePath = 'https://shop.countdown.co.nz' + product.find('.product-stamp-thumbnail img').attr('src');
+      var productBarcode = getBarcodeFromImagePath(productImagePath);
+      var productDescription = product.find('.description').text();
+      products.push({
+        productDescription: productDescription,
+        productBarcode: productBarcode,
+        productImagePath: productImagePath
+      });
+    });
+  });
+
+  return products;
+};
+
+function getProducts(productCategory, pageSize) {
+  var pageNumbers = [].concat(_toConsumableArray(Array(pageSize).keys()));
+  return pageNumbers.map(function (pageNumber) {
+    return new Promise(function (resolve, reject) {
+      var c = new _crawler2.default({
+        maxConnections: 10,
+        // This will be called for each crawled page
+        callback: function callback(error, res, done) {
+          if (error) {
+            done();
+            reject(error);
+            return;
+          }
+
+          var products = extractProducts(res.$);
+
+          done();
+          resolve({
+            productCategory: productCategory,
+            products: products
+          });
+        }
+      });
+
+      var productPageUrl = defaultUrl + productCategory + '?page=' + (pageNumber + 1);
+      c.queue(productPageUrl);
+    });
+  });
+}
+
+Parse.Cloud.job('Countdown-Sync-Master-Product-List', function (request, status) {
+  var log = request.log;
+
+  status.message('The job has started.');
+
+  var productCategories = ['bakery', 'easter', 'baby-care', 'baking-cooking'];
+  var productCategoriesPromises = crawlProductCategoryPagingInfomation(productCategories);
+
+  Promise.all(productCategoriesPromises).then(function (results) {
+    var allProductPromises = _immutable2.default.fromJS(results).map(function (result) {
+      return getProducts(result.get('productCategory'), result.get('pageSize'));
+    }).flatMap(function (_) {
+      return _;
+    });
+
+    Promise.all(allProductPromises).then(function (allProductInfo) {
+      var groupedByProductCategory = _immutable2.default.fromJS(allProductInfo).groupBy(function (_) {
+        return _.get('productCategory');
+      });
+
+      groupedByProductCategory.keySeq().forEach(function (productCategory) {
+        return log.info(productCategory + '   --   ' + groupedByProductCategory.get(productCategory).map(function (_) {
+          return _.get('products');
+        }).flatMap(function (_) {
+          return _;
+        }).size);
+      });
+
+      status.success('The job has finished.');
+    }).catch(function (error) {
+      return status.error(error);
+    });
+  }).catch(function (error) {
+    return status.error(error);
+  });
+});

@@ -1,6 +1,6 @@
 'use strict';
 
-var _countdown = require('countdown');
+var _countdown = require('./countdown');
 
 var _countdown2 = _interopRequireDefault(_countdown);
 
