@@ -8,6 +8,14 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
+var _bootstrap = require('../parse-server/bootstrap');
+
+var _bootstrap2 = _interopRequireDefault(_bootstrap);
+
+var _MasterProductList = require('../parse-server/schema/MasterProductList');
+
+var _MasterProductList2 = _interopRequireDefault(_MasterProductList);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -124,15 +132,26 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', function (request, status)
         return _.get('productCategory');
       });
 
-      groupedByProductCategory.keySeq().forEach(function (productCategory) {
-        return log.info(productCategory + '   --   ' + groupedByProductCategory.get(productCategory).map(function (_) {
+      Promise.all(groupedByProductCategory.keySeq().map(function (productCategory) {
+        return groupedByProductCategory.get(productCategory).map(function (_) {
           return _.get('products');
         }).flatMap(function (_) {
           return _;
-        }).size);
+        }).map(function (product) {
+          return {
+            productCategory: productCategory,
+            product: product
+          };
+        });
+      }).flatMap(function (_) {
+        return _;
+      }).map(function (_) {
+        return _MasterProductList2.default.spawn(_.product.productDescription, _.product.productbarcode, _.product.productImagePath, _.productCategory).save();
+      }).toJS()).then(function (results) {
+        return status.success('The job has finished.');
+      }).catch(function (error) {
+        return status.error(error);
       });
-
-      status.success('The job has finished.');
     }).catch(function (error) {
       return status.error(error);
     });
