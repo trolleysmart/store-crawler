@@ -1,9 +1,8 @@
-import parse from 'parse/node';
 import {
   Maybe,
 } from 'monet';
 
-class MasterProductList extends parse.Object {
+class MasterProductList extends Parse.Object {
   constructor(object) {
     super('MasterProductList');
 

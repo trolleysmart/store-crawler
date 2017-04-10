@@ -1,6 +1,5 @@
 import Crawler from 'crawler';
 import Immutable from 'immutable';
-import Bootstrap from '../parse-server/bootstrap';
 import MasterProductList from '../parse-server/schema/MasterProductList';
 
 const defaultUrl = 'https://shop.countdown.co.nz/Shop/Browse/';
@@ -100,6 +99,8 @@ function getProducts(productCategory, pageSize) {
 }
 
 Parse.Cloud.job('Countdown-Sync-Master-Product-List', (request, status) => {
+  Parse.Cloud.useMasterKey();
+
   const log = request.log;
 
   status.message('The job has started.');
@@ -127,12 +128,12 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', (request, status) => {
                 .flatMap(_ => _)
                 .map(product => ({
                   productCategory,
-                  product,
+                  product: product.toJS(),
                 })))
               .flatMap(_ => _)
               .map(_ => MasterProductList
                 .spawn(_.product.productDescription,
-                  _.product.productbarcode,
+                  _.product.productBarcode,
                   _.product.productImagePath,
                   _.productCategory)
                 .save())

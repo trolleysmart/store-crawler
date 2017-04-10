@@ -8,10 +8,6 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
-var _bootstrap = require('../parse-server/bootstrap');
-
-var _bootstrap2 = _interopRequireDefault(_bootstrap);
-
 var _MasterProductList = require('../parse-server/schema/MasterProductList');
 
 var _MasterProductList2 = _interopRequireDefault(_MasterProductList);
@@ -113,6 +109,8 @@ function getProducts(productCategory, pageSize) {
 }
 
 Parse.Cloud.job('Countdown-Sync-Master-Product-List', function (request, status) {
+  Parse.Cloud.useMasterKey();
+
   var log = request.log;
 
   status.message('The job has started.');
@@ -140,13 +138,13 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', function (request, status)
         }).map(function (product) {
           return {
             productCategory: productCategory,
-            product: product
+            product: product.toJS()
           };
         });
       }).flatMap(function (_) {
         return _;
       }).map(function (_) {
-        return _MasterProductList2.default.spawn(_.product.productDescription, _.product.productbarcode, _.product.productImagePath, _.productCategory).save();
+        return _MasterProductList2.default.spawn(_.product.productDescription, _.product.productBarcode, _.product.productImagePath, _.productCategory).save();
       }).toJS()).then(function (results) {
         return status.success('The job has finished.');
       }).catch(function (error) {
