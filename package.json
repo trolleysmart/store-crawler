@@ -1,6 +1,6 @@
 {
   "name": "store-crawler",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
