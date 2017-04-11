@@ -30,7 +30,9 @@ function crawlProductCategoryPagingInfomation(log, productCategories) {
       var crawler = new _crawler2.default({
         maxConnections: 10,
         callback: function callback(error, res, done) {
-          log.info('Response while crawling category: ' + productCategory + ' - ' + res);
+          var responseToLog = JSON.stringfy(res);
+
+          log.info('Response while crawling category: ' + productCategory + ' - ' + responseToLog);
 
           if (error) {
             done();
@@ -94,7 +96,9 @@ function getProducts(log, productCategory, pageSize) {
         maxConnections: 10,
         // This will be called for each crawled page
         callback: function callback(error, res, done) {
-          log.info('Response while crawling product for category: ' + productCategory + ' - page number: ' + pageNumber + ' - ' + res);
+          var responseToLog = JSON.stringfy(res);
+
+          log.info('Response while crawling product for category: ' + productCategory + ' - page number: ' + pageNumber + ' - ' + responseToLog);
 
           if (error) {
             done();
