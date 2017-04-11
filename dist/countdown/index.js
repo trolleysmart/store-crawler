@@ -109,8 +109,6 @@ function getProducts(productCategory, pageSize) {
 }
 
 Parse.Cloud.job('Countdown-Sync-Master-Product-List', function (request, status) {
-  Parse.Cloud.useMasterKey();
-
   var log = request.log;
 
   status.message('The job has started.');
@@ -146,14 +144,17 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', function (request, status)
       }).map(function (_) {
         return _MasterProductList2.default.spawn(_.product.productDescription, _.product.productBarcode, _.product.productImagePath, _.productCategory).save();
       }).toJS()).then(function (results) {
-        return status.success('The job has finished.');
+        return status.success('The job has finished successfully.');
       }).catch(function (error) {
-        return status.error(error);
+        log.error(error);
+        status.error('Job completed in error.');
       });
     }).catch(function (error) {
-      return status.error(error);
+      log.error(error);
+      status.error('Job completed in error.');
     });
   }).catch(function (error) {
-    return status.error(error);
+    log.error(error);
+    status.error('Job completed in error.');
   });
 });

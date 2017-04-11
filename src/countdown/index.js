@@ -99,8 +99,6 @@ function getProducts(productCategory, pageSize) {
 }
 
 Parse.Cloud.job('Countdown-Sync-Master-Product-List', (request, status) => {
-  Parse.Cloud.useMasterKey();
-
   const log = request.log;
 
   status.message('The job has started.');
@@ -138,10 +136,19 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', (request, status) => {
                   _.productCategory)
                 .save())
               .toJS())
-            .then(results => status.success('The job has finished.'))
-            .catch(error => status.error(error));
+            .then(results => status.success('The job has finished successfully.'))
+            .catch((error) => {
+              log.error(error);
+              status.error('Job completed in error.');
+            });
         })
-        .catch(error => status.error(error));
+        .catch((error) => {
+          log.error(error);
+          status.error('Job completed in error.');
+        });
     })
-    .catch(error => status.error(error));
+    .catch((error) => {
+      log.error(error);
+      status.error('Job completed in error.');
+    });
 });
