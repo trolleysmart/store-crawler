@@ -25,8 +25,6 @@ function getCategoryPageSize($) {
 }
 
 function crawlProductCategoryPagingInfomation(log, productCategories) {
-  log.info('Crawling pages for category: ' + productCategory);
-
   return productCategories.map(function (productCategory) {
     return new Promise(function (resolve, reject) {
       var crawler = new _crawler2.default({
