@@ -78,8 +78,11 @@ var extractProducts = function extractProducts($) {
   return products;
 };
 
-function getProducts(productCategory, pageSize) {
+function getProducts(log, productCategory, pageSize) {
+  log.info('Going to fetch product for category:' + productCategory + 'containing ' + pageSize + ' pages.');
+
   var pageNumbers = [].concat(_toConsumableArray(Array(pageSize).keys()));
+
   return pageNumbers.map(function (pageNumber) {
     return new Promise(function (resolve, reject) {
       var c = new _crawler2.default({
@@ -118,7 +121,7 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', function (request, status)
 
   Promise.all(productCategoriesPromises).then(function (results) {
     var allProductPromises = _immutable2.default.fromJS(results).map(function (result) {
-      return getProducts(result.get('productCategory'), result.get('pageSize'));
+      return getProducts(log, result.get('productCategory'), result.get('pageSize'));
     }).flatMap(function (_) {
       return _;
     });

@@ -68,10 +68,13 @@ const extractProducts = ($) => {
   return products;
 };
 
-function getProducts(productCategory, pageSize) {
+function getProducts(log, productCategory, pageSize) {
+  log.info(`Going to fetch product for category:${productCategory}containing ${pageSize} pages.`);
+
   const pageNumbers = [...Array(pageSize)
     .keys(),
   ];
+
   return pageNumbers.map(pageNumber => new Promise((resolve, reject) => {
     const c = new Crawler({
       maxConnections: 10,
@@ -109,7 +112,7 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', (request, status) => {
   Promise.all(productCategoriesPromises)
     .then((results) => {
       const allProductPromises = Immutable.fromJS(results)
-        .map(result => getProducts(result.get('productCategory'), result.get('pageSize')))
+        .map(result => getProducts(log, result.get('productCategory'), result.get('pageSize')))
         .flatMap(_ => _);
 
       Promise.all(allProductPromises)
