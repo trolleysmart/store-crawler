@@ -69,7 +69,7 @@ const extractProducts = ($) => {
 };
 
 function getProducts(log, productCategory, pageSize) {
-  log.info(`Going to fetch product for category:${productCategory}containing ${pageSize} pages.`);
+  log.info(`Going to fetch product for category:${productCategory} contains ${pageSize} pages.`);
 
   const pageNumbers = [...Array(pageSize)
     .keys(),
