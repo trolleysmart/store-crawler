@@ -4,26 +4,32 @@ import MasterProductList from '../parse-server/schema/MasterProductList';
 
 const defaultUrl = 'https://shop.countdown.co.nz/Shop/Browse/';
 
-const crawlProductCategoryPagingInfomation = (productCategories) => {
-  const getCategoryPageSize = ($) => {
-    const r = $('.paging-container .paging .page-number')
-      .last();
+function getCategoryPageSize($) {
+  const r = $('.paging-container .paging .page-number')
+    .last();
 
-    return parseInt(r.text(), 10);
-  };
+  return parseInt(r.text(), 10);
+}
+
+function crawlProductCategoryPagingInfomation(log, productCategories) {
+  log.info(`Crawling pages for category: ${productCategory}`);
 
   return productCategories.map(productCategory =>
     new Promise((resolve, reject) => {
       const crawler = new Crawler({
         maxConnections: 10,
         callback: (error, res, done) => {
+          log.info(`Response while crawling category: ${productCategory} - ${res}`);
+
           if (error) {
+            done();
             reject(error);
 
             return;
           }
 
           const pageSize = getCategoryPageSize(res.$);
+
           done();
           resolve({
             productCategory,
@@ -34,15 +40,16 @@ const crawlProductCategoryPagingInfomation = (productCategories) => {
 
       crawler.queue(defaultUrl + productCategory);
     }));
-};
+}
 
-const getBarcodeFromImagePath = (imgPath) => {
+function getBarcodeFromImagePath(imgPath) {
   const str = imgPath.substr(imgPath.indexOf('big/') + 4);
   const barcode = str.substr(0, str.indexOf('.jpg'));
-  return barcode;
-};
 
-const extractProducts = ($) => {
+  return barcode;
+}
+
+function extractProducts(log, $) {
   // $ is Cheerio by default
   const products = [];
   $('#product-list')
@@ -66,7 +73,7 @@ const extractProducts = ($) => {
     });
 
   return products;
-};
+}
 
 function getProducts(log, productCategory, pageSize) {
   log.info(`Going to fetch product for category:${productCategory} contains ${pageSize} pages.`);
@@ -80,13 +87,15 @@ function getProducts(log, productCategory, pageSize) {
       maxConnections: 10,
       // This will be called for each crawled page
       callback(error, res, done) {
+        log.info(`Response while crawling product for category: ${productCategory} - page number: ${pageNumber} - ${res}`);
+
         if (error) {
           done();
           reject(error);
           return;
         }
 
-        const products = extractProducts(res.$);
+        const products = extractProducts(log, res.$);
 
         done();
         resolve({
@@ -107,7 +116,7 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', (request, status) => {
   status.message('The job has started.');
 
   const productCategories = ['bakery', 'easter', 'baby-care', 'baking-cooking'];
-  const productCategoriesPromises = crawlProductCategoryPagingInfomation(productCategories);
+  const productCategoriesPromises = crawlProductCategoryPagingInfomation(log, productCategories);
 
   Promise.all(productCategoriesPromises)
     .then((results) => {

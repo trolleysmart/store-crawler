@@ -18,25 +18,31 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var defaultUrl = 'https://shop.countdown.co.nz/Shop/Browse/';
 
-var crawlProductCategoryPagingInfomation = function crawlProductCategoryPagingInfomation(productCategories) {
-  var getCategoryPageSize = function getCategoryPageSize($) {
-    var r = $('.paging-container .paging .page-number').last();
+function getCategoryPageSize($) {
+  var r = $('.paging-container .paging .page-number').last();
 
-    return parseInt(r.text(), 10);
-  };
+  return parseInt(r.text(), 10);
+}
+
+function crawlProductCategoryPagingInfomation(log, productCategories) {
+  log.info('Crawling pages for category: ' + productCategory);
 
   return productCategories.map(function (productCategory) {
     return new Promise(function (resolve, reject) {
       var crawler = new _crawler2.default({
         maxConnections: 10,
         callback: function callback(error, res, done) {
+          log.info('Response while crawling category: ' + productCategory + ' - ' + res);
+
           if (error) {
+            done();
             reject(error);
 
             return;
           }
 
           var pageSize = getCategoryPageSize(res.$);
+
           done();
           resolve({
             productCategory: productCategory,
@@ -48,15 +54,16 @@ var crawlProductCategoryPagingInfomation = function crawlProductCategoryPagingIn
       crawler.queue(defaultUrl + productCategory);
     });
   });
-};
+}
 
-var getBarcodeFromImagePath = function getBarcodeFromImagePath(imgPath) {
+function getBarcodeFromImagePath(imgPath) {
   var str = imgPath.substr(imgPath.indexOf('big/') + 4);
   var barcode = str.substr(0, str.indexOf('.jpg'));
-  return barcode;
-};
 
-var extractProducts = function extractProducts($) {
+  return barcode;
+}
+
+function extractProducts(log, $) {
   // $ is Cheerio by default
   var products = [];
   $('#product-list').filter(function () {
@@ -76,7 +83,7 @@ var extractProducts = function extractProducts($) {
   });
 
   return products;
-};
+}
 
 function getProducts(log, productCategory, pageSize) {
   log.info('Going to fetch product for category:' + productCategory + ' contains ' + pageSize + ' pages.');
@@ -89,13 +96,15 @@ function getProducts(log, productCategory, pageSize) {
         maxConnections: 10,
         // This will be called for each crawled page
         callback: function callback(error, res, done) {
+          log.info('Response while crawling product for category: ' + productCategory + ' - page number: ' + pageNumber + ' - ' + res);
+
           if (error) {
             done();
             reject(error);
             return;
           }
 
-          var products = extractProducts(res.$);
+          var products = extractProducts(log, res.$);
 
           done();
           resolve({
@@ -117,7 +126,7 @@ Parse.Cloud.job('Countdown-Sync-Master-Product-List', function (request, status)
   status.message('The job has started.');
 
   var productCategories = ['bakery', 'easter', 'baby-care', 'baking-cooking'];
-  var productCategoriesPromises = crawlProductCategoryPagingInfomation(productCategories);
+  var productCategoriesPromises = crawlProductCategoryPagingInfomation(log, productCategories);
 
   Promise.all(productCategoriesPromises).then(function (results) {
     var allProductPromises = _immutable2.default.fromJS(results).map(function (result) {
