@@ -6,34 +6,30 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _monet = require('monet');
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var MasterProductList = function (_Parse$Object) {
-  _inherits(MasterProductList, _Parse$Object);
+var StoreCrawlerConfiguration = function (_Parse$Object) {
+  _inherits(StoreCrawlerConfiguration, _Parse$Object);
 
-  function MasterProductList(object) {
-    _classCallCheck(this, MasterProductList);
+  function StoreCrawlerConfiguration(object) {
+    _classCallCheck(this, StoreCrawlerConfiguration);
 
-    var _this = _possibleConstructorReturn(this, (MasterProductList.__proto__ || Object.getPrototypeOf(MasterProductList)).call(this, 'MasterProductList'));
+    var _this = _possibleConstructorReturn(this, (StoreCrawlerConfiguration.__proto__ || Object.getPrototypeOf(StoreCrawlerConfiguration)).call(this, 'StoreCrawlerConfiguration'));
 
     _this.object = object;
 
     _this.getObject = _this.getObject.bind(_this);
     _this.getId = _this.getId.bind(_this);
     _this.getName = _this.getName.bind(_this);
-    _this.getBarcode = _this.getBarcode.bind(_this);
-    _this.getImageUrl = _this.getImageUrl.bind(_this);
-    _this.getCategory = _this.getCategory.bind(_this);
+    _this.getConfigParameters = _this.getConfigParameters.bind(_this);
     return _this;
   }
 
-  _createClass(MasterProductList, [{
+  _createClass(StoreCrawlerConfiguration, [{
     key: 'getObject',
     value: function getObject() {
       return this.object || this;
@@ -46,38 +42,26 @@ var MasterProductList = function (_Parse$Object) {
   }, {
     key: 'getName',
     value: function getName() {
-      return _monet.Maybe.fromNull(this.getObject().get('name'));
+      return this.getObject().get('name');
     }
   }, {
-    key: 'getBarcode',
-    value: function getBarcode() {
-      return _monet.Maybe.fromNull(this.getObject().get('barcode'));
-    }
-  }, {
-    key: 'getImageUrl',
-    value: function getImageUrl() {
-      return _monet.Maybe.fromNull(this.getObject().get('imageUrl'));
-    }
-  }, {
-    key: 'getCategory',
-    value: function getCategory() {
-      return _monet.Maybe.fromNull(this.getObject().get('category'));
+    key: 'getConfigParameters',
+    value: function getConfigParameters() {
+      return this.getObject().get('configParameters');
     }
   }], [{
     key: 'spawn',
-    value: function spawn(name, barcode, imageUrl, category) {
-      var object = new MasterProductList();
+    value: function spawn(name, configParameters) {
+      var object = new StoreCrawlerConfiguration();
 
       object.set('name', name);
-      object.set('barcode', barcode);
-      object.set('imageUrl', imageUrl);
-      object.set('category', category);
+      object.set('configParameters', configParameters);
 
       return object;
     }
   }]);
 
-  return MasterProductList;
+  return StoreCrawlerConfiguration;
 }(Parse.Object);
 
-exports.default = MasterProductList;
+exports.default = StoreCrawlerConfiguration;
