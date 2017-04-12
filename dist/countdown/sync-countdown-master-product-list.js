@@ -229,7 +229,7 @@ Parse.Cloud.job('Sync-Countdown-Master-Product-List', function (request, status)
     return saveProducts(productsToAdd);
   }).then(function () {
     log.info('Job completed successfully.');
-    status.error('Job completed successfully.');
+    status.success('Job completed successfully.');
   }).catch(function (error) {
     log.error(error);
     status.error('Job completed in error.');
