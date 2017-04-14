@@ -1,1 +1,1 @@
-import Countdown from './countdown';
+import './countdown';

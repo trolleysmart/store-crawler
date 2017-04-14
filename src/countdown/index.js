@@ -1,1 +1,2 @@
-import SyncCountdownMasterProductList from './sync-countdown-master-product-list';
+import './crawl-countdown-products';
+import './sync-countdown-master-product-list';
