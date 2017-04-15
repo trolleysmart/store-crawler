@@ -16,9 +16,8 @@ describe('getProductCategoriesPagingInfo', function () {
       maxConnections: 1,
       productCategories: ['bakery']
     };
-    var service = new _countdownWebCrawlerService2.default(config);
 
-    return service.getProductCategoriesPagingInfo().then(function (productsCategoriesPagingInfo) {
+    return _countdownWebCrawlerService2.default.getProductCategoriesPagingInfo(config).then(function (productsCategoriesPagingInfo) {
       expect(productsCategoriesPagingInfo).toBeDefined();
 
       var bakeryPagingInfo = productsCategoriesPagingInfo.find(function (_) {
@@ -36,9 +35,7 @@ describe('getProductCategoriesPagingInfo', function () {
       maxConnections: 1,
       productCategories: ['bakery/desserts-pies']
     };
-    var service = new _countdownWebCrawlerService2.default(config);
-
-    return service.getProductCategoriesPagingInfo().then(function (productsCategoriesPagingInfo) {
+    return _countdownWebCrawlerService2.default.getProductCategoriesPagingInfo(config).then(function (productsCategoriesPagingInfo) {
       expect(productsCategoriesPagingInfo).toBeDefined();
 
       var bakeryPagingInfo = productsCategoriesPagingInfo.find(function (_) {

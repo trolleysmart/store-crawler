@@ -24,8 +24,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var CountdownWebCrawlerService = function () {
   _createClass(CountdownWebCrawlerService, null, [{
-    key: 'getProductCategoriesPagingInfoUsingProvidedConfig',
-    value: function getProductCategoriesPagingInfoUsingProvidedConfig(config) {
+    key: 'getProductCategoriesPagingInfo',
+    value: function getProductCategoriesPagingInfo(config) {
       return new Promise(function (resolve, reject) {
         var productsCategoriesPagingInfo = (0, _immutable.List)();
 
@@ -61,6 +61,31 @@ var CountdownWebCrawlerService = function () {
       });
     }
   }, {
+    key: 'getProductDetails',
+    value: function getProductDetails(config, $) {
+      var products = (0, _immutable.List)();
+
+      $('#product-list').filter(function filterProductListCallback() {
+        // eslint-disable-line array-callback-return
+        var data = $(this);
+
+        data.find('.product-stamp .details-container').each(function onNewProductExtracted() {
+          var product = $(this);
+          var imageUrl = config.baseImageUrl + product.find('.product-stamp-thumbnail img').attr('src');
+          var barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
+          var description = product.find('.description').text();
+
+          products = products.push((0, _immutable.Map)({
+            description: description,
+            barcode: barcode,
+            imageUrl: imageUrl
+          }));
+        });
+      });
+
+      return products;
+    }
+  }, {
     key: 'getBarcodeFromImageUrl',
     value: function getBarcodeFromImageUrl(imageUrl) {
       var str = imageUrl.substr(imageUrl.indexOf('big/') + 4);
@@ -68,53 +93,13 @@ var CountdownWebCrawlerService = function () {
 
       return barcode;
     }
-  }]);
-
-  function CountdownWebCrawlerService(config) {
-    _classCallCheck(this, CountdownWebCrawlerService);
-
-    this.config = config;
-
-    this.crawl = this.crawl.bind(this);
-    this.getProductCategoriesPagingInfo = this.getProductCategoriesPagingInfo.bind(this);
-    this.saveDetails = this.saveDetails.bind(this);
-    this.getProductDetails = this.getProductDetails.bind(this);
-  }
-
-  _createClass(CountdownWebCrawlerService, [{
-    key: 'crawl',
-    value: function crawl() {
-      var _this = this;
-
-      return new Promise(function (resolve, reject) {
-        var sessionId = void 0;
-        return Promise.all([_smartGroceryParseServerCommon2.default.CrawlService.createNewCrawlSession('Countdown', new Date()), _this.getProductCategoriesPagingInfo()]).then(function (results) {
-          sessionId = results[0];
-
-          return _this.saveDetails(sessionId, results[1]);
-        }).then(function () {
-          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSessionEndDateTime(sessionId, new Date());
-          resolve();
-        }).catch(function (error) {
-          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSessionEndDateTime(sessionId, new Date());
-          reject(error);
-        });
-      });
-    }
-  }, {
-    key: 'getProductCategoriesPagingInfo',
-    value: function getProductCategoriesPagingInfo() {
-      return this.config ? CountdownWebCrawlerService.getProductCategoriesPagingInfoUsingProvidedConfig(this.config) : _smartGroceryParseServerCommon2.default.CrawlService.getStoreCrawlerConfig('Countdown').then(CountdownWebCrawlerService.getProductCategoriesPagingInfoUsingProvidedConfig);
-    }
   }, {
     key: 'saveDetails',
-    value: function saveDetails(sessionId, productsCategoriesPagingInfo) {
-      var _this2 = this;
-
+    value: function saveDetails(sessionId, config, productsCategoriesPagingInfo) {
       return new Promise(function (resolve, reject) {
         var crawler = new _crawler2.default({
-          rateLimit: _this2.config.rateLimit,
-          maxConnections: _this2.config.maxConnections,
+          rateLimit: config.rateLimit,
+          maxConnections: config.maxConnections,
           callback: function callback(error, res, done) {
             if (error) {
               done();
@@ -123,12 +108,12 @@ var CountdownWebCrawlerService = function () {
               return;
             }
 
-            var productCategoryAndPage = res.request.uri.href.replace(_this2.config.baseUrl, '');
+            var productCategoryAndPage = res.request.uri.href.replace(config.baseUrl, '');
             var productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
 
             _smartGroceryParseServerCommon2.default.CountdownCrawlService.addResultSet(sessionId, {
               productCategory: productCategory,
-              products: _this2.getProductDetails(res.$).toJS()
+              products: CountdownWebCrawlerService.getProductDetails(config, res.$).toJS()
             }).then(function () {
               return done();
             }).catch(function (err) {
@@ -144,36 +129,54 @@ var CountdownWebCrawlerService = function () {
 
         productsCategoriesPagingInfo.forEach(function (productCategoryInfo) {
           return [].concat(_toConsumableArray(Array(productCategoryInfo.get('totalPageNumber')).keys())).forEach(function (pageNumber) {
-            return crawler.queue(_this2.config.baseUrl + productCategoryInfo.get('productCategory') + '?page=' + (pageNumber + 1));
+            return crawler.queue(config.baseUrl + productCategoryInfo.get('productCategory') + '?page=' + (pageNumber + 1));
           });
         });
       });
     }
-  }, {
-    key: 'getProductDetails',
-    value: function getProductDetails($) {
-      var self = this;
-      var products = (0, _immutable.List)();
+  }]);
 
-      $('#product-list').filter(function filterProductListCallback() {
-        // eslint-disable-line array-callback-return
-        var data = $(this);
+  function CountdownWebCrawlerService(config) {
+    _classCallCheck(this, CountdownWebCrawlerService);
 
-        data.find('.product-stamp .details-container').each(function onNewProductExtracted() {
-          var product = $(this);
-          var imageUrl = self.config.baseImageUrl + product.find('.product-stamp-thumbnail img').attr('src');
-          var barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
-          var description = product.find('.description').text();
+    this.config = config;
 
-          products = products.push((0, _immutable.Map)({
-            description: description,
-            barcode: barcode,
-            imageUrl: imageUrl
-          }));
+    this.crawl = this.crawl.bind(this);
+  }
+
+  _createClass(CountdownWebCrawlerService, [{
+    key: 'crawl',
+    value: function crawl() {
+      var _this = this;
+
+      return new Promise(function (resolve, reject) {
+        var promises = [_smartGroceryParseServerCommon2.default.CrawlService.createNewCrawlSession('Countdown', new Date())];
+
+        if (!_this.config) {
+          promises = [].concat(_toConsumableArray(promises), [_smartGroceryParseServerCommon2.default.CrawlService.getStoreCrawlerConfig('Countdown')]);
+        }
+
+        var sessionId = void 0;
+        var config = _this.config;
+
+        return Promise.all(promises).then(function (results) {
+          sessionId = results[0];
+
+          if (!config) {
+            config = results[1];
+          }
+
+          return CountdownWebCrawlerService.getProductCategoriesPagingInfo(config);
+        }).then(function (productsCategoriesPagingInfo) {
+          return CountdownWebCrawlerService.saveDetails(sessionId, config, productsCategoriesPagingInfo);
+        }).then(function () {
+          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSessionEndDateTime(sessionId, new Date());
+          resolve();
+        }).catch(function (error) {
+          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSessionEndDateTime(sessionId, new Date());
+          reject(error);
         });
       });
-
-      return products;
     }
   }]);
 
