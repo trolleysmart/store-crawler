@@ -12,7 +12,17 @@ Parse.Cloud.job('Crawl Countdown Products', function (request, status) {
 
   status.message('The job has started.');
 
-  var service = new _countdownWebCrawlerService2.default();
+  var service = new _countdownWebCrawlerService2.default({
+    logVerbose: function logVerbose(message) {
+      return log.info(message);
+    },
+    logInfo: function logInfo(message) {
+      return log.info(message);
+    },
+    logError: function logError(message) {
+      return log.error(message);
+    }
+  });
 
   service.crawl().then(function () {
     log.info('Job completed successfully.');

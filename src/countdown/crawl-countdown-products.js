@@ -5,7 +5,11 @@ Parse.Cloud.job('Crawl Countdown Products', (request, status) => { // eslint-dis
 
   status.message('The job has started.');
 
-  const service = new CountdownWebCrawlerService();
+  const service = new CountdownWebCrawlerService({
+    logVerbose: message => log.info(message),
+    logInfo: message => log.info(message),
+    logError: message => log.error(message),
+  });
 
   service.crawl()
     .then(() => {
