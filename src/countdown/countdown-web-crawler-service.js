@@ -20,12 +20,37 @@ class CountdownWebCrawlerService {
               .attr('src');
             const barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
             const description = product.find('.description')
-              .text();
+              .text()
+              .trim();
+
+            const productTagSource = product.find('.product-tag-desktop img')
+              .attr('src');
+
+            const special = productTagSource ? productTagSource
+              .toLowerCase()
+              .includes('badge-special') : undefined;
+            const lowPrice = productTagSource ? productTagSource
+              .toLowerCase()
+              .includes('low_price') : undefined;
+            const multipleBuyTextLink = product.find('.product-tag-desktop .visible-phone .multi-buy-text-link');
+            const multiBuyText = multipleBuyTextLink ? multipleBuyTextLink.attr('title') : undefined;
+
+            const price = product.find('.price')
+              .text()
+              .trim();
+            const wasPrice = product.find('.was-price')
+              .text()
+              .trim();
 
             products = products.push(Map({
               description,
-              barcode,
-              imageUrl,
+              barcode: barcode.length > 0 ? barcode : undefined,
+              imageUrl: imageUrl.length > 0 ? imageUrl : undefined,
+              special: special ? true : undefined,
+              lowPrice: lowPrice ? true : undefined,
+              multiBuyText,
+              price: price.length > 0 ? price : undefined,
+              wasPrice: wasPrice.length > 0 ? wasPrice : undefined,
             }));
           });
       });

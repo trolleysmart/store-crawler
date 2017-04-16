@@ -53,7 +53,7 @@ describe('crawl', function () {
       "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
       rateLimit: 2000,
       maxConnections: 1,
-      logLevel: 3,
+      logLevel: 1,
       productCategories: ['bakery/desserts-pies']
     };
     return new _countdownWebCrawlerService2.default({

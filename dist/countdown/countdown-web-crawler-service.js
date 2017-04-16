@@ -36,12 +36,27 @@ var CountdownWebCrawlerService = function () {
           var product = $(this);
           var imageUrl = config.baseImageUrl + product.find('.product-stamp-thumbnail img').attr('src');
           var barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
-          var description = product.find('.description').text();
+          var description = product.find('.description').text().trim();
+
+          var productTagSource = product.find('.product-tag-desktop img').attr('src');
+
+          var special = productTagSource ? productTagSource.toLowerCase().includes('badge-special') : undefined;
+          var lowPrice = productTagSource ? productTagSource.toLowerCase().includes('low_price') : undefined;
+          var multipleBuyTextLink = product.find('.product-tag-desktop .visible-phone .multi-buy-text-link');
+          var multiBuyText = multipleBuyTextLink ? multipleBuyTextLink.attr('title') : undefined;
+
+          var price = product.find('.price').text().trim();
+          var wasPrice = product.find('.was-price').text().trim();
 
           products = products.push((0, _immutable.Map)({
             description: description,
-            barcode: barcode,
-            imageUrl: imageUrl
+            barcode: barcode.length > 0 ? barcode : undefined,
+            imageUrl: imageUrl.length > 0 ? imageUrl : undefined,
+            special: special ? true : undefined,
+            lowPrice: lowPrice ? true : undefined,
+            multiBuyText: multiBuyText,
+            price: price.length > 0 ? price : undefined,
+            wasPrice: wasPrice.length > 0 ? wasPrice : undefined
           }));
         });
       });
