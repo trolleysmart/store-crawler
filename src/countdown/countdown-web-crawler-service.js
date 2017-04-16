@@ -78,49 +78,49 @@ class CountdownWebCrawlerService {
             config = results[1];
           }
 
-          this.logInfo(config, 'Start fetching product categories paging info...');
+          this.logInfo(config, () => 'Start fetching product categories paging info...');
 
           return this.getProductCategoriesPagingInfo(config);
         })
         .then((productsCategoriesPagingInfo) => {
-          this.logInfo(config, 'Finished fetching product categories paging info.');
-          this.logVerbose(config, `Fetched product categories paging info: ${productsCategoriesPagingInfo}`);
+          this.logInfo(config, () => 'Finished fetching product categories paging info.');
+          this.logVerbose(config, () => `Fetched product categories paging info: ${productsCategoriesPagingInfo}`);
 
-          this.logInfo(config, 'Start crawling products and save the details...');
+          this.logInfo(config, () => 'Start crawling products and save the details...');
 
           return this.crawlProductsAndSaveDetails(sessionId, config,
             productsCategoriesPagingInfo);
         })
         .then(() => {
-          this.logInfo(config, 'Crawling product successfully completed. Updating crawl session info...');
+          this.logInfo(config, () => 'Crawling product successfully completed. Updating crawl session info...');
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
           })
             .then(() => {
-              this.logInfo(config, 'Updating crawl session info successfully completed.');
+              this.logInfo(config, () => 'Updating crawl session info successfully completed.');
 
               resolve();
             })
             .catch((error) => {
-              this.logError(config, `Updating crawl session info ended in error. Error: ${error}`);
+              this.logError(config, () => `Updating crawl session info ended in error. Error: ${error}`);
 
               reject(error);
             });
         })
         .catch((error) => {
-          this.logInfo(config, 'Crawling product ended in error. Updating crawl session info...');
+          this.logInfo(config, () => 'Crawling product ended in error. Updating crawl session info...');
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
             error,
           })
             .then(() => {
-              this.logInfo(config, 'Updating crawl session info successfully completed.');
+              this.logInfo(config, () => 'Updating crawl session info successfully completed.');
 
               reject(error);
             })
             .catch((err) => {
-              this.logError(config, `Updating crawl session info ended in error. Error: ${err}`);
+              this.logError(config, () => `Updating crawl session info ended in error. Error: ${err}`);
 
               reject(`${error} - ${err}`);
             });
@@ -136,8 +136,8 @@ class CountdownWebCrawlerService {
         rateLimit: config.rateLimit,
         maxConnections: config.maxConnections,
         callback: (error, res, done) => {
-          this.logInfo(config, `Received response for: ${res.request.uri.href}`);
-          this.logVerbose(config, `Received response for: ${res}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -172,8 +172,8 @@ class CountdownWebCrawlerService {
         rateLimit: config.rateLimit,
         maxConnections: config.maxConnections,
         callback: (error, res, done) => {
-          this.logInfo(config, `Received response for: ${res.request.uri.href}`);
-          this.logVerbose(config, `Received response for: ${res}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -187,18 +187,19 @@ class CountdownWebCrawlerService {
           const products = CountdownWebCrawlerService.getProductDetails(config, res.$)
             .toJS();
 
-          this.logVerbose(config, `Received products for: ${res} - ${productCategory} - ${products}`);
+          this.logVerbose(config, () =>
+            `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products)}`);
           Common.CountdownCrawlService.addResultSet(sessionId, {
             productCategory,
             products,
           })
             .then(() => {
-              this.logInfo(config, `Successfully added products for: ${productCategory}.`);
+              this.logInfo(config, () => `Successfully added products for: ${productCategory}.`);
 
               done();
             })
             .catch((err) => {
-              this.logError(config, `Failed to save products for: ${productCategory}. Error: ${error}`);
+              this.logError(config, () => `Failed to save products for: ${productCategory}. Error: ${error}`);
 
               done();
               reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${err}`);
@@ -216,21 +217,21 @@ class CountdownWebCrawlerService {
     });
   }
 
-  logVerbose(config, message) {
-    if (this.logVerboseFunc && config.logLevel >= 3) {
-      this.logVerboseFunc(message);
+  logVerbose(config, messageFunc) {
+    if (this.logVerboseFunc && config.logLevel >= 3 && messageFunc) {
+      this.logVerboseFunc(messageFunc());
     }
   }
 
-  logInfo(config, message) {
-    if (this.logInfoFunc && config.logLevel >= 2) {
-      this.logInfoFunc(message);
+  logInfo(config, messageFunc) {
+    if (this.logInfoFunc && config.logLevel >= 2 && messageFunc) {
+      this.logInfoFunc(messageFunc());
     }
   }
 
-  logError(config, message) {
-    if (this.logErrorFunc && config.logLevel >= 1) {
-      this.logErrorFunc(message);
+  logError(config, messageFunc) {
+    if (this.logErrorFunc && config.logLevel >= 1 && messageFunc) {
+      this.logErrorFunc(messageFunc());
     }
   }
 }
