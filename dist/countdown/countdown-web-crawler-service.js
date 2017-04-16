@@ -24,43 +24,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var CountdownWebCrawlerService = function () {
   _createClass(CountdownWebCrawlerService, null, [{
-    key: 'getProductCategoriesPagingInfo',
-    value: function getProductCategoriesPagingInfo(config) {
-      return new Promise(function (resolve, reject) {
-        var productsCategoriesPagingInfo = (0, _immutable.List)();
-
-        var crawler = new _crawler2.default({
-          rateLimit: config.rateLimit,
-          maxConnections: config.maxConnections,
-          callback: function callback(error, res, done) {
-            if (error) {
-              done();
-              reject('Failed to receive page information for Url: ' + res.request.uri.href + ' - Error: ' + error);
-
-              return;
-            }
-
-            var totalPageNumber = parseInt(res.$('.paging-container .paging .page-number').last().text(), 10);
-
-            productsCategoriesPagingInfo = productsCategoriesPagingInfo.push((0, _immutable.Map)({
-              productCategory: res.request.uri.href.replace(config.baseUrl, ''),
-              totalPageNumber: totalPageNumber || 1
-            }));
-
-            done();
-          }
-        });
-
-        crawler.on('drain', function () {
-          return resolve(productsCategoriesPagingInfo);
-        });
-
-        config.productCategories.forEach(function (productCategory) {
-          return crawler.queue(config.baseUrl + productCategory);
-        });
-      });
-    }
-  }, {
     key: 'getProductDetails',
     value: function getProductDetails(config, $) {
       var products = (0, _immutable.List)();
@@ -136,12 +99,23 @@ var CountdownWebCrawlerService = function () {
     }
   }]);
 
-  function CountdownWebCrawlerService(config) {
+  function CountdownWebCrawlerService(_ref) {
+    var config = _ref.config,
+        logVerboseFunc = _ref.logVerboseFunc,
+        logInfoFunc = _ref.logInfoFunc,
+        logErrorFunc = _ref.logErrorFunc;
+
     _classCallCheck(this, CountdownWebCrawlerService);
 
     this.config = config;
+    this.logVerboseFunc = logVerboseFunc;
+    this.logInfoFunc = logInfoFunc;
+    this.logErrorFunc = logErrorFunc;
 
     this.crawl = this.crawl.bind(this);
+    this.logVerbose = this.logVerbose.bind(this);
+    this.logInfo = this.logInfo.bind(this);
+    this.logError = this.logError.bind(this);
   }
 
   _createClass(CountdownWebCrawlerService, [{
@@ -166,22 +140,109 @@ var CountdownWebCrawlerService = function () {
             config = results[1];
           }
 
-          return CountdownWebCrawlerService.getProductCategoriesPagingInfo(config);
+          _this.logInfo(config, 'Start fetching product categories paging info...');
+
+          return _this.getProductCategoriesPagingInfo(config);
         }).then(function (productsCategoriesPagingInfo) {
+          _this.logInfo(config, 'Finished fetching product categories paging info.');
+          _this.logVerbose(config, 'Fetched product categories paging info: ' + productsCategoriesPagingInfo);
+
+          _this.logInfo(config, 'Start crawling products and save the details...');
+
           return CountdownWebCrawlerService.crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo);
         }).then(function () {
+          _this.logInfo(config, 'Crawling product successfully completed. Updating crawl session info...');
+
           _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success'
+          }).then(function () {
+            _this.logInfo(config, 'Updating crawl session info successfully completed.');
+
+            resolve();
+          }).catch(function (error) {
+            _this.logError(config, 'Updating crawl session info ended in error. Error: ' + error);
+
+            reject(error);
           });
-          resolve();
         }).catch(function (error) {
+          _this.logInfo(config, 'Crawling product ended in error. Updating crawl session info...');
           _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
             error: error
+          }).then(function () {
+            _this.logInfo(config, 'Updating crawl session info successfully completed.');
+
+            reject(error);
+          }).catch(function (err) {
+            _this.logError(config, 'Updating crawl session info ended in error. Error: ' + err);
+
+            reject(error + ' - ' + err);
           });
-          reject(error);
         });
       });
+    }
+  }, {
+    key: 'getProductCategoriesPagingInfo',
+    value: function getProductCategoriesPagingInfo(config) {
+      var _this2 = this;
+
+      return new Promise(function (resolve, reject) {
+        var productsCategoriesPagingInfo = (0, _immutable.List)();
+
+        var crawler = new _crawler2.default({
+          rateLimit: config.rateLimit,
+          maxConnections: config.maxConnections,
+          callback: function callback(error, res, done) {
+            _this2.logInfo('Received response for: ' + res.request.uri.href);
+            _this2.logVerbose('Received response for: ' + res);
+
+            if (error) {
+              done();
+              reject('Failed to receive page information for Url: ' + res.request.uri.href + ' - Error: ' + error);
+
+              return;
+            }
+
+            var totalPageNumber = parseInt(res.$('.paging-container .paging .page-number').last().text(), 10);
+
+            productsCategoriesPagingInfo = productsCategoriesPagingInfo.push((0, _immutable.Map)({
+              productCategory: res.request.uri.href.replace(config.baseUrl, ''),
+              totalPageNumber: totalPageNumber || 1
+            }));
+
+            done();
+          }
+        });
+
+        crawler.on('drain', function () {
+          return resolve(productsCategoriesPagingInfo);
+        });
+
+        config.productCategories.forEach(function (productCategory) {
+          return crawler.queue(config.baseUrl + productCategory);
+        });
+      });
+    }
+  }, {
+    key: 'logVerbose',
+    value: function logVerbose(config, message) {
+      if (this.logVerboseFunc && config.logLevel >= 3) {
+        this.logVerboseFunc(message);
+      }
+    }
+  }, {
+    key: 'logInfo',
+    value: function logInfo(config, message) {
+      if (this.logInfoFunc && config.logLevel >= 2) {
+        this.logInfoFunc(message);
+      }
+    }
+  }, {
+    key: 'logError',
+    value: function logError(config, message) {
+      if (this.logErrorFunc && config.logLevel >= 1) {
+        this.logErrorFunc(message);
+      }
     }
   }]);
 

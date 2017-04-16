@@ -10,7 +10,8 @@ describe('getProductCategoriesPagingInfo', () => {
       productCategories: ['bakery'],
     };
 
-    return CountdownWebCrawlerService.getProductCategoriesPagingInfo(config)
+    return new CountdownWebCrawlerService({})
+      .getProductCategoriesPagingInfo(config)
       .then((productsCategoriesPagingInfo) => {
         expect(productsCategoriesPagingInfo)
           .toBeDefined();
@@ -32,7 +33,8 @@ describe('getProductCategoriesPagingInfo', () => {
       maxConnections: 1,
       productCategories: ['bakery/desserts-pies'],
     };
-    return CountdownWebCrawlerService.getProductCategoriesPagingInfo(config)
+    return new CountdownWebCrawlerService({})
+      .getProductCategoriesPagingInfo(config)
       .then((productsCategoriesPagingInfo) => {
         expect(productsCategoriesPagingInfo)
           .toBeDefined();
@@ -56,8 +58,9 @@ describe('crawl', () => {
       maxConnections: 1,
       productCategories: ['bakery/desserts-pies'],
     };
-    const service = new CountdownWebCrawlerService(config);
-
-    return service.crawl();
+    return new CountdownWebCrawlerService({
+        config,
+      })
+      .crawl();
   });
 });
