@@ -136,8 +136,8 @@ class CountdownWebCrawlerService {
         rateLimit: config.rateLimit,
         maxConnections: config.maxConnections,
         callback: (error, res, done) => {
-          this.logInfo(`Received response for: ${res.request.uri.href}`);
-          this.logVerbose(`Received response for: ${res}`);
+          this.logInfo(config, `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, `Received response for: ${res}`);
 
           if (error) {
             done();
@@ -172,8 +172,8 @@ class CountdownWebCrawlerService {
         rateLimit: config.rateLimit,
         maxConnections: config.maxConnections,
         callback: (error, res, done) => {
-          this.logInfo(`Received response for: ${res.request.uri.href}`);
-          this.logVerbose(`Received response for: ${res}`);
+          this.logInfo(config, `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, `Received response for: ${res}`);
 
           if (error) {
             done();
@@ -187,18 +187,18 @@ class CountdownWebCrawlerService {
           const products = CountdownWebCrawlerService.getProductDetails(config, res.$)
             .toJS();
 
-          this.logVerbose(`Received products for: ${res} - ${productCategory} - ${products}`);
+          this.logVerbose(config, `Received products for: ${res} - ${productCategory} - ${products}`);
           Common.CountdownCrawlService.addResultSet(sessionId, {
             productCategory,
             products,
           })
             .then(() => {
-              this.logInfo(`Successfully added products for: ${productCategory}.`);
+              this.logInfo(config, `Successfully added products for: ${productCategory}.`);
 
               done();
             })
             .catch((err) => {
-              this.logError(`Failed to save products for: ${productCategory}. Error: ${error}`);
+              this.logError(config, `Failed to save products for: ${productCategory}. Error: ${error}`);
 
               done();
               reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${err}`);

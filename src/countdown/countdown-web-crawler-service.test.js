@@ -56,10 +56,14 @@ describe('crawl', () => {
       "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
       rateLimit: 2000,
       maxConnections: 1,
+      logLevel: 3,
       productCategories: ['bakery/desserts-pies'],
     };
     return new CountdownWebCrawlerService({
         config,
+        logVerboseFunc: message => console.log(message),
+        logInfoFunc: message => console.log(message),
+        logErrorFunc: message => console.log(message),
       })
       .crawl();
   });

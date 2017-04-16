@@ -10,16 +10,17 @@ Parse.Cloud.job('Crawl Countdown Products', function (request, status) {
   // eslint-disable-line no-undef
   var log = request.log;
 
+  log.info('The job has started.');
   status.message('The job has started.');
 
   var service = new _countdownWebCrawlerService2.default({
-    logVerbose: function logVerbose(message) {
+    logVerboseFunc: function logVerboseFunc(message) {
       return log.info(message);
     },
-    logInfo: function logInfo(message) {
+    logInfoFunc: function logInfoFunc(message) {
       return log.info(message);
     },
-    logError: function logError(message) {
+    logErrorFunc: function logErrorFunc(message) {
       return log.error(message);
     }
   });
