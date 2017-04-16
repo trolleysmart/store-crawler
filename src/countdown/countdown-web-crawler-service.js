@@ -22,19 +22,34 @@ class CountdownWebCrawlerService {
             const description = product.find('.description')
               .text()
               .trim();
-
             const productTagSource = product.find('.product-tag-desktop img')
               .attr('src');
-
             const special = productTagSource ? productTagSource
               .toLowerCase()
               .includes('badge-special') : undefined;
-            const lowPrice = productTagSource ? productTagSource
+            const lockdownPrice = productTagSource ? productTagSource
+              .toLowerCase()
+              .includes('badge-pricelockdown') : undefined;
+            const lowPriceEveryDay = productTagSource ? productTagSource
               .toLowerCase()
               .includes('low_price') : undefined;
+            const glutenFree = productTagSource ? productTagSource
+              .toLowerCase()
+              .includes('badge-gluten-free') : undefined;
+            const newItem = productTagSource ? productTagSource
+              .toLowerCase()
+              .includes('badge-new') : undefined;
+            const onecard = productTagSource ? productTagSource
+              .toLowerCase()
+              .includes('badge-onecard') : undefined;
+            const viewNutritionInfo = productTagSource ? productTagSource
+              .toLowerCase()
+              .includes('view-nutrition-info') : undefined;
+            const fairTradePromotion = productTagSource ? productTagSource
+              .toLowerCase()
+              .includes('fairtrade-promo') : undefined;
             const multipleBuyTextLink = product.find('.product-tag-desktop .visible-phone .multi-buy-text-link');
             const multiBuyText = multipleBuyTextLink ? multipleBuyTextLink.attr('title') : undefined;
-
             const price = product.find('.price')
               .text()
               .trim();
@@ -47,7 +62,13 @@ class CountdownWebCrawlerService {
               barcode: barcode.length > 0 ? barcode : undefined,
               imageUrl: imageUrl.length > 0 ? imageUrl : undefined,
               special: special ? true : undefined,
-              lowPrice: lowPrice ? true : undefined,
+              lowPriceEveryDay: lowPriceEveryDay ? true : undefined,
+              lockdownPrice: lockdownPrice ? true : undefined,
+              glutenFree: glutenFree ? true : undefined,
+              newItem: newItem ? true : undefined,
+              onecard: onecard ? true : undefined,
+              viewNutritionInfo: viewNutritionInfo ? true : undefined,
+              fairTradePromotion: fairTradePromotion ? true : undefined,
               multiBuyText,
               price: price.length > 0 ? price : undefined,
               wasPrice: wasPrice.length > 0 ? wasPrice : undefined,
