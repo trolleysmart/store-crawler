@@ -40,45 +40,6 @@ class CountdownWebCrawlerService {
     return barcode;
   }
 
-  static crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
-    return new Promise((resolve, reject) => {
-      const crawler = new Crawler({
-        rateLimit: config.rateLimit,
-        maxConnections: config.maxConnections,
-        callback: (error, res, done) => {
-          if (error) {
-            done();
-            reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${error}`);
-
-            return;
-          }
-
-          const productCategoryAndPage = res.request.uri.href.replace(config.baseUrl, '');
-          const productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
-
-          Common.CountdownCrawlService.addResultSet(sessionId, {
-            productCategory,
-            products: CountdownWebCrawlerService.getProductDetails(config, res.$)
-                .toJS(),
-          })
-            .then(() => done())
-            .catch((err) => {
-              done();
-              reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${err}`);
-            });
-        },
-      });
-
-      crawler.on('drain', () => {
-        resolve();
-      });
-
-      productsCategoriesPagingInfo.forEach(productCategoryInfo => [...Array(productCategoryInfo.get('totalPageNumber'))
-        .keys(),
-      ].forEach(pageNumber => crawler.queue(`${config.baseUrl + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
-    });
-  }
-
   constructor({
     config,
     logVerboseFunc,
@@ -91,6 +52,8 @@ class CountdownWebCrawlerService {
     this.logErrorFunc = logErrorFunc;
 
     this.crawl = this.crawl.bind(this);
+    this.getProductCategoriesPagingInfo = this.getProductCategoriesPagingInfo.bind(this);
+    this.crawlProductsAndSaveDetails = this.crawlProductsAndSaveDetails.bind(this);
     this.logVerbose = this.logVerbose.bind(this);
     this.logInfo = this.logInfo.bind(this);
     this.logError = this.logError.bind(this);
@@ -125,7 +88,7 @@ class CountdownWebCrawlerService {
 
           this.logInfo(config, 'Start crawling products and save the details...');
 
-          return CountdownWebCrawlerService.crawlProductsAndSaveDetails(sessionId, config,
+          return this.crawlProductsAndSaveDetails(sessionId, config,
             productsCategoriesPagingInfo);
         })
         .then(() => {
@@ -200,6 +163,56 @@ class CountdownWebCrawlerService {
       crawler.on('drain', () => resolve(productsCategoriesPagingInfo));
 
       config.productCategories.forEach(productCategory => crawler.queue(config.baseUrl + productCategory));
+    });
+  }
+
+  crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
+    return new Promise((resolve, reject) => {
+      const crawler = new Crawler({
+        rateLimit: config.rateLimit,
+        maxConnections: config.maxConnections,
+        callback: (error, res, done) => {
+          this.logInfo(`Received response for: ${res.request.uri.href}`);
+          this.logVerbose(`Received response for: ${res}`);
+
+          if (error) {
+            done();
+            reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${error}`);
+
+            return;
+          }
+
+          const productCategoryAndPage = res.request.uri.href.replace(config.baseUrl, '');
+          const productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
+          const products = CountdownWebCrawlerService.getProductDetails(config, res.$)
+            .toJS();
+
+          this.logVerbose(`Received products for: ${res} - ${productCategory} - ${products}`);
+          Common.CountdownCrawlService.addResultSet(sessionId, {
+            productCategory,
+            products,
+          })
+            .then(() => {
+              this.logInfo(`Successfully added products for: ${productCategory}.`);
+
+              done();
+            })
+            .catch((err) => {
+              this.logError(`Failed to save products for: ${productCategory}. Error: ${error}`);
+
+              done();
+              reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${err}`);
+            });
+        },
+      });
+
+      crawler.on('drain', () => {
+        resolve();
+      });
+
+      productsCategoriesPagingInfo.forEach(productCategoryInfo => [...Array(productCategoryInfo.get('totalPageNumber'))
+        .keys(),
+      ].forEach(pageNumber => crawler.queue(`${config.baseUrl + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
     });
   }
 

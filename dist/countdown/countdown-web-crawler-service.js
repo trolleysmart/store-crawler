@@ -56,47 +56,6 @@ var CountdownWebCrawlerService = function () {
 
       return barcode;
     }
-  }, {
-    key: 'crawlProductsAndSaveDetails',
-    value: function crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
-      return new Promise(function (resolve, reject) {
-        var crawler = new _crawler2.default({
-          rateLimit: config.rateLimit,
-          maxConnections: config.maxConnections,
-          callback: function callback(error, res, done) {
-            if (error) {
-              done();
-              reject('Failed to receive products for Url: ' + res.request.uri.href + ' - Error: ' + error);
-
-              return;
-            }
-
-            var productCategoryAndPage = res.request.uri.href.replace(config.baseUrl, '');
-            var productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
-
-            _smartGroceryParseServerCommon2.default.CountdownCrawlService.addResultSet(sessionId, {
-              productCategory: productCategory,
-              products: CountdownWebCrawlerService.getProductDetails(config, res.$).toJS()
-            }).then(function () {
-              return done();
-            }).catch(function (err) {
-              done();
-              reject('Failed to receive products for Url: ' + res.request.uri.href + ' - Error: ' + err);
-            });
-          }
-        });
-
-        crawler.on('drain', function () {
-          resolve();
-        });
-
-        productsCategoriesPagingInfo.forEach(function (productCategoryInfo) {
-          return [].concat(_toConsumableArray(Array(productCategoryInfo.get('totalPageNumber')).keys())).forEach(function (pageNumber) {
-            return crawler.queue(config.baseUrl + productCategoryInfo.get('productCategory') + '?page=' + (pageNumber + 1));
-          });
-        });
-      });
-    }
   }]);
 
   function CountdownWebCrawlerService(_ref) {
@@ -113,6 +72,8 @@ var CountdownWebCrawlerService = function () {
     this.logErrorFunc = logErrorFunc;
 
     this.crawl = this.crawl.bind(this);
+    this.getProductCategoriesPagingInfo = this.getProductCategoriesPagingInfo.bind(this);
+    this.crawlProductsAndSaveDetails = this.crawlProductsAndSaveDetails.bind(this);
     this.logVerbose = this.logVerbose.bind(this);
     this.logInfo = this.logInfo.bind(this);
     this.logError = this.logError.bind(this);
@@ -149,7 +110,7 @@ var CountdownWebCrawlerService = function () {
 
           _this.logInfo(config, 'Start crawling products and save the details...');
 
-          return CountdownWebCrawlerService.crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo);
+          return _this.crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo);
         }).then(function () {
           _this.logInfo(config, 'Crawling product successfully completed. Updating crawl session info...');
 
@@ -220,6 +181,58 @@ var CountdownWebCrawlerService = function () {
 
         config.productCategories.forEach(function (productCategory) {
           return crawler.queue(config.baseUrl + productCategory);
+        });
+      });
+    }
+  }, {
+    key: 'crawlProductsAndSaveDetails',
+    value: function crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
+      var _this3 = this;
+
+      return new Promise(function (resolve, reject) {
+        var crawler = new _crawler2.default({
+          rateLimit: config.rateLimit,
+          maxConnections: config.maxConnections,
+          callback: function callback(error, res, done) {
+            _this3.logInfo('Received response for: ' + res.request.uri.href);
+            _this3.logVerbose('Received response for: ' + res);
+
+            if (error) {
+              done();
+              reject('Failed to receive products for Url: ' + res.request.uri.href + ' - Error: ' + error);
+
+              return;
+            }
+
+            var productCategoryAndPage = res.request.uri.href.replace(config.baseUrl, '');
+            var productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
+            var products = CountdownWebCrawlerService.getProductDetails(config, res.$).toJS();
+
+            _this3.logVerbose('Received products for: ' + res + ' - ' + productCategory + ' - ' + products);
+            _smartGroceryParseServerCommon2.default.CountdownCrawlService.addResultSet(sessionId, {
+              productCategory: productCategory,
+              products: products
+            }).then(function () {
+              _this3.logInfo('Successfully added products for: ' + productCategory + '.');
+
+              done();
+            }).catch(function (err) {
+              _this3.logError('Failed to save products for: ' + productCategory + '. Error: ' + error);
+
+              done();
+              reject('Failed to receive products for Url: ' + res.request.uri.href + ' - Error: ' + err);
+            });
+          }
+        });
+
+        crawler.on('drain', function () {
+          resolve();
+        });
+
+        productsCategoriesPagingInfo.forEach(function (productCategoryInfo) {
+          return [].concat(_toConsumableArray(Array(productCategoryInfo.get('totalPageNumber')).keys())).forEach(function (pageNumber) {
+            return crawler.queue(config.baseUrl + productCategoryInfo.get('productCategory') + '?page=' + (pageNumber + 1));
+          });
         });
       });
     }
