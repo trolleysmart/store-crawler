@@ -94,8 +94,8 @@ var CountdownWebCrawlerService = function () {
       return barcode;
     }
   }, {
-    key: 'saveDetails',
-    value: function saveDetails(sessionId, config, productsCategoriesPagingInfo) {
+    key: 'crawlProductsAndSaveDetails',
+    value: function crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
       return new Promise(function (resolve, reject) {
         var crawler = new _crawler2.default({
           rateLimit: config.rateLimit,
@@ -168,12 +168,17 @@ var CountdownWebCrawlerService = function () {
 
           return CountdownWebCrawlerService.getProductCategoriesPagingInfo(config);
         }).then(function (productsCategoriesPagingInfo) {
-          return CountdownWebCrawlerService.saveDetails(sessionId, config, productsCategoriesPagingInfo);
+          return CountdownWebCrawlerService.crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo);
         }).then(function () {
-          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSessionEndDateTime(sessionId, new Date());
+          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
+            status: 'success'
+          });
           resolve();
         }).catch(function (error) {
-          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSessionEndDateTime(sessionId, new Date());
+          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
+            status: 'success',
+            error: error
+          });
           reject(error);
         });
       });

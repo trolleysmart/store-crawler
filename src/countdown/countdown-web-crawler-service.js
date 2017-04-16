@@ -75,7 +75,7 @@ class CountdownWebCrawlerService {
     return barcode;
   }
 
-  static saveDetails(sessionId, config, productsCategoriesPagingInfo) {
+  static crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
     return new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.rateLimit,
@@ -141,18 +141,23 @@ class CountdownWebCrawlerService {
 
           return CountdownWebCrawlerService.getProductCategoriesPagingInfo(config);
         })
-        .then(productsCategoriesPagingInfo => CountdownWebCrawlerService.saveDetails(sessionId, config, productsCategoriesPagingInfo))
+        .then(productsCategoriesPagingInfo => CountdownWebCrawlerService.crawlProductsAndSaveDetails(sessionId, config,
+          productsCategoriesPagingInfo))
         .then(() => {
-          Common.CrawlService.updateCrawlSessionEndDateTime(sessionId, new Date());
+          Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
+            status: 'success',
+          });
           resolve();
         })
         .catch((error) => {
-          Common.CrawlService.updateCrawlSessionEndDateTime(sessionId, new Date());
+          Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
+            status: 'success',
+            error,
+          });
           reject(error);
         });
     });
   }
-
 }
 
 export default CountdownWebCrawlerService;
