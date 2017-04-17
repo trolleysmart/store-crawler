@@ -22,7 +22,7 @@
     "crawler": "^1.0.4",
     "immutable": "^3.8.1",
     "monet": "^0.8.10",
-    "smart-grocery-parse-server-common": "^0.1.9"
+    "smart-grocery-parse-server-common": "^0.1.11"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
