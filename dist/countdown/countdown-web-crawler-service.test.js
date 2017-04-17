@@ -47,6 +47,30 @@ describe('getProductCategoriesPagingInfo', function () {
   });
 });
 
+describe('crawlHighLevelProductCategories', function () {
+  test('should crawl product high level categories and save to database', function () {
+    var config = {
+      "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
+      rateLimit: 2000,
+      maxConnections: 1,
+      logLevel: 1,
+      highLevelProductCategoriesFilterList: ['restricted-items']
+    };
+
+    return new _countdownWebCrawlerService2.default({
+      logVerboseFunc: function logVerboseFunc(message) {
+        return console.log(message);
+      },
+      logInfoFunc: function logInfoFunc(message) {
+        return console.log(message);
+      },
+      logErrorFunc: function logErrorFunc(message) {
+        return console.log(message);
+      }
+    }).crawlHighLevelProductCategories(config);
+  });
+});
+
 describe('crawlProducts', function () {
   test('should crawl products and save to database', function () {
     var config = {
@@ -69,29 +93,5 @@ describe('crawlProducts', function () {
         return console.log(message);
       }
     }).crawlProducts(config);
-  });
-});
-
-describe('crawlHighLevelProductCategories', function () {
-  test('should crawl product high level categories and save to database', function () {
-    var config = {
-      "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
-      rateLimit: 2000,
-      maxConnections: 1,
-      logLevel: 1,
-      highLevelProductCategoriesFilterList: ['restricted-items']
-    };
-
-    return new _countdownWebCrawlerService2.default({
-      logVerboseFunc: function logVerboseFunc(message) {
-        return console.log(message);
-      },
-      logInfoFunc: function logInfoFunc(message) {
-        return console.log(message);
-      },
-      logErrorFunc: function logErrorFunc(message) {
-        return console.log(message);
-      }
-    }).crawlHighLevelProductCategories(config);
   });
 });

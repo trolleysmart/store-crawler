@@ -434,19 +434,19 @@ class CountdownWebCrawlerService {
   }
 
   logVerbose(config, messageFunc) {
-    if (this.logVerboseFunc && config.logLevel >= 3 && messageFunc) {
+    if (this.logVerboseFunc && config.logLevel && config.logLevel >= 3 && messageFunc) {
       this.logVerboseFunc(messageFunc());
     }
   }
 
   logInfo(config, messageFunc) {
-    if (this.logInfoFunc && config.logLevel >= 2 && messageFunc) {
+    if (this.logInfoFunc && config.logLevel && config.logLevel >= 2 && messageFunc) {
       this.logInfoFunc(messageFunc());
     }
   }
 
   logError(config, messageFunc) {
-    if (this.logErrorFunc && config.logLevel >= 1 && messageFunc) {
+    if (this.logErrorFunc && config.logLevel && config.logLevel >= 1 && messageFunc) {
       this.logErrorFunc(messageFunc());
     }
   }
