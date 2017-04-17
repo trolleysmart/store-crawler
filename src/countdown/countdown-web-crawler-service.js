@@ -6,6 +6,28 @@ import {
 import Common from 'smart-grocery-parse-server-common';
 
 class CountdownWebCrawlerService {
+  static getHighLevelProductCategoriesDetails(config, $) {
+    let highLevelProductCategories = List();
+
+    $('#BrowseSlideBox')
+      .filter(function filterHighLevelProductCategoriesCallback() { // eslint-disable-line array-callback-return
+        const data = $(this);
+
+        data.find('.toolbar-slidebox-item')
+          .each(function onNewProductExtracted() {
+            const highLevelProductCategory = $(this)
+              .find('.toolbar-slidebox-link')
+              .attr('href');
+
+            highLevelProductCategories = highLevelProductCategories.push(highLevelProductCategory.substring(highLevelProductCategory.lastIndexOf(
+                '/') + 1,
+              highLevelProductCategory.length));
+          });
+      });
+
+    return highLevelProductCategories;
+  }
+
   static getProductDetails(config, $) {
     let products = List();
 
@@ -87,89 +109,183 @@ class CountdownWebCrawlerService {
   }
 
   constructor({
-    config,
     logVerboseFunc,
     logInfoFunc,
     logErrorFunc,
   }) {
-    this.config = config;
     this.logVerboseFunc = logVerboseFunc;
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
 
-    this.crawl = this.crawl.bind(this);
+    this.crawlHighLevelProductCategories = this.crawlHighLevelProductCategories.bind(this);
+    this.crawlProducts = this.crawlProducts.bind(this);
     this.getProductCategoriesPagingInfo = this.getProductCategoriesPagingInfo.bind(this);
+    this.crawlHighLevelProductCategoriesAndSaveDetails = this.crawlHighLevelProductCategoriesAndSaveDetails.bind(this);
     this.crawlProductsAndSaveDetails = this.crawlProductsAndSaveDetails.bind(this);
     this.logVerbose = this.logVerbose.bind(this);
     this.logInfo = this.logInfo.bind(this);
     this.logError = this.logError.bind(this);
   }
 
-  crawl() {
+  crawlHighLevelProductCategories(config) {
     return new Promise((resolve, reject) => {
-      let promises = [Common.CrawlService.createNewCrawlSession('Countdown', new Date())];
-
-      if (!this.config) {
-        promises = [...promises, Common.CrawlService.getStoreCrawlerConfig('Countdown')];
-      }
-
       let sessionId;
-      let config = this.config;
+      let finalConfig;
 
-      return Promise.all(promises)
-        .then((results) => {
-          sessionId = results[0];
+      return this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config)
+        .then((result) => {
+          sessionId = result.get('sessionId');
+          finalConfig = result.get('config');
 
-          if (!config) {
-            config = results[1];
-          }
+          this.logInfo(finalConfig, () => 'Start fetching product categories paging info...');
 
-          this.logInfo(config, () => 'Start fetching product categories paging info...');
-
-          return this.getProductCategoriesPagingInfo(config);
-        })
-        .then((productsCategoriesPagingInfo) => {
-          this.logInfo(config, () => 'Finished fetching product categories paging info.');
-          this.logVerbose(config, () => `Fetched product categories paging info: ${productsCategoriesPagingInfo}`);
-
-          this.logInfo(config, () => 'Start crawling products and save the details...');
-
-          return this.crawlProductsAndSaveDetails(sessionId, config,
-            productsCategoriesPagingInfo);
+          return this.crawlHighLevelProductCategoriesAndSaveDetails(sessionId, finalConfig);
         })
         .then(() => {
-          this.logInfo(config, () => 'Crawling product successfully completed. Updating crawl session info...');
+          this.logInfo(finalConfig, () => 'Crawling high level product categories successfully completed. Updating crawl session info...');
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
           })
             .then(() => {
-              this.logInfo(config, () => 'Updating crawl session info successfully completed.');
+              this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
               resolve();
             })
             .catch((error) => {
-              this.logError(config, () => `Updating crawl session info ended in error. Error: ${error}`);
+              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${error}`);
 
               reject(error);
             });
         })
         .catch((error) => {
-          this.logInfo(config, () => 'Crawling product ended in error. Updating crawl session info...');
+          if (!sessionId) {
+            this.logError(finalConfig, () => `Crawling product high level categories ended in error. Error: ${error}`);
+            reject(error);
+
+            return;
+          }
+
+          this.logError(finalConfig, () =>
+            `Crawling product high level categories ended in error. Updating crawl session info... Error: ${error}`);
+
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
             error,
           })
             .then(() => {
-              this.logInfo(config, () => 'Updating crawl session info successfully completed.');
+              this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
               reject(error);
             })
             .catch((err) => {
-              this.logError(config, () => `Updating crawl session info ended in error. Error: ${err}`);
+              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${err}`);
 
               reject(`${error} - ${err}`);
             });
+        });
+    });
+  }
+
+  crawlProducts(config) {
+    return new Promise((resolve, reject) => {
+      let sessionId;
+      let finalConfig;
+
+      return this.createNewSessionAndGetConfig('Countdown Products', config)
+        .then((result) => {
+          sessionId = result.get('sessionId');
+          finalConfig = result.get('config');
+
+          this.logInfo(finalConfig, () => 'Start fetching product categories paging info...');
+
+          return this.getProductCategoriesPagingInfo(finalConfig);
+        })
+        .then((productsCategoriesPagingInfo) => {
+          this.logInfo(finalConfig, () => 'Finished fetching product categories paging info.');
+          this.logVerbose(finalConfig, () => `Fetched product categories paging info: ${productsCategoriesPagingInfo}`);
+
+          this.logInfo(finalConfig, () => 'Start crawling products and save the details...');
+
+          return this.crawlProductsAndSaveDetails(sessionId, finalConfig,
+            productsCategoriesPagingInfo);
+        })
+        .then(() => {
+          this.logInfo(finalConfig, () => 'Crawling product successfully completed. Updating crawl session info...');
+
+          Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
+            status: 'success',
+          })
+            .then(() => {
+              this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
+
+              resolve();
+            })
+            .catch((error) => {
+              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${error}`);
+
+              reject(error);
+            });
+        })
+        .catch((error) => {
+          if (!sessionId) {
+            this.logError(finalConfig, () => `Crawling product ended in error. Error: ${error}`);
+            reject(error);
+
+            return;
+          }
+
+          this.logError(finalConfig, () => `Crawling product ended in error. Updating crawl session info... Error: ${error}`);
+
+          Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
+            status: 'success',
+            error,
+          })
+            .then(() => {
+              this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
+
+              reject(error);
+            })
+            .catch((err) => {
+              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${err}`);
+
+              reject(`${error} - ${err}`);
+            });
+        });
+    });
+  }
+
+  createNewSessionAndGetConfig(sessionKey, config) {
+    return new Promise((resolve, reject) => {
+      let promises = [Common.CrawlService.createNewCrawlSession(sessionKey, new Date())];
+
+      if (!config) {
+        promises = [...promises, Common.CrawlService.getStoreCrawlerConfig('Countdown')];
+      }
+
+      let sessionId;
+      let finalConfig = config;
+
+      this.logInfo(finalConfig, () => 'Start creating new session and retrieving config...');
+      return Promise.all(promises)
+        .then((results) => {
+          sessionId = results[0];
+
+          if (!finalConfig) {
+            finalConfig = results[1];
+          }
+
+          this.logInfo(finalConfig, () => `Created session and retrieved config. Session Id: ${sessionId}`);
+          this.logVerbose(finalConfig, () => `Config: ${JSON.stringify(finalConfig)}`);
+
+          resolve(Map({
+            sessionId,
+            config: finalConfig,
+          }));
+        })
+        .catch((error) => {
+          this.logError(finalConfig, () => `Failed to create session and/or retrieving config. Error: ${error}`);
+          reject(error);
         });
     });
   }
@@ -212,6 +328,53 @@ class CountdownWebCrawlerService {
     });
   }
 
+  crawlHighLevelProductCategoriesAndSaveDetails(sessionId, config) {
+    return new Promise((resolve, reject) => {
+      const crawler = new Crawler({
+        rateLimit: config.rateLimit,
+        maxConnections: config.maxConnections,
+        callback: (error, res, done) => {
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+
+          if (error) {
+            done();
+            reject(`Failed to receive high level product categories for Url: ${res.request.uri.href} - Error: ${error}`);
+
+            return;
+          }
+
+          const highLevelProductCategories = CountdownWebCrawlerService.getHighLevelProductCategoriesDetails(config, res.$)
+            .toJS();
+
+          this.logVerbose(config, () =>
+            `Received high level product categories: ${JSON.stringify(highLevelProductCategories)}`);
+
+          Common.CountdownCrawlService.addResultSet(sessionId, {
+            highLevelProductCategories,
+          })
+            .then(() => {
+              this.logInfo(config, () => 'Successfully added high level product categories.');
+
+              done();
+            })
+            .catch((err) => {
+              this.logError(config, () => `Failed to save high level product categories. Error: ${err}`);
+
+              done();
+              reject(`Failed to save high level product categories. Error: ${err}`);
+            });
+        },
+      });
+
+      crawler.on('drain', () => {
+        resolve();
+      });
+
+      crawler.queue(config.baseUrl);
+    });
+  }
+
   crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
     return new Promise((resolve, reject) => {
       const crawler = new Crawler({
@@ -235,6 +398,7 @@ class CountdownWebCrawlerService {
 
           this.logVerbose(config, () =>
             `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products)}`);
+
           Common.CountdownCrawlService.addResultSet(sessionId, {
             productCategory,
             products,
@@ -245,10 +409,10 @@ class CountdownWebCrawlerService {
               done();
             })
             .catch((err) => {
-              this.logError(config, () => `Failed to save products for: ${productCategory}. Error: ${error}`);
+              this.logError(config, () => `Failed to save products for: ${productCategory}. Error: ${err}`);
 
               done();
-              reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${err}`);
+              reject(`Failed to save products for: ${productCategory}. Error: ${err}`);
             });
         },
       });

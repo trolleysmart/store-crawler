@@ -1,6 +1,6 @@
 import CountdownWebCrawlerService from './countdown-web-crawler-service';
 
-const jobName = 'Crawl Countdown Products';
+const jobName = 'Crawl Countdown High Level Product Categories';
 
 Parse.Cloud.job(jobName, (request, status) => { // eslint-disable-line no-undef
   const log = request.log;
@@ -14,7 +14,7 @@ Parse.Cloud.job(jobName, (request, status) => { // eslint-disable-line no-undef
     logErrorFunc: message => log.error(message),
   });
 
-  service.crawlProducts()
+  service.crawlHighLevelProductCategories()
     .then(() => {
       log.info(`The job ${jobName} completed successfully.`);
       status.success('Job completed successfully.');

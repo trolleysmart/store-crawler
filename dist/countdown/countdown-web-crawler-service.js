@@ -24,6 +24,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var CountdownWebCrawlerService = function () {
   _createClass(CountdownWebCrawlerService, null, [{
+    key: 'getHighLevelProductCategoriesDetails',
+    value: function getHighLevelProductCategoriesDetails(config, $) {
+      var highLevelProductCategories = (0, _immutable.List)();
+
+      $('#BrowseSlideBox').filter(function filterHighLevelProductCategoriesCallback() {
+        // eslint-disable-line array-callback-return
+        var data = $(this);
+
+        data.find('.toolbar-slidebox-item').each(function onNewProductExtracted() {
+          var highLevelProductCategory = $(this).find('.toolbar-slidebox-link').attr('href');
+
+          highLevelProductCategories = highLevelProductCategories.push(highLevelProductCategory.substring(highLevelProductCategory.lastIndexOf('/') + 1, highLevelProductCategory.length));
+        });
+      });
+
+      return highLevelProductCategories;
+    }
+  }, {
     key: 'getProductDetails',
     value: function getProductDetails(config, $) {
       var products = (0, _immutable.List)();
@@ -83,20 +101,20 @@ var CountdownWebCrawlerService = function () {
   }]);
 
   function CountdownWebCrawlerService(_ref) {
-    var config = _ref.config,
-        logVerboseFunc = _ref.logVerboseFunc,
+    var logVerboseFunc = _ref.logVerboseFunc,
         logInfoFunc = _ref.logInfoFunc,
         logErrorFunc = _ref.logErrorFunc;
 
     _classCallCheck(this, CountdownWebCrawlerService);
 
-    this.config = config;
     this.logVerboseFunc = logVerboseFunc;
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
 
-    this.crawl = this.crawl.bind(this);
+    this.crawlHighLevelProductCategories = this.crawlHighLevelProductCategories.bind(this);
+    this.crawlProducts = this.crawlProducts.bind(this);
     this.getProductCategoriesPagingInfo = this.getProductCategoriesPagingInfo.bind(this);
+    this.crawlHighLevelProductCategoriesAndSaveDetails = this.crawlHighLevelProductCategoriesAndSaveDetails.bind(this);
     this.crawlProductsAndSaveDetails = this.crawlProductsAndSaveDetails.bind(this);
     this.logVerbose = this.logVerbose.bind(this);
     this.logInfo = this.logInfo.bind(this);
@@ -104,80 +122,68 @@ var CountdownWebCrawlerService = function () {
   }
 
   _createClass(CountdownWebCrawlerService, [{
-    key: 'crawl',
-    value: function crawl() {
+    key: 'crawlHighLevelProductCategories',
+    value: function crawlHighLevelProductCategories(config) {
       var _this = this;
 
       return new Promise(function (resolve, reject) {
-        var promises = [_smartGroceryParseServerCommon2.default.CrawlService.createNewCrawlSession('Countdown', new Date())];
-
-        if (!_this.config) {
-          promises = [].concat(_toConsumableArray(promises), [_smartGroceryParseServerCommon2.default.CrawlService.getStoreCrawlerConfig('Countdown')]);
-        }
-
         var sessionId = void 0;
-        var config = _this.config;
+        var finalConfig = void 0;
 
-        return Promise.all(promises).then(function (results) {
-          sessionId = results[0];
+        return _this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config).then(function (result) {
+          sessionId = result.get('sessionId');
+          finalConfig = result.get('config');
 
-          if (!config) {
-            config = results[1];
-          }
-
-          _this.logInfo(config, function () {
+          _this.logInfo(finalConfig, function () {
             return 'Start fetching product categories paging info...';
           });
 
-          return _this.getProductCategoriesPagingInfo(config);
-        }).then(function (productsCategoriesPagingInfo) {
-          _this.logInfo(config, function () {
-            return 'Finished fetching product categories paging info.';
-          });
-          _this.logVerbose(config, function () {
-            return 'Fetched product categories paging info: ' + productsCategoriesPagingInfo;
-          });
-
-          _this.logInfo(config, function () {
-            return 'Start crawling products and save the details...';
-          });
-
-          return _this.crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo);
+          return _this.crawlHighLevelProductCategoriesAndSaveDetails(sessionId, finalConfig);
         }).then(function () {
-          _this.logInfo(config, function () {
-            return 'Crawling product successfully completed. Updating crawl session info...';
+          _this.logInfo(finalConfig, function () {
+            return 'Crawling high level product categories successfully completed. Updating crawl session info...';
           });
 
           _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success'
           }).then(function () {
-            _this.logInfo(config, function () {
+            _this.logInfo(finalConfig, function () {
               return 'Updating crawl session info successfully completed.';
             });
 
             resolve();
           }).catch(function (error) {
-            _this.logError(config, function () {
+            _this.logError(finalConfig, function () {
               return 'Updating crawl session info ended in error. Error: ' + error;
             });
 
             reject(error);
           });
         }).catch(function (error) {
-          _this.logInfo(config, function () {
-            return 'Crawling product ended in error. Updating crawl session info...';
+          if (!sessionId) {
+            _this.logError(finalConfig, function () {
+              return 'Crawling product high level categories ended in error. Error: ' + error;
+            });
+            reject(error);
+
+            return;
+          }
+
+          _this.logError(finalConfig, function () {
+            return 'Crawling product high level categories ended in error. Updating crawl session info... Error: ' + error;
           });
+
           _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
             error: error
           }).then(function () {
-            _this.logInfo(config, function () {
+            _this.logInfo(finalConfig, function () {
               return 'Updating crawl session info successfully completed.';
             });
 
             reject(error);
           }).catch(function (err) {
-            _this.logError(config, function () {
+            _this.logError(finalConfig, function () {
               return 'Updating crawl session info ended in error. Error: ' + err;
             });
 
@@ -187,9 +193,137 @@ var CountdownWebCrawlerService = function () {
       });
     }
   }, {
+    key: 'crawlProducts',
+    value: function crawlProducts(config) {
+      var _this2 = this;
+
+      return new Promise(function (resolve, reject) {
+        var sessionId = void 0;
+        var finalConfig = void 0;
+
+        return _this2.createNewSessionAndGetConfig('Countdown Products', config).then(function (result) {
+          sessionId = result.get('sessionId');
+          finalConfig = result.get('config');
+
+          _this2.logInfo(finalConfig, function () {
+            return 'Start fetching product categories paging info...';
+          });
+
+          return _this2.getProductCategoriesPagingInfo(finalConfig);
+        }).then(function (productsCategoriesPagingInfo) {
+          _this2.logInfo(finalConfig, function () {
+            return 'Finished fetching product categories paging info.';
+          });
+          _this2.logVerbose(finalConfig, function () {
+            return 'Fetched product categories paging info: ' + productsCategoriesPagingInfo;
+          });
+
+          _this2.logInfo(finalConfig, function () {
+            return 'Start crawling products and save the details...';
+          });
+
+          return _this2.crawlProductsAndSaveDetails(sessionId, finalConfig, productsCategoriesPagingInfo);
+        }).then(function () {
+          _this2.logInfo(finalConfig, function () {
+            return 'Crawling product successfully completed. Updating crawl session info...';
+          });
+
+          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
+            status: 'success'
+          }).then(function () {
+            _this2.logInfo(finalConfig, function () {
+              return 'Updating crawl session info successfully completed.';
+            });
+
+            resolve();
+          }).catch(function (error) {
+            _this2.logError(finalConfig, function () {
+              return 'Updating crawl session info ended in error. Error: ' + error;
+            });
+
+            reject(error);
+          });
+        }).catch(function (error) {
+          if (!sessionId) {
+            _this2.logError(finalConfig, function () {
+              return 'Crawling product ended in error. Error: ' + error;
+            });
+            reject(error);
+
+            return;
+          }
+
+          _this2.logError(finalConfig, function () {
+            return 'Crawling product ended in error. Updating crawl session info... Error: ' + error;
+          });
+
+          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
+            status: 'success',
+            error: error
+          }).then(function () {
+            _this2.logInfo(finalConfig, function () {
+              return 'Updating crawl session info successfully completed.';
+            });
+
+            reject(error);
+          }).catch(function (err) {
+            _this2.logError(finalConfig, function () {
+              return 'Updating crawl session info ended in error. Error: ' + err;
+            });
+
+            reject(error + ' - ' + err);
+          });
+        });
+      });
+    }
+  }, {
+    key: 'createNewSessionAndGetConfig',
+    value: function createNewSessionAndGetConfig(sessionKey, config) {
+      var _this3 = this;
+
+      return new Promise(function (resolve, reject) {
+        var promises = [_smartGroceryParseServerCommon2.default.CrawlService.createNewCrawlSession(sessionKey, new Date())];
+
+        if (!config) {
+          promises = [].concat(_toConsumableArray(promises), [_smartGroceryParseServerCommon2.default.CrawlService.getStoreCrawlerConfig('Countdown')]);
+        }
+
+        var sessionId = void 0;
+        var finalConfig = config;
+
+        _this3.logInfo(finalConfig, function () {
+          return 'Start creating new session and retrieving config...';
+        });
+        return Promise.all(promises).then(function (results) {
+          sessionId = results[0];
+
+          if (!finalConfig) {
+            finalConfig = results[1];
+          }
+
+          _this3.logInfo(finalConfig, function () {
+            return 'Created session and retrieved config. Session Id: ' + sessionId;
+          });
+          _this3.logVerbose(finalConfig, function () {
+            return 'Config: ' + JSON.stringify(finalConfig);
+          });
+
+          resolve((0, _immutable.Map)({
+            sessionId: sessionId,
+            config: finalConfig
+          }));
+        }).catch(function (error) {
+          _this3.logError(finalConfig, function () {
+            return 'Failed to create session and/or retrieving config. Error: ' + error;
+          });
+          reject(error);
+        });
+      });
+    }
+  }, {
     key: 'getProductCategoriesPagingInfo',
     value: function getProductCategoriesPagingInfo(config) {
-      var _this2 = this;
+      var _this4 = this;
 
       return new Promise(function (resolve, reject) {
         var productsCategoriesPagingInfo = (0, _immutable.List)();
@@ -198,10 +332,10 @@ var CountdownWebCrawlerService = function () {
           rateLimit: config.rateLimit,
           maxConnections: config.maxConnections,
           callback: function callback(error, res, done) {
-            _this2.logInfo(config, function () {
+            _this4.logInfo(config, function () {
               return 'Received response for: ' + res.request.uri.href;
             });
-            _this2.logVerbose(config, function () {
+            _this4.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
             });
 
@@ -233,19 +367,75 @@ var CountdownWebCrawlerService = function () {
       });
     }
   }, {
-    key: 'crawlProductsAndSaveDetails',
-    value: function crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
-      var _this3 = this;
+    key: 'crawlHighLevelProductCategoriesAndSaveDetails',
+    value: function crawlHighLevelProductCategoriesAndSaveDetails(sessionId, config) {
+      var _this5 = this;
 
       return new Promise(function (resolve, reject) {
         var crawler = new _crawler2.default({
           rateLimit: config.rateLimit,
           maxConnections: config.maxConnections,
           callback: function callback(error, res, done) {
-            _this3.logInfo(config, function () {
+            _this5.logInfo(config, function () {
               return 'Received response for: ' + res.request.uri.href;
             });
-            _this3.logVerbose(config, function () {
+            _this5.logVerbose(config, function () {
+              return 'Received response for: ' + JSON.stringify(res);
+            });
+
+            if (error) {
+              done();
+              reject('Failed to receive high level product categories for Url: ' + res.request.uri.href + ' - Error: ' + error);
+
+              return;
+            }
+
+            var highLevelProductCategories = CountdownWebCrawlerService.getHighLevelProductCategoriesDetails(config, res.$).toJS();
+
+            _this5.logVerbose(config, function () {
+              return 'Received high level product categories: ' + JSON.stringify(highLevelProductCategories);
+            });
+
+            _smartGroceryParseServerCommon2.default.CountdownCrawlService.addResultSet(sessionId, {
+              highLevelProductCategories: highLevelProductCategories
+            }).then(function () {
+              _this5.logInfo(config, function () {
+                return 'Successfully added high level product categories.';
+              });
+
+              done();
+            }).catch(function (err) {
+              _this5.logError(config, function () {
+                return 'Failed to save high level product categories. Error: ' + err;
+              });
+
+              done();
+              reject('Failed to save high level product categories. Error: ' + err);
+            });
+          }
+        });
+
+        crawler.on('drain', function () {
+          resolve();
+        });
+
+        crawler.queue(config.baseUrl);
+      });
+    }
+  }, {
+    key: 'crawlProductsAndSaveDetails',
+    value: function crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
+      var _this6 = this;
+
+      return new Promise(function (resolve, reject) {
+        var crawler = new _crawler2.default({
+          rateLimit: config.rateLimit,
+          maxConnections: config.maxConnections,
+          callback: function callback(error, res, done) {
+            _this6.logInfo(config, function () {
+              return 'Received response for: ' + res.request.uri.href;
+            });
+            _this6.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
             });
 
@@ -260,25 +450,26 @@ var CountdownWebCrawlerService = function () {
             var productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
             var products = CountdownWebCrawlerService.getProductDetails(config, res.$).toJS();
 
-            _this3.logVerbose(config, function () {
+            _this6.logVerbose(config, function () {
               return 'Received products for: ' + JSON.stringify(res) + ' - ' + productCategory + ' - ' + JSON.stringify(products);
             });
+
             _smartGroceryParseServerCommon2.default.CountdownCrawlService.addResultSet(sessionId, {
               productCategory: productCategory,
               products: products
             }).then(function () {
-              _this3.logInfo(config, function () {
+              _this6.logInfo(config, function () {
                 return 'Successfully added products for: ' + productCategory + '.';
               });
 
               done();
             }).catch(function (err) {
-              _this3.logError(config, function () {
-                return 'Failed to save products for: ' + productCategory + '. Error: ' + error;
+              _this6.logError(config, function () {
+                return 'Failed to save products for: ' + productCategory + '. Error: ' + err;
               });
 
               done();
-              reject('Failed to receive products for Url: ' + res.request.uri.href + ' - Error: ' + err);
+              reject('Failed to save products for: ' + productCategory + '. Error: ' + err);
             });
           }
         });

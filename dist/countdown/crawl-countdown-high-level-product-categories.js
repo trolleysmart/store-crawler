@@ -6,7 +6,7 @@ var _countdownWebCrawlerService2 = _interopRequireDefault(_countdownWebCrawlerSe
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var jobName = 'Crawl Countdown Products';
+var jobName = 'Crawl Countdown High Level Product Categories';
 
 Parse.Cloud.job(jobName, function (request, status) {
   // eslint-disable-line no-undef
@@ -27,7 +27,7 @@ Parse.Cloud.job(jobName, function (request, status) {
     }
   });
 
-  service.crawlProducts().then(function () {
+  service.crawlHighLevelProductCategories().then(function () {
     log.info('The job ' + jobName + ' completed successfully.');
     status.success('Job completed successfully.');
   }).catch(function (error) {

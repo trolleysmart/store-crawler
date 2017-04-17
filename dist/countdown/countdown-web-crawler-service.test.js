@@ -47,17 +47,18 @@ describe('getProductCategoriesPagingInfo', function () {
   });
 });
 
-describe('crawl', function () {
-  test('should crawl and save to database', function () {
+describe('crawlProducts', function () {
+  test('should crawl products and save to database', function () {
     var config = {
       "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
+      "baseImageUrl": "https://shop.countdown.co.nz",
       rateLimit: 2000,
       maxConnections: 1,
       logLevel: 1,
       productCategories: ['bakery/desserts-pies']
     };
+
     return new _countdownWebCrawlerService2.default({
-      config: config,
       logVerboseFunc: function logVerboseFunc(message) {
         return console.log(message);
       },
@@ -67,6 +68,29 @@ describe('crawl', function () {
       logErrorFunc: function logErrorFunc(message) {
         return console.log(message);
       }
-    }).crawl();
+    }).crawlProducts(config);
+  });
+});
+
+describe('crawlHighLevelProductCategories', function () {
+  test('should crawl product high level categories and save to database', function () {
+    var config = {
+      "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
+      rateLimit: 2000,
+      maxConnections: 1,
+      logLevel: 1
+    };
+
+    return new _countdownWebCrawlerService2.default({
+      logVerboseFunc: function logVerboseFunc(message) {
+        return console.log(message);
+      },
+      logInfoFunc: function logInfoFunc(message) {
+        return console.log(message);
+      },
+      logErrorFunc: function logErrorFunc(message) {
+        return console.log(message);
+      }
+    }).crawlHighLevelProductCategories(config);
   });
 });
