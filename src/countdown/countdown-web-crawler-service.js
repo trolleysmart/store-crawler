@@ -273,7 +273,6 @@ class CountdownWebCrawlerService {
       let sessionId;
       let finalConfig = config;
 
-      this.logInfo(finalConfig, () => 'Start creating new session and retrieving config...');
       return Promise.all(promises)
         .then((results) => {
           sessionId = results[0];

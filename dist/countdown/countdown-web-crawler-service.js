@@ -295,9 +295,6 @@ var CountdownWebCrawlerService = function () {
         var sessionId = void 0;
         var finalConfig = config;
 
-        _this3.logInfo(finalConfig, function () {
-          return 'Start creating new session and retrieving config...';
-        });
         return Promise.all(promises).then(function (results) {
           sessionId = results[0];
 
