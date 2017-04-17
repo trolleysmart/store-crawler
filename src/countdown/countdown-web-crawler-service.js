@@ -152,8 +152,8 @@ class CountdownWebCrawlerService {
           this.logInfo(finalConfig, () => 'Crawling high level product categories successfully completed. Updating crawl session info...');
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
-              status: 'success',
-            })
+            status: 'success',
+          })
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -177,9 +177,9 @@ class CountdownWebCrawlerService {
             `Crawling product high level categories ended in error. Updating crawl session info... Error: ${error}`);
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
-              status: 'success',
-              error,
-            })
+            status: 'success',
+            error,
+          })
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -221,8 +221,8 @@ class CountdownWebCrawlerService {
           this.logInfo(finalConfig, () => 'Crawling product successfully completed. Updating crawl session info...');
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
-              status: 'success',
-            })
+            status: 'success',
+          })
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -245,9 +245,9 @@ class CountdownWebCrawlerService {
           this.logError(finalConfig, () => `Crawling product ended in error. Updating crawl session info... Error: ${error}`);
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
-              status: 'success',
-              error,
-            })
+            status: 'success',
+            error,
+          })
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -363,8 +363,8 @@ class CountdownWebCrawlerService {
             `Received high level product categories: ${JSON.stringify(highLevelProductCategories)}`);
 
           Common.CountdownCrawlService.addResultSet(sessionId, {
-              highLevelProductCategories,
-            })
+            highLevelProductCategories,
+          })
             .then(() => {
               this.logInfo(config, () => 'Successfully added high level product categories.');
 
@@ -412,9 +412,9 @@ class CountdownWebCrawlerService {
             `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products)}`);
 
           Common.CountdownCrawlService.addResultSet(sessionId, {
-              productCategory,
-              products,
-            })
+            productCategory,
+            products,
+          })
             .then(() => {
               this.logInfo(config, () => `Successfully added products for: ${productCategory}.`);
 
