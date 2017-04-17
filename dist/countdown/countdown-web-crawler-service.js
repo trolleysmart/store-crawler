@@ -302,6 +302,12 @@ var CountdownWebCrawlerService = function () {
             finalConfig = results[1];
           }
 
+          if (!finalConfig) {
+            reject('Failed to retrieve configuration for Countdown store crawler.');
+
+            return;
+          }
+
           _this3.logInfo(finalConfig, function () {
             return 'Created session and retrieved config. Session Id: ' + sessionId;
           });

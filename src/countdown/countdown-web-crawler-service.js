@@ -281,6 +281,12 @@ class CountdownWebCrawlerService {
             finalConfig = results[1];
           }
 
+          if (!finalConfig) {
+            reject('Failed to retrieve configuration for Countdown store crawler.');
+
+            return;
+          }
+
           this.logInfo(finalConfig, () => `Created session and retrieved config. Session Id: ${sessionId}`);
           this.logVerbose(finalConfig, () => `Config: ${JSON.stringify(finalConfig)}`);
 
