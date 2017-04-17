@@ -403,7 +403,7 @@ var CountdownWebCrawlerService = function () {
               return 'Received high level product categories: ' + JSON.stringify(highLevelProductCategories);
             });
 
-            _smartGroceryParseServerCommon2.default.CountdownCrawlService.addResultSet(sessionId, {
+            _smartGroceryParseServerCommon2.default.CrawlService.addResultSet(sessionId, {
               highLevelProductCategories: highLevelProductCategories
             }).then(function () {
               _this5.logInfo(config, function () {
@@ -461,7 +461,7 @@ var CountdownWebCrawlerService = function () {
               return 'Received products for: ' + JSON.stringify(res) + ' - ' + productCategory + ' - ' + JSON.stringify(products);
             });
 
-            _smartGroceryParseServerCommon2.default.CountdownCrawlService.addResultSet(sessionId, {
+            _smartGroceryParseServerCommon2.default.CrawlService.addResultSet(sessionId, {
               productCategory: productCategory,
               products: products
             }).then(function () {

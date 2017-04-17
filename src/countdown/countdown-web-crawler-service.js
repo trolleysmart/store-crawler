@@ -362,7 +362,7 @@ class CountdownWebCrawlerService {
           this.logVerbose(config, () =>
             `Received high level product categories: ${JSON.stringify(highLevelProductCategories)}`);
 
-          Common.CountdownCrawlService.addResultSet(sessionId, {
+          Common.CrawlService.addResultSet(sessionId, {
             highLevelProductCategories,
           })
             .then(() => {
@@ -411,7 +411,7 @@ class CountdownWebCrawlerService {
           this.logVerbose(config, () =>
             `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products)}`);
 
-          Common.CountdownCrawlService.addResultSet(sessionId, {
+          Common.CrawlService.addResultSet(sessionId, {
             productCategory,
             products,
           })
