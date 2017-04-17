@@ -152,8 +152,8 @@ class CountdownWebCrawlerService {
           this.logInfo(finalConfig, () => 'Crawling high level product categories successfully completed. Updating crawl session info...');
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
-            status: 'success',
-          })
+              status: 'success',
+            })
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -177,9 +177,9 @@ class CountdownWebCrawlerService {
             `Crawling product high level categories ended in error. Updating crawl session info... Error: ${error}`);
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
-            status: 'success',
-            error,
-          })
+              status: 'success',
+              error,
+            })
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -221,8 +221,8 @@ class CountdownWebCrawlerService {
           this.logInfo(finalConfig, () => 'Crawling product successfully completed. Updating crawl session info...');
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
-            status: 'success',
-          })
+              status: 'success',
+            })
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -245,9 +245,9 @@ class CountdownWebCrawlerService {
           this.logError(finalConfig, () => `Crawling product ended in error. Updating crawl session info... Error: ${error}`);
 
           Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
-            status: 'success',
-            error,
-          })
+              status: 'success',
+              error,
+            })
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -363,8 +363,8 @@ class CountdownWebCrawlerService {
             `Received high level product categories: ${JSON.stringify(highLevelProductCategories)}`);
 
           Common.CountdownCrawlService.addResultSet(sessionId, {
-            highLevelProductCategories,
-          })
+              highLevelProductCategories,
+            })
             .then(() => {
               this.logInfo(config, () => 'Successfully added high level product categories.');
 
@@ -412,9 +412,9 @@ class CountdownWebCrawlerService {
             `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products)}`);
 
           Common.CountdownCrawlService.addResultSet(sessionId, {
-            productCategory,
-            products,
-          })
+              productCategory,
+              products,
+            })
             .then(() => {
               this.logInfo(config, () => `Successfully added products for: ${productCategory}.`);
 
@@ -440,19 +440,19 @@ class CountdownWebCrawlerService {
   }
 
   logVerbose(config, messageFunc) {
-    if (this.logVerboseFunc && config.logLevel && config.logLevel >= 3 && messageFunc) {
+    if (this.logVerboseFunc && config && config.logLevel && config.logLevel >= 3 && messageFunc) {
       this.logVerboseFunc(messageFunc());
     }
   }
 
   logInfo(config, messageFunc) {
-    if (this.logInfoFunc && config.logLevel && config.logLevel >= 2 && messageFunc) {
+    if (this.logInfoFunc && config && config.logLevel && config.logLevel >= 2 && messageFunc) {
       this.logInfoFunc(messageFunc());
     }
   }
 
   logError(config, messageFunc) {
-    if (this.logErrorFunc && config.logLevel && config.logLevel >= 1 && messageFunc) {
+    if (this.logErrorFunc && config && config.logLevel && config.logLevel >= 1 && messageFunc) {
       this.logErrorFunc(messageFunc());
     }
   }

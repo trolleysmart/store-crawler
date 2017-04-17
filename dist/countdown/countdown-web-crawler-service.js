@@ -495,21 +495,21 @@ var CountdownWebCrawlerService = function () {
   }, {
     key: 'logVerbose',
     value: function logVerbose(config, messageFunc) {
-      if (this.logVerboseFunc && config.logLevel && config.logLevel >= 3 && messageFunc) {
+      if (this.logVerboseFunc && config && config.logLevel && config.logLevel >= 3 && messageFunc) {
         this.logVerboseFunc(messageFunc());
       }
     }
   }, {
     key: 'logInfo',
     value: function logInfo(config, messageFunc) {
-      if (this.logInfoFunc && config.logLevel && config.logLevel >= 2 && messageFunc) {
+      if (this.logInfoFunc && config && config.logLevel && config.logLevel >= 2 && messageFunc) {
         this.logInfoFunc(messageFunc());
       }
     }
   }, {
     key: 'logError',
     value: function logError(config, messageFunc) {
-      if (this.logErrorFunc && config.logLevel && config.logLevel >= 1 && messageFunc) {
+      if (this.logErrorFunc && config && config.logLevel && config.logLevel >= 1 && messageFunc) {
         this.logErrorFunc(messageFunc());
       }
     }
