@@ -1,14 +1,15 @@
+import Immutable from 'immutable';
 import '../../bootstrap';
 import CountdownWebCrawlerService from './countdown-web-crawler-service';
 
 describe('getProductCategoriesPagingInfo', () => {
   test('should capture paging info for product categories with multiple page', () => {
-    const config = {
-      "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
+    const config = Immutable.fromJS({
+      baseUrl: "https://shop.countdown.co.nz/Shop/Browse/",
       rateLimit: 2000,
       maxConnections: 1,
       productCategories: ['bakery'],
-    };
+    });
 
     return new CountdownWebCrawlerService({})
       .getProductCategoriesPagingInfo(config)
@@ -18,7 +19,8 @@ describe('getProductCategoriesPagingInfo', () => {
 
         const bakeryPagingInfo = productsCategoriesPagingInfo
           .find(_ => _.get('productCategory')
-            .localeCompare(config.productCategories[0]) === 0);
+            .localeCompare(config.get('productCategories')
+              .first()) === 0);
         expect(bakeryPagingInfo)
           .toBeDefined();
         expect(bakeryPagingInfo.get('totalPageNumber'))
@@ -27,12 +29,13 @@ describe('getProductCategoriesPagingInfo', () => {
   });
 
   test('should capture paging info for product categories with single page', () => {
-    const config = {
-      "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
+    const config = Immutable.fromJS({
+      baseUrl: "https://shop.countdown.co.nz/Shop/Browse/",
       rateLimit: 2000,
       maxConnections: 1,
       productCategories: ['bakery/desserts-pies'],
-    };
+    });
+
     return new CountdownWebCrawlerService({})
       .getProductCategoriesPagingInfo(config)
       .then((productsCategoriesPagingInfo) => {
@@ -41,7 +44,8 @@ describe('getProductCategoriesPagingInfo', () => {
 
         const bakeryPagingInfo = productsCategoriesPagingInfo
           .find(_ => _.get('productCategory')
-            .localeCompare(config.productCategories[0]) === 0);
+            .localeCompare(config.get('productCategories')
+              .first()) === 0);
         expect(bakeryPagingInfo)
           .toBeDefined();
         expect(bakeryPagingInfo.get('totalPageNumber'))
@@ -52,13 +56,13 @@ describe('getProductCategoriesPagingInfo', () => {
 
 describe('crawlHighLevelProductCategories', () => {
   test('should crawl product high level categories and save to database', () => {
-    const config = {
-      "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
+    const config = Immutable.fromJS({
+      baseUrl: "https://shop.countdown.co.nz/Shop/Browse/",
       rateLimit: 2000,
       maxConnections: 1,
       logLevel: 1,
       highLevelProductCategoriesFilterList: ['restricted-items'],
-    };
+    });
 
     return new CountdownWebCrawlerService({
         logVerboseFunc: message => console.log(message),
@@ -71,14 +75,14 @@ describe('crawlHighLevelProductCategories', () => {
 
 describe('crawlProducts', () => {
   test('should crawl products and save to database', () => {
-    const config = {
-      "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
-      "baseImageUrl": "https://shop.countdown.co.nz",
+    const config = Immutable.fromJS({
+      baseUrl: "https://shop.countdown.co.nz/Shop/Browse/",
+      baseImageUrl: "https://shop.countdown.co.nz",
       rateLimit: 2000,
       maxConnections: 1,
       logLevel: 1,
       productCategories: ['bakery/desserts-pies'],
-    };
+    });
 
     return new CountdownWebCrawlerService({
         logVerboseFunc: message => console.log(message),

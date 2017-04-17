@@ -39,8 +39,8 @@ var CountdownWebCrawlerService = function () {
         });
       });
 
-      return config.highLevelProductCategoriesFilterList ? highLevelProductCategories.filterNot(function (_) {
-        return config.highLevelProductCategoriesFilterList.find(function (item) {
+      return config.get('highLevelProductCategoriesFilterList') ? highLevelProductCategories.filterNot(function (_) {
+        return config.get('highLevelProductCategoriesFilterList').find(function (item) {
           return item.trim().toLowerCase().localeCompare(_.trim().toLowerCase()) === 0;
         });
       }) : highLevelProductCategories;
@@ -56,7 +56,7 @@ var CountdownWebCrawlerService = function () {
 
         data.find('.product-stamp .details-container').each(function onNewProductExtracted() {
           var product = $(this);
-          var imageUrl = config.baseImageUrl + product.find('.product-stamp-thumbnail img').attr('src');
+          var imageUrl = config.get('baseImageUrl') + product.find('.product-stamp-thumbnail img').attr('src');
           var barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
           var description = product.find('.description').text().trim();
           var productTagSource = product.find('.product-tag-desktop img').attr('src');
@@ -336,8 +336,8 @@ var CountdownWebCrawlerService = function () {
         var productsCategoriesPagingInfo = (0, _immutable.List)();
 
         var crawler = new _crawler2.default({
-          rateLimit: config.rateLimit,
-          maxConnections: config.maxConnections,
+          rateLimit: config.get('rateLimit'),
+          maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this4.logInfo(config, function () {
               return 'Received response for: ' + res.request.uri.href;
@@ -356,7 +356,7 @@ var CountdownWebCrawlerService = function () {
             var totalPageNumber = parseInt(res.$('.paging-container .paging .page-number').last().text(), 10);
 
             productsCategoriesPagingInfo = productsCategoriesPagingInfo.push((0, _immutable.Map)({
-              productCategory: res.request.uri.href.replace(config.baseUrl, ''),
+              productCategory: res.request.uri.href.replace(config.get('baseUrl'), ''),
               totalPageNumber: totalPageNumber || 1
             }));
 
@@ -368,8 +368,8 @@ var CountdownWebCrawlerService = function () {
           return resolve(productsCategoriesPagingInfo);
         });
 
-        config.productCategories.forEach(function (productCategory) {
-          return crawler.queue(config.baseUrl + productCategory);
+        config.get('productCategories').forEach(function (productCategory) {
+          return crawler.queue(config.get('baseUrl') + productCategory);
         });
       });
     }
@@ -380,8 +380,8 @@ var CountdownWebCrawlerService = function () {
 
       return new Promise(function (resolve, reject) {
         var crawler = new _crawler2.default({
-          rateLimit: config.rateLimit,
-          maxConnections: config.maxConnections,
+          rateLimit: config.get('rateLimit'),
+          maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this5.logInfo(config, function () {
               return 'Received response for: ' + res.request.uri.href;
@@ -426,7 +426,7 @@ var CountdownWebCrawlerService = function () {
           resolve();
         });
 
-        crawler.queue(config.baseUrl);
+        crawler.queue(config.get('baseUrl'));
       });
     }
   }, {
@@ -436,8 +436,8 @@ var CountdownWebCrawlerService = function () {
 
       return new Promise(function (resolve, reject) {
         var crawler = new _crawler2.default({
-          rateLimit: config.rateLimit,
-          maxConnections: config.maxConnections,
+          rateLimit: config.get('rateLimit'),
+          maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this6.logInfo(config, function () {
               return 'Received response for: ' + res.request.uri.href;
@@ -453,7 +453,7 @@ var CountdownWebCrawlerService = function () {
               return;
             }
 
-            var productCategoryAndPage = res.request.uri.href.replace(config.baseUrl, '');
+            var productCategoryAndPage = res.request.uri.href.replace(config.get('baseUrl'), '');
             var productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
             var products = CountdownWebCrawlerService.getProductDetails(config, res.$).toJS();
 
@@ -487,7 +487,7 @@ var CountdownWebCrawlerService = function () {
 
         productsCategoriesPagingInfo.forEach(function (productCategoryInfo) {
           return [].concat(_toConsumableArray(Array(productCategoryInfo.get('totalPageNumber')).keys())).forEach(function (pageNumber) {
-            return crawler.queue(config.baseUrl + productCategoryInfo.get('productCategory') + '?page=' + (pageNumber + 1));
+            return crawler.queue(config.get('baseUrl') + productCategoryInfo.get('productCategory') + '?page=' + (pageNumber + 1));
           });
         });
       });
@@ -495,21 +495,21 @@ var CountdownWebCrawlerService = function () {
   }, {
     key: 'logVerbose',
     value: function logVerbose(config, messageFunc) {
-      if (this.logVerboseFunc && config && config.logLevel && config.logLevel >= 3 && messageFunc) {
+      if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
         this.logVerboseFunc(messageFunc());
       }
     }
   }, {
     key: 'logInfo',
     value: function logInfo(config, messageFunc) {
-      if (this.logInfoFunc && config && config.logLevel && config.logLevel >= 2 && messageFunc) {
+      if (this.logInfoFunc && config && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
         this.logInfoFunc(messageFunc());
       }
     }
   }, {
     key: 'logError',
     value: function logError(config, messageFunc) {
-      if (this.logErrorFunc && config && config.logLevel && config.logLevel >= 1 && messageFunc) {
+      if (this.logErrorFunc && config && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
         this.logErrorFunc(messageFunc());
       }
     }

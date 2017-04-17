@@ -25,9 +25,9 @@ class CountdownWebCrawlerService {
           });
       });
 
-    return config.highLevelProductCategoriesFilterList ?
+    return config.get('highLevelProductCategoriesFilterList') ?
       highLevelProductCategories
-      .filterNot(_ => config.highLevelProductCategoriesFilterList
+      .filterNot(_ => config.get('highLevelProductCategoriesFilterList')
         .find(item => item.trim()
           .toLowerCase()
           .localeCompare(_.trim()
@@ -45,7 +45,7 @@ class CountdownWebCrawlerService {
         data.find('.product-stamp .details-container')
           .each(function onNewProductExtracted() {
             const product = $(this);
-            const imageUrl = config.baseImageUrl + product.find('.product-stamp-thumbnail img')
+            const imageUrl = config.get('baseImageUrl') + product.find('.product-stamp-thumbnail img')
               .attr('src');
             const barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
             const description = product.find('.description')
@@ -307,8 +307,8 @@ class CountdownWebCrawlerService {
       let productsCategoriesPagingInfo = List();
 
       const crawler = new Crawler({
-        rateLimit: config.rateLimit,
-        maxConnections: config.maxConnections,
+        rateLimit: config.get('rateLimit'),
+        maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
           this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
@@ -326,7 +326,7 @@ class CountdownWebCrawlerService {
 
           productsCategoriesPagingInfo = productsCategoriesPagingInfo.push(
             Map({
-              productCategory: res.request.uri.href.replace(config.baseUrl, ''),
+              productCategory: res.request.uri.href.replace(config.get('baseUrl'), ''),
               totalPageNumber: totalPageNumber || 1,
             }));
 
@@ -336,15 +336,15 @@ class CountdownWebCrawlerService {
 
       crawler.on('drain', () => resolve(productsCategoriesPagingInfo));
 
-      config.productCategories.forEach(productCategory => crawler.queue(config.baseUrl + productCategory));
+      config.get('productCategories').forEach(productCategory => crawler.queue(config.get('baseUrl') + productCategory));
     });
   }
 
   crawlHighLevelProductCategoriesAndSaveDetails(sessionId, config) {
     return new Promise((resolve, reject) => {
       const crawler = new Crawler({
-        rateLimit: config.rateLimit,
-        maxConnections: config.maxConnections,
+        rateLimit: config.get('rateLimit'),
+        maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
           this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
@@ -383,15 +383,15 @@ class CountdownWebCrawlerService {
         resolve();
       });
 
-      crawler.queue(config.baseUrl);
+      crawler.queue(config.get('baseUrl'));
     });
   }
 
   crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
     return new Promise((resolve, reject) => {
       const crawler = new Crawler({
-        rateLimit: config.rateLimit,
-        maxConnections: config.maxConnections,
+        rateLimit: config.get('rateLimit'),
+        maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
           this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
@@ -403,7 +403,7 @@ class CountdownWebCrawlerService {
             return;
           }
 
-          const productCategoryAndPage = res.request.uri.href.replace(config.baseUrl, '');
+          const productCategoryAndPage = res.request.uri.href.replace(config.get('baseUrl'), '');
           const productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
           const products = CountdownWebCrawlerService.getProductDetails(config, res.$)
             .toJS();
@@ -435,24 +435,24 @@ class CountdownWebCrawlerService {
 
       productsCategoriesPagingInfo.forEach(productCategoryInfo => [...Array(productCategoryInfo.get('totalPageNumber'))
         .keys(),
-      ].forEach(pageNumber => crawler.queue(`${config.baseUrl + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
+      ].forEach(pageNumber => crawler.queue(`${config.get('baseUrl') + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
     });
   }
 
   logVerbose(config, messageFunc) {
-    if (this.logVerboseFunc && config && config.logLevel && config.logLevel >= 3 && messageFunc) {
+    if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       this.logVerboseFunc(messageFunc());
     }
   }
 
   logInfo(config, messageFunc) {
-    if (this.logInfoFunc && config && config.logLevel && config.logLevel >= 2 && messageFunc) {
+    if (this.logInfoFunc && config && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
       this.logInfoFunc(messageFunc());
     }
   }
 
   logError(config, messageFunc) {
-    if (this.logErrorFunc && config && config.logLevel && config.logLevel >= 1 && messageFunc) {
+    if (this.logErrorFunc && config && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
       this.logErrorFunc(messageFunc());
     }
   }
