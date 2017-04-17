@@ -78,7 +78,8 @@ describe('crawlHighLevelProductCategories', function () {
       "baseUrl": "https://shop.countdown.co.nz/Shop/Browse/",
       rateLimit: 2000,
       maxConnections: 1,
-      logLevel: 1
+      logLevel: 1,
+      highLevelProductCategoriesFilterList: ['restricted-items']
     };
 
     return new _countdownWebCrawlerService2.default({

@@ -39,7 +39,11 @@ var CountdownWebCrawlerService = function () {
         });
       });
 
-      return highLevelProductCategories;
+      return config.highLevelProductCategoriesFilterList ? highLevelProductCategories.filterNot(function (_) {
+        return config.highLevelProductCategoriesFilterList.find(function (item) {
+          return item.trim().toLowerCase().localeCompare(_.trim().toLowerCase()) === 0;
+        });
+      }) : highLevelProductCategories;
     }
   }, {
     key: 'getProductDetails',

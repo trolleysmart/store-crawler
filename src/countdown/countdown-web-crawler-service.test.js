@@ -77,6 +77,7 @@ describe('crawlHighLevelProductCategories', () => {
       rateLimit: 2000,
       maxConnections: 1,
       logLevel: 1,
+      highLevelProductCategoriesFilterList: ['restricted-items'],
     };
 
     return new CountdownWebCrawlerService({

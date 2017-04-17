@@ -25,7 +25,14 @@ class CountdownWebCrawlerService {
           });
       });
 
-    return highLevelProductCategories;
+    return config.highLevelProductCategoriesFilterList ?
+      highLevelProductCategories
+      .filterNot(_ => config.highLevelProductCategoriesFilterList
+        .find(item => item.trim()
+          .toLowerCase()
+          .localeCompare(_.trim()
+            .toLowerCase()) === 0)) :
+      highLevelProductCategories;
   }
 
   static getProductDetails(config, $) {
