@@ -1,11 +1,13 @@
 import Immutable from 'immutable';
 import '../../bootstrap';
-import CountdownWebCrawlerService from './countdown-web-crawler-service';
+import {
+  CountdownWebCrawlerService,
+} from './countdown-web-crawler-service';
 
 describe('getProductCategoriesPagingInfo', () => {
   test('should capture paging info for product categories with multiple page', () => {
     const config = Immutable.fromJS({
-      baseUrl: "https://shop.countdown.co.nz/Shop/Browse/",
+      baseUrl: 'https://shop.countdown.co.nz/Shop/Browse/',
       rateLimit: 2000,
       maxConnections: 1,
       productCategories: ['bakery'],
@@ -30,7 +32,7 @@ describe('getProductCategoriesPagingInfo', () => {
 
   test('should capture paging info for product categories with single page', () => {
     const config = Immutable.fromJS({
-      baseUrl: "https://shop.countdown.co.nz/Shop/Browse/",
+      baseUrl: 'https://shop.countdown.co.nz/Shop/Browse/',
       rateLimit: 2000,
       maxConnections: 1,
       productCategories: ['bakery/desserts-pies'],
@@ -57,7 +59,7 @@ describe('getProductCategoriesPagingInfo', () => {
 describe('crawlHighLevelProductCategories', () => {
   test('should crawl product high level categories and save to database', () => {
     const config = Immutable.fromJS({
-      baseUrl: "https://shop.countdown.co.nz/Shop/Browse/",
+      baseUrl: 'https://shop.countdown.co.nz/Shop/Browse/',
       rateLimit: 2000,
       maxConnections: 1,
       logLevel: 1,
@@ -65,10 +67,10 @@ describe('crawlHighLevelProductCategories', () => {
     });
 
     return new CountdownWebCrawlerService({
-        logVerboseFunc: message => console.log(message),
-        logInfoFunc: message => console.log(message),
-        logErrorFunc: message => console.log(message),
-      })
+      logVerboseFunc: message => console.log(message),
+      logInfoFunc: message => console.log(message),
+      logErrorFunc: message => console.log(message),
+    })
       .crawlHighLevelProductCategories(config);
   });
 });
@@ -76,8 +78,8 @@ describe('crawlHighLevelProductCategories', () => {
 describe('crawlProducts', () => {
   test('should crawl products and save to database', () => {
     const config = Immutable.fromJS({
-      baseUrl: "https://shop.countdown.co.nz/Shop/Browse/",
-      baseImageUrl: "https://shop.countdown.co.nz",
+      baseUrl: 'https://shop.countdown.co.nz/Shop/Browse/',
+      baseImageUrl: 'https://shop.countdown.co.nz',
       rateLimit: 2000,
       maxConnections: 1,
       logLevel: 1,
@@ -85,10 +87,10 @@ describe('crawlProducts', () => {
     });
 
     return new CountdownWebCrawlerService({
-        logVerboseFunc: message => console.log(message),
-        logInfoFunc: message => console.log(message),
-        logErrorFunc: message => console.log(message),
-      })
+      logVerboseFunc: message => console.log(message),
+      logInfoFunc: message => console.log(message),
+      logErrorFunc: message => console.log(message),
+    })
       .crawlProducts(config);
   });
 });

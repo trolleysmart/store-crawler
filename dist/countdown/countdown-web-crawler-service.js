@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.CountdownWebCrawlerService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -13,8 +14,6 @@ var _crawler2 = _interopRequireDefault(_crawler);
 var _immutable = require('immutable');
 
 var _smartGroceryParseServerCommon = require('smart-grocery-parse-server-common');
-
-var _smartGroceryParseServerCommon2 = _interopRequireDefault(_smartGroceryParseServerCommon);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -148,7 +147,7 @@ var CountdownWebCrawlerService = function () {
             return 'Crawling high level product categories successfully completed. Updating crawl session info...';
           });
 
-          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
+          _smartGroceryParseServerCommon.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success'
           }).then(function () {
             _this.logInfo(finalConfig, function () {
@@ -177,7 +176,7 @@ var CountdownWebCrawlerService = function () {
             return 'Crawling product high level categories ended in error. Updating crawl session info... Error: ' + error;
           });
 
-          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
+          _smartGroceryParseServerCommon.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
             error: error
           }).then(function () {
@@ -232,7 +231,7 @@ var CountdownWebCrawlerService = function () {
             return 'Crawling product successfully completed. Updating crawl session info...';
           });
 
-          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
+          _smartGroceryParseServerCommon.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success'
           }).then(function () {
             _this2.logInfo(finalConfig, function () {
@@ -261,7 +260,7 @@ var CountdownWebCrawlerService = function () {
             return 'Crawling product ended in error. Updating crawl session info... Error: ' + error;
           });
 
-          _smartGroceryParseServerCommon2.default.CrawlService.updateCrawlSession(sessionId, new Date(), {
+          _smartGroceryParseServerCommon.CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
             error: error
           }).then(function () {
@@ -286,10 +285,10 @@ var CountdownWebCrawlerService = function () {
       var _this3 = this;
 
       return new Promise(function (resolve, reject) {
-        var promises = [_smartGroceryParseServerCommon2.default.CrawlService.createNewCrawlSession(sessionKey, new Date())];
+        var promises = [_smartGroceryParseServerCommon.CrawlService.createNewCrawlSession(sessionKey, new Date())];
 
         if (!config) {
-          promises = [].concat(_toConsumableArray(promises), [_smartGroceryParseServerCommon2.default.CrawlService.getStoreCrawlerConfig('Countdown')]);
+          promises = [].concat(_toConsumableArray(promises), [_smartGroceryParseServerCommon.CrawlService.getStoreCrawlerConfig('Countdown')]);
         }
 
         var sessionId = void 0;
@@ -403,7 +402,7 @@ var CountdownWebCrawlerService = function () {
               return 'Received high level product categories: ' + JSON.stringify(highLevelProductCategories);
             });
 
-            _smartGroceryParseServerCommon2.default.CrawlService.addResultSet(sessionId, {
+            _smartGroceryParseServerCommon.CrawlService.addResultSet(sessionId, {
               highLevelProductCategories: highLevelProductCategories
             }).then(function () {
               _this5.logInfo(config, function () {
@@ -461,7 +460,7 @@ var CountdownWebCrawlerService = function () {
               return 'Received products for: ' + JSON.stringify(res) + ' - ' + productCategory + ' - ' + JSON.stringify(products);
             });
 
-            _smartGroceryParseServerCommon2.default.CrawlService.addResultSet(sessionId, {
+            _smartGroceryParseServerCommon.CrawlService.addResultSet(sessionId, {
               productCategory: productCategory,
               products: products
             }).then(function () {
@@ -518,4 +517,5 @@ var CountdownWebCrawlerService = function () {
   return CountdownWebCrawlerService;
 }();
 
+exports.CountdownWebCrawlerService = CountdownWebCrawlerService;
 exports.default = CountdownWebCrawlerService;

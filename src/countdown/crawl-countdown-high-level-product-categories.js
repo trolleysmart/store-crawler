@@ -1,4 +1,6 @@
-import CountdownWebCrawlerService from './countdown-web-crawler-service';
+import {
+  CountdownWebCrawlerService,
+} from './countdown-web-crawler-service';
 
 const jobName = 'Crawl Countdown High Level Product Categories';
 

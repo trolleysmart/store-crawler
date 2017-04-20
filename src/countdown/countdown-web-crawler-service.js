@@ -3,7 +3,9 @@ import {
   List,
   Map,
 } from 'immutable';
-import Common from 'smart-grocery-parse-server-common';
+import {
+  CrawlService,
+} from 'smart-grocery-parse-server-common';
 
 class CountdownWebCrawlerService {
   static getHighLevelProductCategoriesDetails(config, $) {
@@ -151,7 +153,7 @@ class CountdownWebCrawlerService {
         .then(() => {
           this.logInfo(finalConfig, () => 'Crawling high level product categories successfully completed. Updating crawl session info...');
 
-          Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
+          CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
           })
             .then(() => {
@@ -176,7 +178,7 @@ class CountdownWebCrawlerService {
           this.logError(finalConfig, () =>
             `Crawling product high level categories ended in error. Updating crawl session info... Error: ${error}`);
 
-          Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
+          CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
             error,
           })
@@ -220,7 +222,7 @@ class CountdownWebCrawlerService {
         .then(() => {
           this.logInfo(finalConfig, () => 'Crawling product successfully completed. Updating crawl session info...');
 
-          Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
+          CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
           })
             .then(() => {
@@ -244,7 +246,7 @@ class CountdownWebCrawlerService {
 
           this.logError(finalConfig, () => `Crawling product ended in error. Updating crawl session info... Error: ${error}`);
 
-          Common.CrawlService.updateCrawlSession(sessionId, new Date(), {
+          CrawlService.updateCrawlSession(sessionId, new Date(), {
             status: 'success',
             error,
           })
@@ -264,10 +266,10 @@ class CountdownWebCrawlerService {
 
   createNewSessionAndGetConfig(sessionKey, config) {
     return new Promise((resolve, reject) => {
-      let promises = [Common.CrawlService.createNewCrawlSession(sessionKey, new Date())];
+      let promises = [CrawlService.createNewCrawlSession(sessionKey, new Date())];
 
       if (!config) {
-        promises = [...promises, Common.CrawlService.getStoreCrawlerConfig('Countdown')];
+        promises = [...promises, CrawlService.getStoreCrawlerConfig('Countdown')];
       }
 
       let sessionId;
@@ -336,7 +338,8 @@ class CountdownWebCrawlerService {
 
       crawler.on('drain', () => resolve(productsCategoriesPagingInfo));
 
-      config.get('productCategories').forEach(productCategory => crawler.queue(config.get('baseUrl') + productCategory));
+      config.get('productCategories')
+        .forEach(productCategory => crawler.queue(config.get('baseUrl') + productCategory));
     });
   }
 
@@ -362,7 +365,7 @@ class CountdownWebCrawlerService {
           this.logVerbose(config, () =>
             `Received high level product categories: ${JSON.stringify(highLevelProductCategories)}`);
 
-          Common.CrawlService.addResultSet(sessionId, {
+          CrawlService.addResultSet(sessionId, {
             highLevelProductCategories,
           })
             .then(() => {
@@ -411,7 +414,7 @@ class CountdownWebCrawlerService {
           this.logVerbose(config, () =>
             `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products)}`);
 
-          Common.CrawlService.addResultSet(sessionId, {
+          CrawlService.addResultSet(sessionId, {
             productCategory,
             products,
           })
@@ -457,5 +460,9 @@ class CountdownWebCrawlerService {
     }
   }
 }
+
+export {
+  CountdownWebCrawlerService,
+};
 
 export default CountdownWebCrawlerService;

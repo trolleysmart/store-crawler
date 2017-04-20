@@ -1,6 +1,6 @@
 {
   "name": "store-crawler",
-  "version": "0.1.45",
+  "version": "0.1.46",
   "description": "Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "crawler": "^1.0.4",
     "immutable": "^3.8.1",
     "monet": "^0.8.10",
-    "smart-grocery-parse-server-common": "^0.1.18"
+    "smart-grocery-parse-server-common": "^0.1.22"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
