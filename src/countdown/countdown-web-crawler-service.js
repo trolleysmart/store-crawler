@@ -143,19 +143,17 @@ class CountdownWebCrawlerService {
 
   crawlHighLevelProductCategories(config) {
     return new Promise((resolve, reject) => {
-      let sessionId;
       let sessionInfo;
       let finalConfig;
 
       return this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config)
         .then((result) => {
-          sessionId = result.get('sessionId');
           sessionInfo = result.get('sessionInfo');
           finalConfig = result.get('config');
 
           this.logInfo(finalConfig, () => 'Start fetching product categories paging info...');
 
-          return this.crawlHighLevelProductCategoriesAndSaveDetails(sessionId, finalConfig);
+          return this.crawlHighLevelProductCategoriesAndSaveDetails(sessionInfo.get('id'), finalConfig);
         })
         .then(() => {
           this.logInfo(finalConfig, () => 'Crawling high level product categories successfully completed. Updating crawl session info...');
@@ -167,7 +165,7 @@ class CountdownWebCrawlerService {
             })),
           }));
 
-          CrawlSessionService.update(sessionId, updatedSessionInfo)
+          CrawlSessionService.update(updatedSessionInfo)
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -180,7 +178,7 @@ class CountdownWebCrawlerService {
             });
         })
         .catch((error) => {
-          if (!sessionId) {
+          if (!sessionInfo) {
             this.logError(finalConfig, () => `Crawling product high level categories ended in error. Error: ${JSON.stringify(error)}`);
             reject(error);
 
@@ -198,7 +196,7 @@ class CountdownWebCrawlerService {
             })),
           }));
 
-          CrawlSessionService.update(sessionId, updatedSessionInfo)
+          CrawlSessionService.update(updatedSessionInfo)
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -215,13 +213,11 @@ class CountdownWebCrawlerService {
 
   crawlProducts(config) {
     return new Promise((resolve, reject) => {
-      let sessionId;
       let sessionInfo;
       let finalConfig;
 
       return this.createNewSessionAndGetConfig('Countdown Products', config)
         .then((result) => {
-          sessionId = result.get('sessionId');
           sessionInfo = result.get('sessionInfo');
           finalConfig = result.get('config');
 
@@ -235,7 +231,7 @@ class CountdownWebCrawlerService {
 
           this.logInfo(finalConfig, () => 'Start crawling products and save the details...');
 
-          return this.crawlProductsAndSaveDetails(sessionId, finalConfig,
+          return this.crawlProductsAndSaveDetails(sessionInfo.get('id'), finalConfig,
             productsCategoriesPagingInfo);
         })
         .then(() => {
@@ -248,7 +244,7 @@ class CountdownWebCrawlerService {
             })),
           }));
 
-          CrawlSessionService.update(sessionId, updatedSessionInfo)
+          CrawlSessionService.update(updatedSessionInfo)
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -261,7 +257,7 @@ class CountdownWebCrawlerService {
             });
         })
         .catch((error) => {
-          if (!sessionId) {
+          if (!sessionInfo) {
             this.logError(finalConfig, () => `Crawling product ended in error. Error: ${JSON.stringify(error)}`);
             reject(error);
 
@@ -278,7 +274,7 @@ class CountdownWebCrawlerService {
             })),
           }));
 
-          CrawlSessionService.update(sessionId, updatedSessionInfo)
+          CrawlSessionService.update(updatedSessionInfo)
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
@@ -331,8 +327,7 @@ class CountdownWebCrawlerService {
           this.logVerbose(finalConfig, () => `Config: ${JSON.stringify(finalConfig)}`);
 
           resolve(Map({
-            sessionId,
-            sessionInfo,
+            sessionInfo: sessionInfo.set('id', sessionId),
             config: finalConfig,
           }));
         })

@@ -132,12 +132,10 @@ var CountdownWebCrawlerService = function () {
       var _this = this;
 
       return new Promise(function (resolve, reject) {
-        var sessionId = void 0;
         var sessionInfo = void 0;
         var finalConfig = void 0;
 
         return _this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config).then(function (result) {
-          sessionId = result.get('sessionId');
           sessionInfo = result.get('sessionInfo');
           finalConfig = result.get('config');
 
@@ -145,7 +143,7 @@ var CountdownWebCrawlerService = function () {
             return 'Start fetching product categories paging info...';
           });
 
-          return _this.crawlHighLevelProductCategoriesAndSaveDetails(sessionId, finalConfig);
+          return _this.crawlHighLevelProductCategoriesAndSaveDetails(sessionInfo.get('id'), finalConfig);
         }).then(function () {
           _this.logInfo(finalConfig, function () {
             return 'Crawling high level product categories successfully completed. Updating crawl session info...';
@@ -158,7 +156,7 @@ var CountdownWebCrawlerService = function () {
             }))
           }));
 
-          _smartGroceryParseServerCommon.CrawlSessionService.update(sessionId, updatedSessionInfo).then(function () {
+          _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
             _this.logInfo(finalConfig, function () {
               return 'Updating crawl session info successfully completed.';
             });
@@ -172,7 +170,7 @@ var CountdownWebCrawlerService = function () {
             reject(error);
           });
         }).catch(function (error) {
-          if (!sessionId) {
+          if (!sessionInfo) {
             _this.logError(finalConfig, function () {
               return 'Crawling product high level categories ended in error. Error: ' + JSON.stringify(error);
             });
@@ -193,7 +191,7 @@ var CountdownWebCrawlerService = function () {
             }))
           }));
 
-          _smartGroceryParseServerCommon.CrawlSessionService.update(sessionId, updatedSessionInfo).then(function () {
+          _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
             _this.logInfo(finalConfig, function () {
               return 'Updating crawl session info successfully completed.';
             });
@@ -215,12 +213,10 @@ var CountdownWebCrawlerService = function () {
       var _this2 = this;
 
       return new Promise(function (resolve, reject) {
-        var sessionId = void 0;
         var sessionInfo = void 0;
         var finalConfig = void 0;
 
         return _this2.createNewSessionAndGetConfig('Countdown Products', config).then(function (result) {
-          sessionId = result.get('sessionId');
           sessionInfo = result.get('sessionInfo');
           finalConfig = result.get('config');
 
@@ -241,7 +237,7 @@ var CountdownWebCrawlerService = function () {
             return 'Start crawling products and save the details...';
           });
 
-          return _this2.crawlProductsAndSaveDetails(sessionId, finalConfig, productsCategoriesPagingInfo);
+          return _this2.crawlProductsAndSaveDetails(sessionInfo.get('id'), finalConfig, productsCategoriesPagingInfo);
         }).then(function () {
           _this2.logInfo(finalConfig, function () {
             return 'Crawling product successfully completed. Updating crawl session info...';
@@ -254,7 +250,7 @@ var CountdownWebCrawlerService = function () {
             }))
           }));
 
-          _smartGroceryParseServerCommon.CrawlSessionService.update(sessionId, updatedSessionInfo).then(function () {
+          _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
             _this2.logInfo(finalConfig, function () {
               return 'Updating crawl session info successfully completed.';
             });
@@ -268,7 +264,7 @@ var CountdownWebCrawlerService = function () {
             reject(error);
           });
         }).catch(function (error) {
-          if (!sessionId) {
+          if (!sessionInfo) {
             _this2.logError(finalConfig, function () {
               return 'Crawling product ended in error. Error: ' + JSON.stringify(error);
             });
@@ -289,7 +285,7 @@ var CountdownWebCrawlerService = function () {
             }))
           }));
 
-          _smartGroceryParseServerCommon.CrawlSessionService.update(sessionId, updatedSessionInfo).then(function () {
+          _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
             _this2.logInfo(finalConfig, function () {
               return 'Updating crawl session info successfully completed.';
             });
@@ -350,8 +346,7 @@ var CountdownWebCrawlerService = function () {
           });
 
           resolve((0, _immutable.Map)({
-            sessionId: sessionId,
-            sessionInfo: sessionInfo,
+            sessionInfo: sessionInfo.set('id', sessionId),
             config: finalConfig
           }));
         }).catch(function (error) {
