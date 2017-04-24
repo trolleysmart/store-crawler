@@ -10,6 +10,8 @@
     "fixlint": "eslint --fix --ext .jsx --ext .js src",
     "test": "jest",
     "test:watch": "npm test -- --watch",
+    "test-verbose": "jest --verbose",
+    "test-verbose:watch": "npm run test-verbose -- --watch",
     "publish-package": "npm run build && npm publish"
   },
   "repository": {
