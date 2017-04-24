@@ -4,7 +4,12 @@ import {
   Map,
 } from 'immutable';
 import {
-  CrawlService,
+  Maybe,
+} from 'monet';
+import {
+  CrawlResultService,
+  CrawlSessionService,
+  StoreCrawlerConfigurationService,
 } from 'smart-grocery-parse-server-common';
 
 class CountdownWebCrawlerService {
@@ -139,11 +144,13 @@ class CountdownWebCrawlerService {
   crawlHighLevelProductCategories(config) {
     return new Promise((resolve, reject) => {
       let sessionId;
+      let sessionInfo;
       let finalConfig;
 
       return this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config)
         .then((result) => {
           sessionId = result.get('sessionId');
+          sessionInfo = result.get('sessionInfo');
           finalConfig = result.get('config');
 
           this.logInfo(finalConfig, () => 'Start fetching product categories paging info...');
@@ -153,44 +160,54 @@ class CountdownWebCrawlerService {
         .then(() => {
           this.logInfo(finalConfig, () => 'Crawling high level product categories successfully completed. Updating crawl session info...');
 
-          CrawlService.updateCrawlSession(sessionId, new Date(), {
-            status: 'success',
-          })
+          const updatedSessionInfo = sessionInfo.merge(Map({
+            endDateTime: Maybe.Some(new Date()),
+            additionalInfo: Maybe.Some(Map({
+              status: 'success',
+            })),
+          }));
+
+          CrawlSessionService.update(sessionId, updatedSessionInfo)
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
               resolve();
             })
             .catch((error) => {
-              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${error}`);
+              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${JSON.stringify(error)}`);
 
               reject(error);
             });
         })
         .catch((error) => {
           if (!sessionId) {
-            this.logError(finalConfig, () => `Crawling product high level categories ended in error. Error: ${error}`);
+            this.logError(finalConfig, () => `Crawling product high level categories ended in error. Error: ${JSON.stringify(error)}`);
             reject(error);
 
             return;
           }
 
           this.logError(finalConfig, () =>
-            `Crawling product high level categories ended in error. Updating crawl session info... Error: ${error}`);
+            `Crawling product high level categories ended in error. Updating crawl session info... Error: ${JSON.stringify(error)}`);
 
-          CrawlService.updateCrawlSession(sessionId, new Date(), {
-            status: 'success',
-            error,
-          })
+          const updatedSessionInfo = sessionInfo.merge(Map({
+            endDateTime: Maybe.Some(new Date()),
+            additionalInfo: Maybe.Some(Map({
+              status: 'failed',
+              error,
+            })),
+          }));
+
+          CrawlSessionService.update(sessionId, updatedSessionInfo)
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
               reject(error);
             })
             .catch((err) => {
-              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${err}`);
+              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${JSON.stringify(err)}`);
 
-              reject(`${error} - ${err}`);
+              reject(`${JSON.stringify(error)} - ${JSON.stringify(err)}`);
             });
         });
     });
@@ -199,11 +216,13 @@ class CountdownWebCrawlerService {
   crawlProducts(config) {
     return new Promise((resolve, reject) => {
       let sessionId;
+      let sessionInfo;
       let finalConfig;
 
       return this.createNewSessionAndGetConfig('Countdown Products', config)
         .then((result) => {
           sessionId = result.get('sessionId');
+          sessionInfo = result.get('sessionInfo');
           finalConfig = result.get('config');
 
           this.logInfo(finalConfig, () => 'Start fetching product categories paging info...');
@@ -222,43 +241,53 @@ class CountdownWebCrawlerService {
         .then(() => {
           this.logInfo(finalConfig, () => 'Crawling product successfully completed. Updating crawl session info...');
 
-          CrawlService.updateCrawlSession(sessionId, new Date(), {
-            status: 'success',
-          })
+          const updatedSessionInfo = sessionInfo.merge(Map({
+            endDateTime: Maybe.Some(new Date()),
+            additionalInfo: Maybe.Some(Map({
+              status: 'success',
+            })),
+          }));
+
+          CrawlSessionService.update(sessionId, updatedSessionInfo)
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
               resolve();
             })
             .catch((error) => {
-              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${error}`);
+              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${JSON.stringify(error)}`);
 
               reject(error);
             });
         })
         .catch((error) => {
           if (!sessionId) {
-            this.logError(finalConfig, () => `Crawling product ended in error. Error: ${error}`);
+            this.logError(finalConfig, () => `Crawling product ended in error. Error: ${JSON.stringify(error)}`);
             reject(error);
 
             return;
           }
 
-          this.logError(finalConfig, () => `Crawling product ended in error. Updating crawl session info... Error: ${error}`);
+          this.logError(finalConfig, () => `Crawling product ended in error. Updating crawl session info... Error: ${JSON.stringify(error)}`);
 
-          CrawlService.updateCrawlSession(sessionId, new Date(), {
-            status: 'success',
-            error,
-          })
+          const updatedSessionInfo = sessionInfo.merge(Map({
+            endDateTime: Maybe.Some(new Date()),
+            additionalInfo: Maybe.Some(Map({
+              status: 'failed',
+              error,
+            })),
+          }));
+
+          CrawlSessionService.update(sessionId, updatedSessionInfo)
             .then(() => {
               this.logInfo(finalConfig, () => 'Updating crawl session info successfully completed.');
 
               reject(error);
             })
             .catch((err) => {
-              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${err}`);
+              this.logError(finalConfig, () => `Updating crawl session info ended in error. Error: ${JSON.stringify(err)}`);
 
-              reject(`${error} - ${err}`);
+              reject(`${JSON.stringify(error)} - ${JSON.stringify(err)}`);
             });
         });
     });
@@ -266,16 +295,25 @@ class CountdownWebCrawlerService {
 
   createNewSessionAndGetConfig(sessionKey, config) {
     return new Promise((resolve, reject) => {
-      let promises = [CrawlService.createNewCrawlSession(sessionKey, new Date())];
+      const sessionInfo = Map({
+        sessionKey,
+        startDateTime: Maybe.Some(new Date()),
+        endDateTime: Maybe.None(),
+        additionalInfo: Maybe.None(),
+      });
+      let promises = List.of(CrawlSessionService.create(sessionInfo));
 
       if (!config) {
-        promises = [...promises, CrawlService.getStoreCrawlerConfig('Countdown')];
+        promises = promises.push(StoreCrawlerConfigurationService.search(Map({
+          key: 'Countdown',
+          latest: true,
+        })));
       }
 
       let sessionId;
       let finalConfig = config;
 
-      return Promise.all(promises)
+      return Promise.all(promises.toArray())
         .then((results) => {
           sessionId = results[0];
 
@@ -294,11 +332,12 @@ class CountdownWebCrawlerService {
 
           resolve(Map({
             sessionId,
+            sessionInfo,
             config: finalConfig,
           }));
         })
         .catch((error) => {
-          this.logError(finalConfig, () => `Failed to create session and/or retrieving config. Error: ${error}`);
+          this.logError(finalConfig, () => `Failed to create session and/or retrieving config. Error: ${JSON.stringify(error)}`);
           reject(error);
         });
     });
@@ -317,7 +356,7 @@ class CountdownWebCrawlerService {
 
           if (error) {
             done();
-            reject(`Failed to receive page information for Url: ${res.request.uri.href} - Error: ${error}`);
+            reject(`Failed to receive page information for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -354,30 +393,34 @@ class CountdownWebCrawlerService {
 
           if (error) {
             done();
-            reject(`Failed to receive high level product categories for Url: ${res.request.uri.href} - Error: ${error}`);
+            reject(`Failed to receive high level product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
-          const highLevelProductCategories = CountdownWebCrawlerService.getHighLevelProductCategoriesDetails(config, res.$)
-            .toJS();
+          const highLevelProductCategories = CountdownWebCrawlerService.getHighLevelProductCategoriesDetails(config, res.$);
 
           this.logVerbose(config, () =>
-            `Received high level product categories: ${JSON.stringify(highLevelProductCategories)}`);
+            `Received high level product categories: ${JSON.stringify(highLevelProductCategories.toJS())}`);
 
-          CrawlService.addResultSet(sessionId, {
-            highLevelProductCategories,
-          })
+          const crawlResult = Map({
+            crawlSessionId: sessionId,
+            resultSet: Map({
+              highLevelProductCategories,
+            }),
+          });
+
+          CrawlResultService.create(crawlResult)
             .then(() => {
               this.logInfo(config, () => 'Successfully added high level product categories.');
 
               done();
             })
             .catch((err) => {
-              this.logError(config, () => `Failed to save high level product categories. Error: ${err}`);
+              this.logError(config, () => `Failed to save high level product categories. Error: ${JSON.stringify(err)}`);
 
               done();
-              reject(`Failed to save high level product categories. Error: ${err}`);
+              reject(`Failed to save high level product categories. Error: ${JSON.stringify(err)}`);
             });
         },
       });
@@ -401,33 +444,37 @@ class CountdownWebCrawlerService {
 
           if (error) {
             done();
-            reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${error}`);
+            reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
           const productCategoryAndPage = res.request.uri.href.replace(config.get('baseUrl'), '');
           const productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
-          const products = CountdownWebCrawlerService.getProductDetails(config, res.$)
-            .toJS();
+          const products = CountdownWebCrawlerService.getProductDetails(config, res.$);
 
           this.logVerbose(config, () =>
-            `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products)}`);
+            `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products.toJS())}`);
 
-          CrawlService.addResultSet(sessionId, {
-            productCategory,
-            products,
-          })
+          const crawlResult = Map({
+            crawlSessionId: sessionId,
+            resultSet: Map({
+              productCategory,
+              products,
+            }),
+          });
+
+          CrawlResultService.create(crawlResult)
             .then(() => {
               this.logInfo(config, () => `Successfully added products for: ${productCategory}.`);
 
               done();
             })
             .catch((err) => {
-              this.logError(config, () => `Failed to save products for: ${productCategory}. Error: ${err}`);
+              this.logError(config, () => `Failed to save products for: ${productCategory}. Error: ${JSON.stringify(err)}`);
 
               done();
-              reject(`Failed to save products for: ${productCategory}. Error: ${err}`);
+              reject(`Failed to save products for: ${productCategory}. Error: ${JSON.stringify(err)}`);
             });
         },
       });
@@ -438,7 +485,8 @@ class CountdownWebCrawlerService {
 
       productsCategoriesPagingInfo.forEach(productCategoryInfo => [...Array(productCategoryInfo.get('totalPageNumber'))
         .keys(),
-      ].forEach(pageNumber => crawler.queue(`${config.get('baseUrl') + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
+      ].forEach(pageNumber => crawler.queue(
+        `${config.get('baseUrl') + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
     });
   }
 
