@@ -333,7 +333,7 @@ var CountdownWebCrawlerService = function () {
           sessionId = results[0];
 
           if (!finalConfig) {
-            finalConfig = results[1].first();
+            finalConfig = results[1].first().get('config');
           }
 
           if (!finalConfig) {
