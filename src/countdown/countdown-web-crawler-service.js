@@ -2,6 +2,7 @@ import Crawler from 'crawler';
 import {
   List,
   Map,
+  Range,
 } from 'immutable';
 import {
   Maybe,
@@ -314,7 +315,8 @@ class CountdownWebCrawlerService {
           sessionId = results[0];
 
           if (!finalConfig) {
-            finalConfig = results[1].first().get('config');
+            finalConfig = results[1].first()
+              .get('config');
           }
 
           if (!finalConfig) {
@@ -478,10 +480,9 @@ class CountdownWebCrawlerService {
         resolve();
       });
 
-      productsCategoriesPagingInfo.forEach(productCategoryInfo => [...Array(productCategoryInfo.get('totalPageNumber'))
-        .keys(),
-      ].forEach(pageNumber => crawler.queue(
-        `${config.get('baseUrl') + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
+      productsCategoriesPagingInfo.forEach(productCategoryInfo => Range(0, productCategoryInfo.get('totalPageNumber'))
+        .forEach(pageNumber => crawler.queue(
+          `${config.get('baseUrl') + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
     });
   }
 
