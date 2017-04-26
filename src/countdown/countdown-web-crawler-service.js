@@ -61,30 +61,19 @@ class CountdownWebCrawlerService {
               .trim();
             const productTagSource = product.find('.product-tag-desktop img')
               .attr('src');
-            const special = productTagSource ? productTagSource
-              .toLowerCase()
-              .includes('badge-special') : undefined;
-            const lockdownPrice = productTagSource ? productTagSource
-              .toLowerCase()
-              .includes('badge-pricelockdown') : undefined;
-            const lowPriceEveryDay = productTagSource ? productTagSource
-              .toLowerCase()
-              .includes('low_price') : undefined;
-            const glutenFree = productTagSource ? productTagSource
-              .toLowerCase()
-              .includes('badge-gluten-free') : undefined;
-            const newItem = productTagSource ? productTagSource
-              .toLowerCase()
-              .includes('badge-new') : undefined;
-            const onecard = productTagSource ? productTagSource
-              .toLowerCase()
-              .includes('badge-onecard') : undefined;
-            const viewNutritionInfo = productTagSource ? productTagSource
-              .toLowerCase()
-              .includes('view-nutrition-info') : undefined;
-            const fairTradePromotion = productTagSource ? productTagSource
-              .toLowerCase()
-              .includes('fairtrade-promo') : undefined;
+            const productTagSourceString = productTagSource ? productTagSource.toLowerCase()
+              .trim() : '';
+            const special = productTagSourceString.includes('badge-special');
+            const lockdownPrice = productTagSourceString.includes('badge-pricelockdown');
+            const lowPriceEveryDay = productTagSourceString.includes('low_price');
+            const glutenFree = productTagSourceString.includes('badge-gluten-free');
+            const newItem = productTagSourceString.includes('badge-new');
+            const onecard = productTagSourceString.includes('badge-onecard');
+            const viewNutritionInfo = productTagSourceString.includes('view-nutrition-info');
+            const fairTradePromotion = productTagSourceString.includes('fairtrade-promo');
+            const specialMultiBuyIconUrl = productTagSourceString.match(/\dfor\d/);
+            const specialMultiBuyText = specialMultiBuyIconUrl ? productTagSourceString.substring(productTagSourceString.lastIndexOf('/') + 1,
+              productTagSourceString.indexOf('.')) : '';
             const multipleBuyTextLink = product.find('.product-tag-desktop .visible-phone .multi-buy-text-link');
             const multiBuyText = multipleBuyTextLink ? multipleBuyTextLink.attr('title') : undefined;
             const price = product.find('.price')
@@ -112,6 +101,7 @@ class CountdownWebCrawlerService {
               onecard: CountdownWebCrawlerService.convertBoolValToObjectProperty(onecard),
               viewNutritionInfo: CountdownWebCrawlerService.convertBoolValToObjectProperty(viewNutritionInfo),
               fairTradePromotion: CountdownWebCrawlerService.convertBoolValToObjectProperty(fairTradePromotion),
+              specialMultiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(specialMultiBuyText),
               multiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(multiBuyText),
               price: CountdownWebCrawlerService.convertStringValToObjectProperty(price),
               wasPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(wasPrice),

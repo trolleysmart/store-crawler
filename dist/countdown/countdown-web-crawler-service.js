@@ -59,14 +59,17 @@ var CountdownWebCrawlerService = function () {
           var barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
           var description = product.find('.description').text().trim();
           var productTagSource = product.find('.product-tag-desktop img').attr('src');
-          var special = productTagSource ? productTagSource.toLowerCase().includes('badge-special') : undefined;
-          var lockdownPrice = productTagSource ? productTagSource.toLowerCase().includes('badge-pricelockdown') : undefined;
-          var lowPriceEveryDay = productTagSource ? productTagSource.toLowerCase().includes('low_price') : undefined;
-          var glutenFree = productTagSource ? productTagSource.toLowerCase().includes('badge-gluten-free') : undefined;
-          var newItem = productTagSource ? productTagSource.toLowerCase().includes('badge-new') : undefined;
-          var onecard = productTagSource ? productTagSource.toLowerCase().includes('badge-onecard') : undefined;
-          var viewNutritionInfo = productTagSource ? productTagSource.toLowerCase().includes('view-nutrition-info') : undefined;
-          var fairTradePromotion = productTagSource ? productTagSource.toLowerCase().includes('fairtrade-promo') : undefined;
+          var productTagSourceString = productTagSource ? productTagSource.toLowerCase().trim() : '';
+          var special = productTagSourceString.includes('badge-special');
+          var lockdownPrice = productTagSourceString.includes('badge-pricelockdown');
+          var lowPriceEveryDay = productTagSourceString.includes('low_price');
+          var glutenFree = productTagSourceString.includes('badge-gluten-free');
+          var newItem = productTagSourceString.includes('badge-new');
+          var onecard = productTagSourceString.includes('badge-onecard');
+          var viewNutritionInfo = productTagSourceString.includes('view-nutrition-info');
+          var fairTradePromotion = productTagSourceString.includes('fairtrade-promo');
+          var specialMultiBuyIconUrl = productTagSourceString.match(/\dfor\d/);
+          var specialMultiBuyText = specialMultiBuyIconUrl ? productTagSourceString.substring(productTagSourceString.lastIndexOf('/') + 1, productTagSourceString.indexOf('.')) : '';
           var multipleBuyTextLink = product.find('.product-tag-desktop .visible-phone .multi-buy-text-link');
           var multiBuyText = multipleBuyTextLink ? multipleBuyTextLink.attr('title') : undefined;
           var price = product.find('.price').text().trim();
@@ -88,6 +91,7 @@ var CountdownWebCrawlerService = function () {
             onecard: CountdownWebCrawlerService.convertBoolValToObjectProperty(onecard),
             viewNutritionInfo: CountdownWebCrawlerService.convertBoolValToObjectProperty(viewNutritionInfo),
             fairTradePromotion: CountdownWebCrawlerService.convertBoolValToObjectProperty(fairTradePromotion),
+            specialMultiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(specialMultiBuyText),
             multiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(multiBuyText),
             price: CountdownWebCrawlerService.convertStringValToObjectProperty(price),
             wasPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(wasPrice),
