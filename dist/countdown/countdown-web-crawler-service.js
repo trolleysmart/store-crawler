@@ -71,27 +71,49 @@ var CountdownWebCrawlerService = function () {
           var multiBuyText = multipleBuyTextLink ? multipleBuyTextLink.attr('title') : undefined;
           var price = product.find('.price').text().trim();
           var wasPrice = product.find('.was-price').text().trim();
+          var clubPriceTag = product.find('.club-price-wrapper');
+          var clubPrice = clubPriceTag ? clubPriceTag.text().trim() : undefined;
+          var nonClubPriceTag = product.find('.grid-non-club-price');
+          var nonClubPrice = nonClubPriceTag ? nonClubPriceTag.text().trim() : undefined;
 
           products = products.push((0, _immutable.Map)({
-            description: description,
-            barcode: barcode.length > 0 ? barcode : undefined,
-            imageUrl: imageUrl.length > 0 ? imageUrl : undefined,
-            special: special ? true : undefined,
-            lowPriceEveryDay: lowPriceEveryDay ? true : undefined,
-            lockdownPrice: lockdownPrice ? true : undefined,
-            glutenFree: glutenFree ? true : undefined,
-            newItem: newItem ? true : undefined,
-            onecard: onecard ? true : undefined,
-            viewNutritionInfo: viewNutritionInfo ? true : undefined,
-            fairTradePromotion: fairTradePromotion ? true : undefined,
-            multiBuyText: multiBuyText,
-            price: price.length > 0 ? price : undefined,
-            wasPrice: wasPrice.length > 0 ? wasPrice : undefined
+            description: CountdownWebCrawlerService.convertStringValToObjectProperty(description),
+            barcode: CountdownWebCrawlerService.convertStringValToObjectProperty(barcode),
+            imageUrl: CountdownWebCrawlerService.convertStringValToObjectProperty(imageUrl),
+            special: CountdownWebCrawlerService.convertBoolValToObjectProperty(special),
+            lowPriceEveryDay: CountdownWebCrawlerService.convertBoolValToObjectProperty(lowPriceEveryDay),
+            lockdownPrice: CountdownWebCrawlerService.convertBoolValToObjectProperty(lockdownPrice),
+            glutenFree: CountdownWebCrawlerService.convertBoolValToObjectProperty(glutenFree),
+            newItem: CountdownWebCrawlerService.convertBoolValToObjectProperty(newItem),
+            onecard: CountdownWebCrawlerService.convertBoolValToObjectProperty(onecard),
+            viewNutritionInfo: CountdownWebCrawlerService.convertBoolValToObjectProperty(viewNutritionInfo),
+            fairTradePromotion: CountdownWebCrawlerService.convertBoolValToObjectProperty(fairTradePromotion),
+            multiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(multiBuyText),
+            price: CountdownWebCrawlerService.convertStringValToObjectProperty(price),
+            wasPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(wasPrice),
+            clubPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(clubPrice),
+            nonClubPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(nonClubPrice)
           }));
         });
       });
 
       return products;
+    }
+  }, {
+    key: 'convertBoolValToObjectProperty',
+    value: function convertBoolValToObjectProperty(val) {
+      if (val) {
+        return val ? true : undefined;
+      }
+      return undefined;
+    }
+  }, {
+    key: 'convertStringValToObjectProperty',
+    value: function convertStringValToObjectProperty(val) {
+      if (val) {
+        return val.length > 0 ? val : undefined;
+      }
+      return undefined;
     }
   }, {
     key: 'getBarcodeFromImageUrl',
