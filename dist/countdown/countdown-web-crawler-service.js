@@ -13,8 +13,6 @@ var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
 
-var _monet = require('monet');
-
 var _smartGroceryParseServerCommon = require('smart-grocery-parse-server-common');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -174,10 +172,10 @@ var CountdownWebCrawlerService = function () {
           });
 
           var updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-            endDateTime: _monet.Maybe.Some(new Date()),
-            additionalInfo: _monet.Maybe.Some((0, _immutable.Map)({
+            endDateTime: new Date(),
+            additionalInfo: (0, _immutable.Map)({
               status: 'success'
-            }))
+            })
           }));
 
           _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
@@ -208,11 +206,11 @@ var CountdownWebCrawlerService = function () {
           });
 
           var updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-            endDateTime: _monet.Maybe.Some(new Date()),
-            additionalInfo: _monet.Maybe.Some((0, _immutable.Map)({
+            endDateTime: new Date(),
+            additionalInfo: (0, _immutable.Map)({
               status: 'failed',
               error: error
-            }))
+            })
           }));
 
           _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
@@ -268,10 +266,10 @@ var CountdownWebCrawlerService = function () {
           });
 
           var updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-            endDateTime: _monet.Maybe.Some(new Date()),
-            additionalInfo: _monet.Maybe.Some((0, _immutable.Map)({
+            endDateTime: new Date(),
+            additionalInfo: (0, _immutable.Map)({
               status: 'success'
-            }))
+            })
           }));
 
           _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
@@ -302,11 +300,11 @@ var CountdownWebCrawlerService = function () {
           });
 
           var updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-            endDateTime: _monet.Maybe.Some(new Date()),
-            additionalInfo: _monet.Maybe.Some((0, _immutable.Map)({
+            endDateTime: new Date(),
+            additionalInfo: (0, _immutable.Map)({
               status: 'failed',
               error: error
-            }))
+            })
           }));
 
           _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
@@ -333,16 +331,16 @@ var CountdownWebCrawlerService = function () {
       return new Promise(function (resolve, reject) {
         var sessionInfo = (0, _immutable.Map)({
           sessionKey: sessionKey,
-          startDateTime: _monet.Maybe.Some(new Date()),
-          endDateTime: _monet.Maybe.None(),
-          additionalInfo: _monet.Maybe.None()
+          startDateTime: new Date()
         });
         var promises = _immutable.List.of(_smartGroceryParseServerCommon.CrawlSessionService.create(sessionInfo));
 
         if (!config) {
           promises = promises.push(_smartGroceryParseServerCommon.StoreCrawlerConfigurationService.search((0, _immutable.Map)({
-            key: 'Countdown',
-            latest: true
+            conditions: (0, _immutable.Map)({
+              key: 'Countdown'
+            }),
+            topMost: true
           })));
         }
 

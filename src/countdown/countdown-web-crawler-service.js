@@ -5,9 +5,6 @@ import {
   Range,
 } from 'immutable';
 import {
-  Maybe,
-} from 'monet';
-import {
   CrawlResultService,
   CrawlSessionService,
   StoreCrawlerConfigurationService,
@@ -172,10 +169,10 @@ class CountdownWebCrawlerService {
           this.logInfo(finalConfig, () => 'Crawling high level product categories successfully completed. Updating crawl session info...');
 
           const updatedSessionInfo = sessionInfo.merge(Map({
-            endDateTime: Maybe.Some(new Date()),
-            additionalInfo: Maybe.Some(Map({
+            endDateTime: new Date(),
+            additionalInfo: Map({
               status: 'success',
-            })),
+            }),
           }));
 
           CrawlSessionService.update(updatedSessionInfo)
@@ -202,11 +199,11 @@ class CountdownWebCrawlerService {
             `Crawling product high level categories ended in error. Updating crawl session info... Error: ${JSON.stringify(error)}`);
 
           const updatedSessionInfo = sessionInfo.merge(Map({
-            endDateTime: Maybe.Some(new Date()),
-            additionalInfo: Maybe.Some(Map({
+            endDateTime: new Date(),
+            additionalInfo: Map({
               status: 'failed',
               error,
-            })),
+            }),
           }));
 
           CrawlSessionService.update(updatedSessionInfo)
@@ -251,10 +248,10 @@ class CountdownWebCrawlerService {
           this.logInfo(finalConfig, () => 'Crawling product successfully completed. Updating crawl session info...');
 
           const updatedSessionInfo = sessionInfo.merge(Map({
-            endDateTime: Maybe.Some(new Date()),
-            additionalInfo: Maybe.Some(Map({
+            endDateTime: new Date(),
+            additionalInfo: Map({
               status: 'success',
-            })),
+            }),
           }));
 
           CrawlSessionService.update(updatedSessionInfo)
@@ -280,11 +277,11 @@ class CountdownWebCrawlerService {
           this.logError(finalConfig, () => `Crawling product ended in error. Updating crawl session info... Error: ${JSON.stringify(error)}`);
 
           const updatedSessionInfo = sessionInfo.merge(Map({
-            endDateTime: Maybe.Some(new Date()),
-            additionalInfo: Maybe.Some(Map({
+            endDateTime: new Date(),
+            additionalInfo: Map({
               status: 'failed',
               error,
-            })),
+            }),
           }));
 
           CrawlSessionService.update(updatedSessionInfo)
@@ -306,16 +303,16 @@ class CountdownWebCrawlerService {
     return new Promise((resolve, reject) => {
       const sessionInfo = Map({
         sessionKey,
-        startDateTime: Maybe.Some(new Date()),
-        endDateTime: Maybe.None(),
-        additionalInfo: Maybe.None(),
+        startDateTime: new Date(),
       });
       let promises = List.of(CrawlSessionService.create(sessionInfo));
 
       if (!config) {
         promises = promises.push(StoreCrawlerConfigurationService.search(Map({
-          key: 'Countdown',
-          latest: true,
+          conditions: Map({
+            key: 'Countdown',
+          }),
+          topMost: true,
         })));
       }
 
