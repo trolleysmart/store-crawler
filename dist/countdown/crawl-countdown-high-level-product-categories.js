@@ -2,6 +2,10 @@
 
 var _countdownWebCrawlerService = require('./countdown-web-crawler-service');
 
+var _countdownWebCrawlerService2 = _interopRequireDefault(_countdownWebCrawlerService);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var jobName = 'Crawl Countdown High Level Product Categories';
 
 Parse.Cloud.job(jobName, function (request, status) {
@@ -11,7 +15,7 @@ Parse.Cloud.job(jobName, function (request, status) {
   log.info('The job ' + jobName + ' has started.');
   status.message('The job ' + jobName + ' has started.');
 
-  var service = new _countdownWebCrawlerService.CountdownWebCrawlerService({
+  var service = new _countdownWebCrawlerService2.default({
     logVerboseFunc: function logVerboseFunc(message) {
       return log.info(message);
     },

@@ -1,8 +1,6 @@
 import Immutable from 'immutable';
 import '../../bootstrap';
-import {
-  CountdownWebCrawlerService,
-} from './countdown-web-crawler-service';
+import CountdownWebCrawlerService from './countdown-web-crawler-service';
 
 describe('getProductCategoriesPagingInfo', () => {
   test('should capture paging info for product categories with multiple page', () => {

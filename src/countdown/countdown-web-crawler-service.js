@@ -10,8 +10,8 @@ import {
   StoreCrawlerConfigurationService,
 } from 'smart-grocery-parse-server-common';
 
-class CountdownWebCrawlerService {
-  static getHighLevelProductCategoriesDetails(config, $) {
+export default class CountdownWebCrawlerService {
+  static getHighLevelProductCategoriesDetails = (config, $) => {
     let highLevelProductCategories = List();
 
     $('#BrowseSlideBox')
@@ -40,7 +40,7 @@ class CountdownWebCrawlerService {
       highLevelProductCategories;
   }
 
-  static getProductDetails(config, $) {
+  static getProductDetails = (config, $) => {
     let products = List();
 
     $('#product-list')
@@ -111,21 +111,23 @@ class CountdownWebCrawlerService {
     return products;
   }
 
-  static convertBoolValToObjectProperty(val) {
+  static convertBoolValToObjectProperty = (val) => {
     if (val) {
       return val ? true : undefined;
     }
+
     return undefined;
   }
 
-  static convertStringValToObjectProperty(val) {
+  static convertStringValToObjectProperty = (val) => {
     if (val) {
       return val.length > 0 ? val : undefined;
     }
+
     return undefined;
   }
 
-  static getBarcodeFromImageUrl(imageUrl) {
+  static getBarcodeFromImageUrl = (imageUrl) => {
     const str = imageUrl.substr(imageUrl.indexOf('big/') + 4);
     const barcode = str.substr(0, str.indexOf('.jpg'));
 
@@ -140,23 +142,13 @@ class CountdownWebCrawlerService {
     this.logVerboseFunc = logVerboseFunc;
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
-
-    this.crawlHighLevelProductCategories = this.crawlHighLevelProductCategories.bind(this);
-    this.crawlProducts = this.crawlProducts.bind(this);
-    this.getProductCategoriesPagingInfo = this.getProductCategoriesPagingInfo.bind(this);
-    this.crawlHighLevelProductCategoriesAndSaveDetails = this.crawlHighLevelProductCategoriesAndSaveDetails.bind(this);
-    this.crawlProductsAndSaveDetails = this.crawlProductsAndSaveDetails.bind(this);
-    this.logVerbose = this.logVerbose.bind(this);
-    this.logInfo = this.logInfo.bind(this);
-    this.logError = this.logError.bind(this);
   }
 
-  crawlHighLevelProductCategories(config) {
-    return new Promise((resolve, reject) => {
-      let sessionInfo;
-      let finalConfig;
+  crawlHighLevelProductCategories = config => new Promise((resolve, reject) => {
+    let sessionInfo;
+    let finalConfig;
 
-      return this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config)
+    return this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config)
         .then((result) => {
           sessionInfo = result.get('sessionInfo');
           finalConfig = result.get('config');
@@ -218,15 +210,13 @@ class CountdownWebCrawlerService {
               reject(`${JSON.stringify(error)} - ${JSON.stringify(err)}`);
             });
         });
-    });
-  }
+  })
 
-  crawlProducts(config) {
-    return new Promise((resolve, reject) => {
-      let sessionInfo;
-      let finalConfig;
+  crawlProducts = config => new Promise((resolve, reject) => {
+    let sessionInfo;
+    let finalConfig;
 
-      return this.createNewSessionAndGetConfig('Countdown Products', config)
+    return this.createNewSessionAndGetConfig('Countdown Products', config)
         .then((result) => {
           sessionInfo = result.get('sessionInfo');
           finalConfig = result.get('config');
@@ -296,30 +286,28 @@ class CountdownWebCrawlerService {
               reject(`${JSON.stringify(error)} - ${JSON.stringify(err)}`);
             });
         });
+  })
+
+  createNewSessionAndGetConfig = (sessionKey, config) => new Promise((resolve, reject) => {
+    const sessionInfo = Map({
+      sessionKey,
+      startDateTime: new Date(),
     });
-  }
+    let promises = List.of(CrawlSessionService.create(sessionInfo));
 
-  createNewSessionAndGetConfig(sessionKey, config) {
-    return new Promise((resolve, reject) => {
-      const sessionInfo = Map({
-        sessionKey,
-        startDateTime: new Date(),
-      });
-      let promises = List.of(CrawlSessionService.create(sessionInfo));
+    if (!config) {
+      promises = promises.push(StoreCrawlerConfigurationService.search(Map({
+        conditions: Map({
+          key: 'Countdown',
+        }),
+        topMost: true,
+      })));
+    }
 
-      if (!config) {
-        promises = promises.push(StoreCrawlerConfigurationService.search(Map({
-          conditions: Map({
-            key: 'Countdown',
-          }),
-          topMost: true,
-        })));
-      }
+    let sessionId;
+    let finalConfig = config;
 
-      let sessionId;
-      let finalConfig = config;
-
-      return Promise.all(promises.toArray())
+    return Promise.all(promises.toArray())
         .then((results) => {
           sessionId = results[0];
 
@@ -346,77 +334,73 @@ class CountdownWebCrawlerService {
           this.logError(finalConfig, () => `Failed to create session and/or retrieving config. Error: ${JSON.stringify(error)}`);
           reject(error);
         });
-    });
-  }
+  })
 
-  getProductCategoriesPagingInfo(config) {
-    return new Promise((resolve, reject) => {
-      let productsCategoriesPagingInfo = List();
+  getProductCategoriesPagingInfo = config => new Promise((resolve, reject) => {
+    let productsCategoriesPagingInfo = List();
 
-      const crawler = new Crawler({
-        rateLimit: config.get('rateLimit'),
-        maxConnections: config.get('maxConnections'),
-        callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+    const crawler = new Crawler({
+      rateLimit: config.get('rateLimit'),
+      maxConnections: config.get('maxConnections'),
+      callback: (error, res, done) => {
+        this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+        this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
-          if (error) {
-            done();
-            reject(`Failed to receive page information for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+        if (error) {
+          done();
+          reject(`Failed to receive page information for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
 
-            return;
-          }
+          return;
+        }
 
-          const totalPageNumber = parseInt(res.$('.paging-container .paging .page-number')
+        const totalPageNumber = parseInt(res.$('.paging-container .paging .page-number')
             .last()
             .text(), 10);
 
-          productsCategoriesPagingInfo = productsCategoriesPagingInfo.push(
+        productsCategoriesPagingInfo = productsCategoriesPagingInfo.push(
             Map({
               productCategory: res.request.uri.href.replace(config.get('baseUrl'), ''),
               totalPageNumber: totalPageNumber || 1,
             }));
 
-          done();
-        },
-      });
-
-      crawler.on('drain', () => resolve(productsCategoriesPagingInfo));
-
-      config.get('productCategories')
-        .forEach(productCategory => crawler.queue(config.get('baseUrl') + productCategory));
+        done();
+      },
     });
-  }
 
-  crawlHighLevelProductCategoriesAndSaveDetails(sessionId, config) {
-    return new Promise((resolve, reject) => {
-      const crawler = new Crawler({
-        rateLimit: config.get('rateLimit'),
-        maxConnections: config.get('maxConnections'),
-        callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+    crawler.on('drain', () => resolve(productsCategoriesPagingInfo));
 
-          if (error) {
-            done();
-            reject(`Failed to receive high level product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+    config.get('productCategories')
+        .forEach(productCategory => crawler.queue(config.get('baseUrl') + productCategory));
+  })
 
-            return;
-          }
+  crawlHighLevelProductCategoriesAndSaveDetails = (sessionId, config) => new Promise((resolve, reject) => {
+    const crawler = new Crawler({
+      rateLimit: config.get('rateLimit'),
+      maxConnections: config.get('maxConnections'),
+      callback: (error, res, done) => {
+        this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+        this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
-          const highLevelProductCategories = CountdownWebCrawlerService.getHighLevelProductCategoriesDetails(config, res.$);
+        if (error) {
+          done();
+          reject(`Failed to receive high level product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
 
-          this.logVerbose(config, () =>
+          return;
+        }
+
+        const highLevelProductCategories = CountdownWebCrawlerService.getHighLevelProductCategoriesDetails(config, res.$);
+
+        this.logVerbose(config, () =>
             `Received high level product categories: ${JSON.stringify(highLevelProductCategories.toJS())}`);
 
-          const crawlResult = Map({
-            crawlSessionId: sessionId,
-            resultSet: Map({
-              highLevelProductCategories,
-            }),
-          });
+        const crawlResult = Map({
+          crawlSessionId: sessionId,
+          resultSet: Map({
+            highLevelProductCategories,
+          }),
+        });
 
-          CrawlResultService.create(crawlResult)
+        CrawlResultService.create(crawlResult)
             .then(() => {
               this.logInfo(config, () => 'Successfully added high level product categories.');
 
@@ -428,49 +412,47 @@ class CountdownWebCrawlerService {
               done();
               reject(`Failed to save high level product categories. Error: ${JSON.stringify(err)}`);
             });
-        },
-      });
-
-      crawler.on('drain', () => {
-        resolve();
-      });
-
-      crawler.queue(config.get('baseUrl'));
+      },
     });
-  }
 
-  crawlProductsAndSaveDetails(sessionId, config, productsCategoriesPagingInfo) {
-    return new Promise((resolve, reject) => {
-      const crawler = new Crawler({
-        rateLimit: config.get('rateLimit'),
-        maxConnections: config.get('maxConnections'),
-        callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+    crawler.on('drain', () => {
+      resolve();
+    });
 
-          if (error) {
-            done();
-            reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+    crawler.queue(config.get('baseUrl'));
+  })
 
-            return;
-          }
+  crawlProductsAndSaveDetails = (sessionId, config, productsCategoriesPagingInfo) => new Promise((resolve, reject) => {
+    const crawler = new Crawler({
+      rateLimit: config.get('rateLimit'),
+      maxConnections: config.get('maxConnections'),
+      callback: (error, res, done) => {
+        this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+        this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
-          const productCategoryAndPage = res.request.uri.href.replace(config.get('baseUrl'), '');
-          const productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
-          const products = CountdownWebCrawlerService.getProductDetails(config, res.$);
+        if (error) {
+          done();
+          reject(`Failed to receive products for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
 
-          this.logVerbose(config, () =>
+          return;
+        }
+
+        const productCategoryAndPage = res.request.uri.href.replace(config.get('baseUrl'), '');
+        const productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
+        const products = CountdownWebCrawlerService.getProductDetails(config, res.$);
+
+        this.logVerbose(config, () =>
             `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products.toJS())}`);
 
-          const crawlResult = Map({
-            crawlSessionId: sessionId,
-            resultSet: Map({
-              productCategory,
-              products,
-            }),
-          });
+        const crawlResult = Map({
+          crawlSessionId: sessionId,
+          resultSet: Map({
+            productCategory,
+            products,
+          }),
+        });
 
-          CrawlResultService.create(crawlResult)
+        CrawlResultService.create(crawlResult)
             .then(() => {
               this.logInfo(config, () => `Successfully added products for: ${productCategory}.`);
 
@@ -482,40 +464,33 @@ class CountdownWebCrawlerService {
               done();
               reject(`Failed to save products for: ${productCategory}. Error: ${JSON.stringify(err)}`);
             });
-        },
-      });
+      },
+    });
 
-      crawler.on('drain', () => {
-        resolve();
-      });
+    crawler.on('drain', () => {
+      resolve();
+    });
 
-      productsCategoriesPagingInfo.forEach(productCategoryInfo => Range(0, productCategoryInfo.get('totalPageNumber'))
+    productsCategoriesPagingInfo.forEach(productCategoryInfo => Range(0, productCategoryInfo.get('totalPageNumber'))
         .forEach(pageNumber => crawler.queue(
           `${config.get('baseUrl') + productCategoryInfo.get('productCategory')}?page=${pageNumber + 1}`)));
-    });
-  }
+  })
 
-  logVerbose(config, messageFunc) {
+  logVerbose = (config, messageFunc) => {
     if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       this.logVerboseFunc(messageFunc());
     }
   }
 
-  logInfo(config, messageFunc) {
+  logInfo = (config, messageFunc) => {
     if (this.logInfoFunc && config && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
       this.logInfoFunc(messageFunc());
     }
   }
 
-  logError(config, messageFunc) {
+  logError = (config, messageFunc) => {
     if (this.logErrorFunc && config && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
       this.logErrorFunc(messageFunc());
     }
   }
 }
-
-export {
-  CountdownWebCrawlerService,
-};
-
-export default CountdownWebCrawlerService;
