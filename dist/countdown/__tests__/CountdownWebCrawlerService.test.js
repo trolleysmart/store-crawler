@@ -4,11 +4,11 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
-require('../../bootstrap');
+require('../../../bootstrap');
 
-var _countdownWebCrawlerService = require('./countdown-web-crawler-service');
+var _CountdownWebCrawlerService = require('../CountdownWebCrawlerService');
 
-var _countdownWebCrawlerService2 = _interopRequireDefault(_countdownWebCrawlerService);
+var _CountdownWebCrawlerService2 = _interopRequireDefault(_CountdownWebCrawlerService);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21,7 +21,7 @@ describe('getProductCategoriesPagingInfo', function () {
       productCategories: ['bakery']
     });
 
-    return new _countdownWebCrawlerService2.default({}).getProductCategoriesPagingInfo(config).then(function (productsCategoriesPagingInfo) {
+    return new _CountdownWebCrawlerService2.default({}).getProductCategoriesPagingInfo(config).then(function (productsCategoriesPagingInfo) {
       expect(productsCategoriesPagingInfo).toBeDefined();
 
       var bakeryPagingInfo = productsCategoriesPagingInfo.find(function (_) {
@@ -40,7 +40,7 @@ describe('getProductCategoriesPagingInfo', function () {
       productCategories: ['bakery/desserts-pies']
     });
 
-    return new _countdownWebCrawlerService2.default({}).getProductCategoriesPagingInfo(config).then(function (productsCategoriesPagingInfo) {
+    return new _CountdownWebCrawlerService2.default({}).getProductCategoriesPagingInfo(config).then(function (productsCategoriesPagingInfo) {
       expect(productsCategoriesPagingInfo).toBeDefined();
 
       var bakeryPagingInfo = productsCategoriesPagingInfo.find(function (_) {
@@ -62,7 +62,7 @@ describe('crawlHighLevelProductCategories', function () {
       highLevelProductCategoriesFilterList: ['restricted-items']
     });
 
-    return new _countdownWebCrawlerService2.default({
+    return new _CountdownWebCrawlerService2.default({
       logVerboseFunc: function logVerboseFunc(message) {
         return console.log(message);
       },
@@ -87,7 +87,7 @@ describe('crawlProducts', function () {
       productCategories: ['bakery/desserts-pies']
     });
 
-    return new _countdownWebCrawlerService2.default({
+    return new _CountdownWebCrawlerService2.default({
       logVerboseFunc: function logVerboseFunc(message) {
         return console.log(message);
       },

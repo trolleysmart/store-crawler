@@ -1,8 +1,8 @@
 'use strict';
 
-var _countdownWebCrawlerService = require('./countdown-web-crawler-service');
+var _CountdownWebCrawlerService = require('./CountdownWebCrawlerService');
 
-var _countdownWebCrawlerService2 = _interopRequireDefault(_countdownWebCrawlerService);
+var _CountdownWebCrawlerService2 = _interopRequireDefault(_CountdownWebCrawlerService);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -15,7 +15,7 @@ Parse.Cloud.job(jobName, function (request, status) {
   log.info('The job ' + jobName + ' has started.');
   status.message('The job ' + jobName + ' has started.');
 
-  var service = new _countdownWebCrawlerService2.default({
+  var service = new _CountdownWebCrawlerService2.default({
     logVerboseFunc: function logVerboseFunc(message) {
       return log.info(message);
     },

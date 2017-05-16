@@ -1,5 +1,5 @@
 'use strict';
 
-require('./crawl-countdown-products');
+require('./CrawlCountdownProducts');
 
-require('./crawl-countdown-high-level-product-categories');
+require('./CrawlCountdownHighLevelProductCategories');

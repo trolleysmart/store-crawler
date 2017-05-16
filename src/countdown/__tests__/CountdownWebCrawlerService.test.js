@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
-import '../../bootstrap';
-import CountdownWebCrawlerService from './countdown-web-crawler-service';
+import '../../../bootstrap';
+import CountdownWebCrawlerService from '../CountdownWebCrawlerService';
 
 describe('getProductCategoriesPagingInfo', () => {
   test('should capture paging info for product categories with multiple page', () => {
@@ -11,21 +11,15 @@ describe('getProductCategoriesPagingInfo', () => {
       productCategories: ['bakery'],
     });
 
-    return new CountdownWebCrawlerService({})
-      .getProductCategoriesPagingInfo(config)
-      .then((productsCategoriesPagingInfo) => {
-        expect(productsCategoriesPagingInfo)
-          .toBeDefined();
+    return new CountdownWebCrawlerService({}).getProductCategoriesPagingInfo(config).then((productsCategoriesPagingInfo) => {
+      expect(productsCategoriesPagingInfo).toBeDefined();
 
-        const bakeryPagingInfo = productsCategoriesPagingInfo
-          .find(_ => _.get('productCategory')
-            .localeCompare(config.get('productCategories')
-              .first()) === 0);
-        expect(bakeryPagingInfo)
-          .toBeDefined();
-        expect(bakeryPagingInfo.get('totalPageNumber'))
-          .toBeDefined();
-      });
+      const bakeryPagingInfo = productsCategoriesPagingInfo.find(
+        _ => _.get('productCategory').localeCompare(config.get('productCategories').first()) === 0,
+      );
+      expect(bakeryPagingInfo).toBeDefined();
+      expect(bakeryPagingInfo.get('totalPageNumber')).toBeDefined();
+    });
   });
 
   test('should capture paging info for product categories with single page', () => {
@@ -36,21 +30,15 @@ describe('getProductCategoriesPagingInfo', () => {
       productCategories: ['bakery/desserts-pies'],
     });
 
-    return new CountdownWebCrawlerService({})
-      .getProductCategoriesPagingInfo(config)
-      .then((productsCategoriesPagingInfo) => {
-        expect(productsCategoriesPagingInfo)
-          .toBeDefined();
+    return new CountdownWebCrawlerService({}).getProductCategoriesPagingInfo(config).then((productsCategoriesPagingInfo) => {
+      expect(productsCategoriesPagingInfo).toBeDefined();
 
-        const bakeryPagingInfo = productsCategoriesPagingInfo
-          .find(_ => _.get('productCategory')
-            .localeCompare(config.get('productCategories')
-              .first()) === 0);
-        expect(bakeryPagingInfo)
-          .toBeDefined();
-        expect(bakeryPagingInfo.get('totalPageNumber'))
-          .toBeDefined();
-      });
+      const bakeryPagingInfo = productsCategoriesPagingInfo.find(
+        _ => _.get('productCategory').localeCompare(config.get('productCategories').first()) === 0,
+      );
+      expect(bakeryPagingInfo).toBeDefined();
+      expect(bakeryPagingInfo.get('totalPageNumber')).toBeDefined();
+    });
   });
 });
 
@@ -68,8 +56,7 @@ describe('crawlHighLevelProductCategories', () => {
       logVerboseFunc: message => console.log(message),
       logInfoFunc: message => console.log(message),
       logErrorFunc: message => console.log(message),
-    })
-      .crawlHighLevelProductCategories(config);
+    }).crawlHighLevelProductCategories(config);
   });
 });
 
@@ -88,7 +75,6 @@ describe('crawlProducts', () => {
       logVerboseFunc: message => console.log(message),
       logInfoFunc: message => console.log(message),
       logErrorFunc: message => console.log(message),
-    })
-      .crawlProducts(config);
+    }).crawlProducts(config);
   });
 });
