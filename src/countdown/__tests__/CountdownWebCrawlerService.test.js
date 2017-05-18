@@ -1,3 +1,5 @@
+// @flow
+
 import Immutable from 'immutable';
 import '../../../bootstrap';
 import CountdownWebCrawlerService from '../CountdownWebCrawlerService';

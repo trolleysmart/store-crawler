@@ -10,9 +10,13 @@ var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
 
+var _microBusinessParseServerCommon = require('micro-business-parse-server-common');
+
 var _smartGroceryParseServerCommon = require('smart-grocery-parse-server-common');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -25,227 +29,239 @@ var CountdownWebCrawlerService = function CountdownWebCrawlerService(_ref) {
 
   _classCallCheck(this, CountdownWebCrawlerService);
 
-  this.crawlHighLevelProductCategories = function (config) {
-    return new Promise(function (resolve, reject) {
-      var sessionInfo = void 0;
-      var finalConfig = void 0;
+  this.crawlHighLevelProductCategories = function () {
+    var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(config) {
+      var result, sessionInfo, finalConfig, updatedSessionInfo, _updatedSessionInfo;
 
-      return _this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config).then(function (result) {
-        sessionInfo = result.get('sessionInfo');
-        finalConfig = result.get('config');
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return _this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config);
 
-        _this.logInfo(finalConfig, function () {
-          return 'Start fetching product categories paging info...';
-        });
+            case 2:
+              result = _context.sent;
+              sessionInfo = result.get('sessionInfo');
+              finalConfig = result.get('config');
+              _context.prev = 5;
 
-        return _this.crawlHighLevelProductCategoriesAndSaveDetails(sessionInfo.get('id'), finalConfig);
-      }).then(function () {
-        _this.logInfo(finalConfig, function () {
-          return 'Crawling high level product categories successfully completed. Updating crawl session info...';
-        });
+              _this.logInfo(finalConfig, function () {
+                return 'Start fetching product categories paging info...';
+              });
 
-        var updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-          endDateTime: new Date(),
-          additionalInfo: (0, _immutable.Map)({
-            status: 'success'
-          })
-        }));
+              _context.next = 9;
+              return _this.crawlHighLevelProductCategoriesAndSaveDetails(sessionInfo.get('id'), finalConfig);
 
-        _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
-          _this.logInfo(finalConfig, function () {
-            return 'Updating crawl session info successfully completed.';
-          });
+            case 9:
 
-          resolve();
-        }).catch(function (error) {
-          _this.logError(finalConfig, function () {
-            return 'Updating crawl session info ended in error. Error: ' + JSON.stringify(error);
-          });
+              _this.logInfo(finalConfig, function () {
+                return 'Crawling high level product categories successfully completed.';
+              });
+              _context.next = 17;
+              break;
 
-          reject(error);
-        });
-      }).catch(function (error) {
-        if (!sessionInfo) {
-          _this.logError(finalConfig, function () {
-            return 'Crawling product high level categories ended in error. Error: ' + JSON.stringify(error);
-          });
-          reject(error);
+            case 12:
+              _context.prev = 12;
+              _context.t0 = _context['catch'](5);
+              updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
+                endDateTime: new Date(),
+                additionalInfo: (0, _immutable.Map)({
+                  status: 'failed',
+                  error: _context.t0.getErrorMessage()
+                })
+              }));
+              _context.next = 17;
+              return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
 
-          return;
+            case 17:
+              _context.prev = 17;
+              _updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
+                endDateTime: new Date(),
+                additionalInfo: (0, _immutable.Map)({
+                  status: 'success'
+                })
+              }));
+              _context.next = 21;
+              return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo);
+
+            case 21:
+              return _context.finish(17);
+
+            case 22:
+            case 'end':
+              return _context.stop();
+          }
         }
+      }, _callee, _this, [[5, 12, 17, 22]]);
+    }));
 
-        _this.logError(finalConfig, function () {
-          return 'Crawling product high level categories ended in error. Updating crawl session info... Error: ' + JSON.stringify(error);
-        });
+    return function (_x) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
 
-        var updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-          endDateTime: new Date(),
-          additionalInfo: (0, _immutable.Map)({
-            status: 'failed',
-            error: error
-          })
-        }));
+  this.crawlProducts = function () {
+    var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(config) {
+      var result, sessionInfo, finalConfig, productsCategoriesPagingInfo, updatedSessionInfo, _updatedSessionInfo2;
 
-        _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
-          _this.logInfo(finalConfig, function () {
-            return 'Updating crawl session info successfully completed.';
-          });
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _context2.next = 2;
+              return _this.createNewSessionAndGetConfig('Countdown Products', config);
 
-          reject(error);
-        }).catch(function (err) {
-          _this.logError(finalConfig, function () {
-            return 'Updating crawl session info ended in error. Error: ' + JSON.stringify(err);
-          });
+            case 2:
+              result = _context2.sent;
+              sessionInfo = result.get('sessionInfo');
+              finalConfig = result.get('config');
+              _context2.prev = 5;
 
-          reject(JSON.stringify(error) + ' - ' + JSON.stringify(err));
-        });
-      });
-    });
-  };
+              _this.logInfo(finalConfig, function () {
+                return 'Start fetching product categories paging info...';
+              });
 
-  this.crawlProducts = function (config) {
-    return new Promise(function (resolve, reject) {
-      var sessionInfo = void 0;
-      var finalConfig = void 0;
+              _context2.next = 9;
+              return _this.getProductCategoriesPagingInfo(finalConfig);
 
-      return _this.createNewSessionAndGetConfig('Countdown Products', config).then(function (result) {
-        sessionInfo = result.get('sessionInfo');
-        finalConfig = result.get('config');
+            case 9:
+              productsCategoriesPagingInfo = _context2.sent;
 
-        _this.logInfo(finalConfig, function () {
-          return 'Start fetching product categories paging info...';
-        });
+              _this.logInfo(finalConfig, function () {
+                return 'Finished fetching product categories paging info.';
+              });
+              _this.logVerbose(finalConfig, function () {
+                return 'Fetched product categories paging info: ' + productsCategoriesPagingInfo;
+              });
 
-        return _this.getProductCategoriesPagingInfo(finalConfig);
-      }).then(function (productsCategoriesPagingInfo) {
-        _this.logInfo(finalConfig, function () {
-          return 'Finished fetching product categories paging info.';
-        });
-        _this.logVerbose(finalConfig, function () {
-          return 'Fetched product categories paging info: ' + productsCategoriesPagingInfo;
-        });
+              _this.logInfo(finalConfig, function () {
+                return 'Start crawling products and save the details...';
+              });
 
-        _this.logInfo(finalConfig, function () {
-          return 'Start crawling products and save the details...';
-        });
+              _context2.next = 15;
+              return _this.crawlProductsAndSaveDetails(sessionInfo.get('id'), finalConfig, productsCategoriesPagingInfo);
 
-        return _this.crawlProductsAndSaveDetails(sessionInfo.get('id'), finalConfig, productsCategoriesPagingInfo);
-      }).then(function () {
-        _this.logInfo(finalConfig, function () {
-          return 'Crawling product successfully completed. Updating crawl session info...';
-        });
+            case 15:
 
-        var updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-          endDateTime: new Date(),
-          additionalInfo: (0, _immutable.Map)({
-            status: 'success'
-          })
-        }));
+              _this.logInfo(finalConfig, function () {
+                return 'Crawling product successfully completed.';
+              });
+              _context2.next = 24;
+              break;
 
-        _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
-          _this.logInfo(finalConfig, function () {
-            return 'Updating crawl session info successfully completed.';
-          });
+            case 18:
+              _context2.prev = 18;
+              _context2.t0 = _context2['catch'](5);
+              updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
+                endDateTime: new Date(),
+                additionalInfo: (0, _immutable.Map)({
+                  status: 'failed',
+                  error: _context2.t0.getErrorMessage()
+                })
+              }));
+              _context2.next = 23;
+              return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
 
-          resolve();
-        }).catch(function (error) {
-          _this.logError(finalConfig, function () {
-            return 'Updating crawl session info ended in error. Error: ' + JSON.stringify(error);
-          });
+            case 23:
+              throw _context2.t0;
 
-          reject(error);
-        });
-      }).catch(function (error) {
-        if (!sessionInfo) {
-          _this.logError(finalConfig, function () {
-            return 'Crawling product ended in error. Error: ' + JSON.stringify(error);
-          });
-          reject(error);
+            case 24:
+              _context2.prev = 24;
+              _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
+                endDateTime: new Date(),
+                additionalInfo: (0, _immutable.Map)({
+                  status: 'success'
+                })
+              }));
+              _context2.next = 28;
+              return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
 
-          return;
+            case 28:
+              return _context2.finish(24);
+
+            case 29:
+            case 'end':
+              return _context2.stop();
+          }
         }
+      }, _callee2, _this, [[5, 18, 24, 29]]);
+    }));
 
-        _this.logError(finalConfig, function () {
-          return 'Crawling product ended in error. Updating crawl session info... Error: ' + JSON.stringify(error);
-        });
+    return function (_x2) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
 
-        var updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-          endDateTime: new Date(),
-          additionalInfo: (0, _immutable.Map)({
-            status: 'failed',
-            error: error
-          })
-        }));
+  this.createNewSessionAndGetConfig = function () {
+    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(sessionKey, config) {
+      var sessionInfo, promises, finalConfig, results, sessionId;
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              sessionInfo = (0, _immutable.Map)({
+                sessionKey: sessionKey,
+                startDateTime: new Date()
+              });
+              promises = _immutable.List.of(_smartGroceryParseServerCommon.CrawlSessionService.create(sessionInfo));
 
-        _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo).then(function () {
-          _this.logInfo(finalConfig, function () {
-            return 'Updating crawl session info successfully completed.';
-          });
 
-          reject(error);
-        }).catch(function (err) {
-          _this.logError(finalConfig, function () {
-            return 'Updating crawl session info ended in error. Error: ' + JSON.stringify(err);
-          });
+              if (!config) {
+                promises = promises.push(_smartGroceryParseServerCommon.StoreCrawlerConfigurationService.search((0, _immutable.Map)({
+                  conditions: (0, _immutable.Map)({
+                    key: 'Countdown'
+                  }),
+                  topMost: true
+                })));
+              }
 
-          reject(JSON.stringify(error) + ' - ' + JSON.stringify(err));
-        });
-      });
-    });
-  };
+              finalConfig = config;
+              _context3.next = 6;
+              return Promise.all(promises.toArray());
 
-  this.createNewSessionAndGetConfig = function (sessionKey, config) {
-    return new Promise(function (resolve, reject) {
-      var sessionInfo = (0, _immutable.Map)({
-        sessionKey: sessionKey,
-        startDateTime: new Date()
-      });
-      var promises = _immutable.List.of(_smartGroceryParseServerCommon.CrawlSessionService.create(sessionInfo));
+            case 6:
+              results = _context3.sent;
+              sessionId = results[0];
 
-      if (!config) {
-        promises = promises.push(_smartGroceryParseServerCommon.StoreCrawlerConfigurationService.search((0, _immutable.Map)({
-          conditions: (0, _immutable.Map)({
-            key: 'Countdown'
-          }),
-          topMost: true
-        })));
-      }
 
-      var sessionId = void 0;
-      var finalConfig = config;
+              if (!finalConfig) {
+                finalConfig = results[1].first().get('config');
+              }
 
-      return Promise.all(promises.toArray()).then(function (results) {
-        sessionId = results[0];
+              if (finalConfig) {
+                _context3.next = 11;
+                break;
+              }
 
-        if (!finalConfig) {
-          finalConfig = results[1].first().get('config');
+              throw new _microBusinessParseServerCommon.Exception('Failed to retrieve configuration for Countdown store crawler.');
+
+            case 11:
+
+              _this.logInfo(finalConfig, function () {
+                return 'Created session and retrieved config. Session Id: ' + sessionId;
+              });
+              _this.logVerbose(finalConfig, function () {
+                return 'Config: ' + JSON.stringify(finalConfig);
+              });
+
+              return _context3.abrupt('return', (0, _immutable.Map)({
+                sessionInfo: sessionInfo.set('id', sessionId),
+                config: finalConfig
+              }));
+
+            case 14:
+            case 'end':
+              return _context3.stop();
+          }
         }
+      }, _callee3, _this);
+    }));
 
-        if (!finalConfig) {
-          reject('Failed to retrieve configuration for Countdown store crawler.');
-
-          return;
-        }
-
-        _this.logInfo(finalConfig, function () {
-          return 'Created session and retrieved config. Session Id: ' + sessionId;
-        });
-        _this.logVerbose(finalConfig, function () {
-          return 'Config: ' + JSON.stringify(finalConfig);
-        });
-
-        resolve((0, _immutable.Map)({
-          sessionInfo: sessionInfo.set('id', sessionId),
-          config: finalConfig
-        }));
-      }).catch(function (error) {
-        _this.logError(finalConfig, function () {
-          return 'Failed to create session and/or retrieving config. Error: ' + JSON.stringify(error);
-        });
-        reject(error);
-      });
-    });
-  };
+    return function (_x3, _x4) {
+      return _ref4.apply(this, arguments);
+    };
+  }();
 
   this.getProductCategoriesPagingInfo = function (config) {
     return new Promise(function (resolve, reject) {
@@ -441,6 +457,7 @@ CountdownWebCrawlerService.getHighLevelProductCategoriesDetails = function (conf
 
   $('#BrowseSlideBox').filter(function filterHighLevelProductCategoriesCallback() {
     // eslint-disable-line array-callback-return
+    // eslint-disable-line array-callback-return
     var data = $(this);
 
     data.find('.toolbar-slidebox-item').each(function onNewProductExtracted() {
@@ -461,6 +478,7 @@ CountdownWebCrawlerService.getProductDetails = function (config, $) {
   var products = (0, _immutable.List)();
 
   $('#product-list').filter(function filterProductListCallback() {
+    // eslint-disable-line array-callback-return
     // eslint-disable-line array-callback-return
     var data = $(this);
 

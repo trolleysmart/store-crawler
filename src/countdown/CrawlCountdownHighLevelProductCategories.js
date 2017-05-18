@@ -1,3 +1,5 @@
+// @flow
+
 import CountdownWebCrawlerService from './CountdownWebCrawlerService';
 
 const jobName = 'Crawl Countdown High Level Product Categories';
