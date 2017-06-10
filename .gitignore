@@ -53,3 +53,4 @@ fastlane/Preview.html
 fastlane/screenshots
 
 .exponent
+package-lock.json
