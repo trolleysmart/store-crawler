@@ -1,6 +1,6 @@
 // @flow
 
-import { List, Map } from 'immutable';
+import { Map } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
 import { CrawlSessionService, StoreCrawlerConfigurationService } from 'smart-grocery-parse-server-common';
 
@@ -11,35 +11,26 @@ export default class ServiceBase {
     this.logErrorFunc = logErrorFunc;
   }
 
-  createNewSessionAndGetConfig = async (sessionKey, config, storeName) => {
+  getStoreCrawlerConfig = async (storeName) => {
+    const configs = await StoreCrawlerConfigurationService.search(
+      Map({
+        conditions: Map({
+          key: storeName,
+        }),
+        topMost: true,
+      }),
+    );
+
+    return configs.first();
+  };
+
+  createNewCrawlSessionAndGetStoreCrawlerConfig = async (sessionKey, config, storeName) => {
     const sessionInfo = Map({
       sessionKey,
       startDateTime: new Date(),
     });
-
-    let promises = List.of(CrawlSessionService.create(sessionInfo));
-
-    if (!config) {
-      promises = promises.push(
-        StoreCrawlerConfigurationService.search(
-          Map({
-            conditions: Map({
-              key: storeName,
-            }),
-            topMost: true,
-          }),
-        ),
-      );
-    }
-
-    let finalConfig = config;
-
-    const results = await Promise.all(promises.toArray());
-    const sessionId = results[0];
-
-    if (!finalConfig) {
-      finalConfig = results[1].first().get('config');
-    }
+    const sessionId = await CrawlSessionService.create(sessionInfo);
+    const finalConfig = config || (await this.getStoreCrawlerConfig(storeName)).get('config');
 
     if (!finalConfig) {
       throw new Exception(`Failed to retrieve configuration for ${storeName} store crawler.`);

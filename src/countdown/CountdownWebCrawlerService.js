@@ -7,7 +7,7 @@ import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-ser
 import { ServiceBase } from '../common';
 
 export default class CountdownWebCrawlerService extends ServiceBase {
-  static getHighLevelProductCategoriesDetails = (config, $) => {
+  getHighLevelProductCategoriesDetails = (config, $) => {
     let highLevelProductCategories = List();
 
     $('#BrowseSlideBox').filter(function filterHighLevelProductCategoriesCallback() {
@@ -31,7 +31,8 @@ export default class CountdownWebCrawlerService extends ServiceBase {
       : highLevelProductCategories;
   };
 
-  static getProductDetails = (config, $) => {
+  getProductDetails = (config, $) => {
+    const self = this;
     let products = List();
 
     $('#product-list').filter(function filterProductListCallback() {
@@ -42,7 +43,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
       data.find('.product-stamp .details-container').each(function onNewProductExtracted() {
         const product = $(this);
         const imageUrl = config.get('baseImageUrl') + product.find('.product-stamp-thumbnail img').attr('src');
-        const barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
+        const barcode = self.getBarcodeFromImageUrl(imageUrl);
         const description = product.find('.description').text().trim();
         const productTagSource = product.find('.product-tag-desktop img').attr('src');
         const productTagSourceString = productTagSource ? productTagSource.toLowerCase().trim() : '';
@@ -69,23 +70,23 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
         products = products.push(
           Map({
-            description: CountdownWebCrawlerService.convertStringValToObjectProperty(description),
-            barcode: CountdownWebCrawlerService.convertStringValToObjectProperty(barcode),
-            imageUrl: CountdownWebCrawlerService.convertStringValToObjectProperty(imageUrl),
-            special: CountdownWebCrawlerService.convertBoolValToObjectProperty(special),
-            lowPriceEveryDay: CountdownWebCrawlerService.convertBoolValToObjectProperty(lowPriceEveryDay),
-            lockdownPrice: CountdownWebCrawlerService.convertBoolValToObjectProperty(lockdownPrice),
-            glutenFree: CountdownWebCrawlerService.convertBoolValToObjectProperty(glutenFree),
-            newItem: CountdownWebCrawlerService.convertBoolValToObjectProperty(newItem),
-            onecard: CountdownWebCrawlerService.convertBoolValToObjectProperty(onecard),
-            viewNutritionInfo: CountdownWebCrawlerService.convertBoolValToObjectProperty(viewNutritionInfo),
-            fairTradePromotion: CountdownWebCrawlerService.convertBoolValToObjectProperty(fairTradePromotion),
-            specialMultiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(specialMultiBuyText),
-            multiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(multiBuyText),
-            price: CountdownWebCrawlerService.convertStringValToObjectProperty(price),
-            wasPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(wasPrice),
-            clubPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(clubPrice),
-            nonClubPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(nonClubPrice),
+            description: self.convertStringValToObjectProperty(description),
+            barcode: self.convertStringValToObjectProperty(barcode),
+            imageUrl: self.convertStringValToObjectProperty(imageUrl),
+            special: self.convertBoolValToObjectProperty(special),
+            lowPriceEveryDay: self.convertBoolValToObjectProperty(lowPriceEveryDay),
+            lockdownPrice: self.convertBoolValToObjectProperty(lockdownPrice),
+            glutenFree: self.convertBoolValToObjectProperty(glutenFree),
+            newItem: self.convertBoolValToObjectProperty(newItem),
+            onecard: self.convertBoolValToObjectProperty(onecard),
+            viewNutritionInfo: self.convertBoolValToObjectProperty(viewNutritionInfo),
+            fairTradePromotion: self.convertBoolValToObjectProperty(fairTradePromotion),
+            specialMultiBuyText: self.convertStringValToObjectProperty(specialMultiBuyText),
+            multiBuyText: self.convertStringValToObjectProperty(multiBuyText),
+            price: self.convertStringValToObjectProperty(price),
+            wasPrice: self.convertStringValToObjectProperty(wasPrice),
+            clubPrice: self.convertStringValToObjectProperty(clubPrice),
+            nonClubPrice: self.convertStringValToObjectProperty(nonClubPrice),
           }),
         );
       });
@@ -94,7 +95,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     return products;
   };
 
-  static convertBoolValToObjectProperty = (val) => {
+  convertBoolValToObjectProperty = (val) => {
     if (val) {
       return val ? true : undefined;
     }
@@ -102,7 +103,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     return undefined;
   };
 
-  static convertStringValToObjectProperty = (val) => {
+  convertStringValToObjectProperty = (val) => {
     if (val) {
       return val.length > 0 ? val : undefined;
     }
@@ -110,7 +111,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     return undefined;
   };
 
-  static getBarcodeFromImageUrl = (imageUrl) => {
+  getBarcodeFromImageUrl = (imageUrl) => {
     const str = imageUrl.substr(imageUrl.indexOf('big/') + 4);
     const barcode = str.substr(0, str.indexOf('.jpg'));
 
@@ -118,7 +119,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   };
 
   crawlHighLevelProductCategories = async (config) => {
-    const result = await this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config, 'Countdown');
+    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown High Level Product Categories', config, 'Countdown');
     const sessionInfo = result.get('sessionInfo');
     const finalConfig = result.get('config');
 
@@ -158,7 +159,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   };
 
   crawlProducts = async (config) => {
-    const result = await this.createNewSessionAndGetConfig('Countdown Products', config, 'Countdown');
+    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Products', config, 'Countdown');
     const sessionInfo = result.get('sessionInfo');
     const finalConfig = result.get('config');
     try {
@@ -253,7 +254,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          const highLevelProductCategories = CountdownWebCrawlerService.getHighLevelProductCategoriesDetails(config, res.$);
+          const highLevelProductCategories = this.getHighLevelProductCategoriesDetails(config, res.$);
 
           this.logVerbose(config, () => `Received high level product categories: ${JSON.stringify(highLevelProductCategories.toJS())}`);
 
@@ -304,7 +305,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
           const productCategoryAndPage = res.request.uri.href.replace(config.get('baseUrl'), '');
           const productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
-          const products = CountdownWebCrawlerService.getProductDetails(config, res.$);
+          const products = this.getProductDetails(config, res.$);
 
           this.logVerbose(config, () => `Received products for: ${JSON.stringify(res)} - ${productCategory} - ${JSON.stringify(products.toJS())}`);
 

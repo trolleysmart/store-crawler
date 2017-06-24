@@ -41,7 +41,62 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = WarehouseWebCrawlerService.__proto__ || Object.getPrototypeOf(WarehouseWebCrawlerService)).call.apply(_ref, [this].concat(args))), _this), _this.crawlProductCategories = function () {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = WarehouseWebCrawlerService.__proto__ || Object.getPrototypeOf(WarehouseWebCrawlerService)).call.apply(_ref, [this].concat(args))), _this), _this.crawlLevelOneProductCategoriesAndSubProductCategories = function (config, $) {
+      var self = _this;
+      var productCategories = (0, _immutable.Set)();
+
+      $('.menu-container .level-1 .menu-category').filter(function filterMenuItems() {
+        $(this).children().each(function onEachMenuItem() {
+          var menuItem = $(this);
+
+          productCategories = productCategories.add((0, _immutable.Map)({
+            categoryKey: menuItem.attr('class'),
+            url: menuItem.find('.level-1').attr('href'),
+            description: menuItem.find('.level-1').text().trim(),
+            weight: 1,
+            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem)
+          }));
+        });
+      });
+
+      return productCategories;
+    }, _this.crawlLevelTwoProductCategoriesAndSubProductCategories = function (config, $, parentNode) {
+      var self = _this;
+      var productCategories = (0, _immutable.Set)();
+
+      parentNode.find('.menu-navigation .menu-container-level-2 .inner').filter(function filterMenuItems() {
+        $(this).children().each(function onEachMenuItem() {
+          var menuItem = $(this).find('.category-column .parent-has-child .category-level-2');
+
+          productCategories = productCategories.add((0, _immutable.Map)({
+            categoryKey: menuItem.attr('data-gtm-cgid'),
+            url: menuItem.attr('href'),
+            description: menuItem.text().trim(),
+            weight: 2,
+            subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this).find('.category-column .parent-has-child'))
+          }));
+        });
+      });
+
+      return productCategories;
+    }, _this.crawlLevelThreeProductCategoriesAndSubProductCategories = function (config, $, parentNode) {
+      var productCategories = (0, _immutable.Set)();
+
+      parentNode.find('.menu-container-level-3').filter(function filterMenuItems() {
+        $(this).children().each(function onEachMenuItem() {
+          var menuItem = $(this).find('.category-level-3');
+
+          productCategories = productCategories.add((0, _immutable.Map)({
+            categoryKey: menuItem.attr('data-gtm-cgid'),
+            url: menuItem.attr('href'),
+            description: menuItem.text().trim(),
+            weight: 3
+          }));
+        });
+      });
+
+      return productCategories;
+    }, _this.crawlProductCategories = function () {
       var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(config) {
         var result, sessionInfo, finalConfig, updatedSessionInfo, errorMessage, _updatedSessionInfo;
 
@@ -50,7 +105,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _this.createNewSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse');
+                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Product Categories', config, 'Warehouse');
 
               case 2:
                 result = _context.sent;
@@ -132,7 +187,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            var productCategories = WarehouseWebCrawlerService.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
+            var productCategories = _this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
 
             var crawlResult = (0, _immutable.Map)({
               crawlSessionId: sessionId,
@@ -171,64 +226,5 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
   return WarehouseWebCrawlerService;
 }(_common.ServiceBase);
-
-WarehouseWebCrawlerService.crawlLevelOneProductCategoriesAndSubProductCategories = function (config, $) {
-  var productCategories = (0, _immutable.Set)();
-
-  $('.menu-container .level-1 .menu-category').filter(function filterMenuItems() {
-    $(this).children().each(function onEachMenuItem() {
-      var menuItem = $(this);
-
-      productCategories = productCategories.add((0, _immutable.Map)({
-        categoryKey: menuItem.attr('class'),
-        url: menuItem.find('.level-1').attr('href'),
-        description: menuItem.find('.level-1').text().trim(),
-        weight: 1,
-        subCategories: WarehouseWebCrawlerService.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem)
-      }));
-    });
-  });
-
-  return productCategories;
-};
-
-WarehouseWebCrawlerService.crawlLevelTwoProductCategoriesAndSubProductCategories = function (config, $, parentNode) {
-  var productCategories = (0, _immutable.Set)();
-
-  parentNode.find('.menu-navigation .menu-container-level-2 .inner').filter(function filterMenuItems() {
-    $(this).children().each(function onEachMenuItem() {
-      var menuItem = $(this).find('.category-column .parent-has-child .category-level-2');
-
-      productCategories = productCategories.add((0, _immutable.Map)({
-        categoryKey: menuItem.attr('data-gtm-cgid'),
-        url: menuItem.attr('href'),
-        description: menuItem.text().trim(),
-        weight: 2,
-        subCategories: WarehouseWebCrawlerService.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this).find('.category-column .parent-has-child'))
-      }));
-    });
-  });
-
-  return productCategories;
-};
-
-WarehouseWebCrawlerService.crawlLevelThreeProductCategoriesAndSubProductCategories = function (config, $, parentNode) {
-  var productCategories = (0, _immutable.Set)();
-
-  parentNode.find('.menu-container-level-3').filter(function filterMenuItems() {
-    $(this).children().each(function onEachMenuItem() {
-      var menuItem = $(this).find('.category-level-3');
-
-      productCategories = productCategories.add((0, _immutable.Map)({
-        categoryKey: menuItem.attr('data-gtm-cgid'),
-        url: menuItem.attr('href'),
-        description: menuItem.text().trim(),
-        weight: 3
-      }));
-    });
-  });
-
-  return productCategories;
-};
 
 exports.default = WarehouseWebCrawlerService;

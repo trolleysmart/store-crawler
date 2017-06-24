@@ -7,7 +7,8 @@ import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-ser
 import { ServiceBase } from '../common';
 
 export default class WarehouseWebCrawlerService extends ServiceBase {
-  static crawlLevelOneProductCategoriesAndSubProductCategories = (config, $) => {
+  crawlLevelOneProductCategoriesAndSubProductCategories = (config, $) => {
+    const self = this;
     let productCategories = Set();
 
     $('.menu-container .level-1 .menu-category').filter(function filterMenuItems() {
@@ -20,7 +21,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             url: menuItem.find('.level-1').attr('href'),
             description: menuItem.find('.level-1').text().trim(),
             weight: 1,
-            subCategories: WarehouseWebCrawlerService.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem),
+            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem),
           }),
         );
       });
@@ -29,7 +30,8 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return productCategories;
   };
 
-  static crawlLevelTwoProductCategoriesAndSubProductCategories = (config, $, parentNode) => {
+  crawlLevelTwoProductCategoriesAndSubProductCategories = (config, $, parentNode) => {
+    const self = this;
     let productCategories = Set();
 
     parentNode.find('.menu-navigation .menu-container-level-2 .inner').filter(function filterMenuItems() {
@@ -42,7 +44,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             url: menuItem.attr('href'),
             description: menuItem.text().trim(),
             weight: 2,
-            subCategories: WarehouseWebCrawlerService.crawlLevelThreeProductCategoriesAndSubProductCategories(
+            subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(
               config,
               $,
               $(this).find('.category-column .parent-has-child'),
@@ -55,7 +57,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return productCategories;
   };
 
-  static crawlLevelThreeProductCategoriesAndSubProductCategories = (config, $, parentNode) => {
+  crawlLevelThreeProductCategoriesAndSubProductCategories = (config, $, parentNode) => {
     let productCategories = Set();
 
     parentNode.find('.menu-container-level-3').filter(function filterMenuItems() {
@@ -77,7 +79,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
   };
 
   crawlProductCategories = async (config) => {
-    const result = await this.createNewSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse');
+    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Product Categories', config, 'Warehouse');
     const sessionInfo = result.get('sessionInfo');
     const finalConfig = result.get('config');
     try {
@@ -130,7 +132,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return;
           }
 
-          const productCategories = WarehouseWebCrawlerService.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
+          const productCategories = this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
 
           const crawlResult = Map({
             crawlSessionId: sessionId,

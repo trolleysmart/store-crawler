@@ -41,7 +41,102 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = CountdownWebCrawlerService.__proto__ || Object.getPrototypeOf(CountdownWebCrawlerService)).call.apply(_ref, [this].concat(args))), _this), _this.crawlHighLevelProductCategories = function () {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = CountdownWebCrawlerService.__proto__ || Object.getPrototypeOf(CountdownWebCrawlerService)).call.apply(_ref, [this].concat(args))), _this), _this.getHighLevelProductCategoriesDetails = function (config, $) {
+      var highLevelProductCategories = (0, _immutable.List)();
+
+      $('#BrowseSlideBox').filter(function filterHighLevelProductCategoriesCallback() {
+        // eslint-disable-line array-callback-return
+        // eslint-disable-line array-callback-return
+        var data = $(this);
+
+        data.find('.toolbar-slidebox-item').each(function onNewProductExtracted() {
+          var highLevelProductCategory = $(this).find('.toolbar-slidebox-link').attr('href');
+
+          highLevelProductCategories = highLevelProductCategories.push(highLevelProductCategory.substring(highLevelProductCategory.lastIndexOf('/') + 1, highLevelProductCategory.length));
+        });
+      });
+
+      return config.get('highLevelProductCategoriesFilterList') ? highLevelProductCategories.filterNot(function (_) {
+        return config.get('highLevelProductCategoriesFilterList').find(function (item) {
+          return item.trim().toLowerCase().localeCompare(_.trim().toLowerCase()) === 0;
+        });
+      }) : highLevelProductCategories;
+    }, _this.getProductDetails = function (config, $) {
+      var self = _this;
+      var products = (0, _immutable.List)();
+
+      $('#product-list').filter(function filterProductListCallback() {
+        // eslint-disable-line array-callback-return
+        // eslint-disable-line array-callback-return
+        var data = $(this);
+
+        data.find('.product-stamp .details-container').each(function onNewProductExtracted() {
+          var product = $(this);
+          var imageUrl = config.get('baseImageUrl') + product.find('.product-stamp-thumbnail img').attr('src');
+          var barcode = self.getBarcodeFromImageUrl(imageUrl);
+          var description = product.find('.description').text().trim();
+          var productTagSource = product.find('.product-tag-desktop img').attr('src');
+          var productTagSourceString = productTagSource ? productTagSource.toLowerCase().trim() : '';
+          var special = productTagSourceString.includes('badge-special');
+          var lockdownPrice = productTagSourceString.includes('badge-pricelockdown');
+          var lowPriceEveryDay = productTagSourceString.includes('low_price');
+          var glutenFree = productTagSourceString.includes('badge-gluten-free');
+          var newItem = productTagSourceString.includes('badge-new');
+          var onecard = productTagSourceString.includes('badge-onecard');
+          var viewNutritionInfo = productTagSourceString.includes('view-nutrition-info');
+          var fairTradePromotion = productTagSourceString.includes('fairtrade-promo');
+          var specialMultiBuyIconUrl = productTagSourceString.match(/\dfor\d/);
+          var specialMultiBuyText = specialMultiBuyIconUrl ? productTagSourceString.substring(productTagSourceString.lastIndexOf('/') + 1, productTagSourceString.indexOf('.')) : '';
+          var multipleBuyTextLink = product.find('.product-tag-desktop .visible-phone .multi-buy-text-link');
+          var multiBuyText = multipleBuyTextLink ? multipleBuyTextLink.attr('title') : undefined;
+          var price = product.find('.price').text().trim();
+          var wasPrice = product.find('.was-price').text().trim();
+          var clubPriceTag = product.find('.club-price-wrapper');
+          var clubPrice = clubPriceTag ? clubPriceTag.text().trim() : undefined;
+          var nonClubPriceTag = product.find('.grid-non-club-price');
+          var nonClubPrice = nonClubPriceTag ? nonClubPriceTag.text().trim() : undefined;
+
+          products = products.push((0, _immutable.Map)({
+            description: self.convertStringValToObjectProperty(description),
+            barcode: self.convertStringValToObjectProperty(barcode),
+            imageUrl: self.convertStringValToObjectProperty(imageUrl),
+            special: self.convertBoolValToObjectProperty(special),
+            lowPriceEveryDay: self.convertBoolValToObjectProperty(lowPriceEveryDay),
+            lockdownPrice: self.convertBoolValToObjectProperty(lockdownPrice),
+            glutenFree: self.convertBoolValToObjectProperty(glutenFree),
+            newItem: self.convertBoolValToObjectProperty(newItem),
+            onecard: self.convertBoolValToObjectProperty(onecard),
+            viewNutritionInfo: self.convertBoolValToObjectProperty(viewNutritionInfo),
+            fairTradePromotion: self.convertBoolValToObjectProperty(fairTradePromotion),
+            specialMultiBuyText: self.convertStringValToObjectProperty(specialMultiBuyText),
+            multiBuyText: self.convertStringValToObjectProperty(multiBuyText),
+            price: self.convertStringValToObjectProperty(price),
+            wasPrice: self.convertStringValToObjectProperty(wasPrice),
+            clubPrice: self.convertStringValToObjectProperty(clubPrice),
+            nonClubPrice: self.convertStringValToObjectProperty(nonClubPrice)
+          }));
+        });
+      });
+
+      return products;
+    }, _this.convertBoolValToObjectProperty = function (val) {
+      if (val) {
+        return val ? true : undefined;
+      }
+
+      return undefined;
+    }, _this.convertStringValToObjectProperty = function (val) {
+      if (val) {
+        return val.length > 0 ? val : undefined;
+      }
+
+      return undefined;
+    }, _this.getBarcodeFromImageUrl = function (imageUrl) {
+      var str = imageUrl.substr(imageUrl.indexOf('big/') + 4);
+      var barcode = str.substr(0, str.indexOf('.jpg'));
+
+      return barcode;
+    }, _this.crawlHighLevelProductCategories = function () {
       var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(config) {
         var result, sessionInfo, finalConfig, updatedSessionInfo, errorMessage, _updatedSessionInfo;
 
@@ -50,7 +145,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config, 'Countdown');
+                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown High Level Product Categories', config, 'Countdown');
 
               case 2:
                 result = _context.sent;
@@ -121,7 +216,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return _this.createNewSessionAndGetConfig('Countdown Products', config, 'Countdown');
+                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Products', config, 'Countdown');
 
               case 2:
                 result = _context2.sent;
@@ -261,7 +356,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            var highLevelProductCategories = CountdownWebCrawlerService.getHighLevelProductCategoriesDetails(config, res.$);
+            var highLevelProductCategories = _this.getHighLevelProductCategoriesDetails(config, res.$);
 
             _this.logVerbose(config, function () {
               return 'Received high level product categories: ' + JSON.stringify(highLevelProductCategories.toJS());
@@ -319,7 +414,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             var productCategoryAndPage = res.request.uri.href.replace(config.get('baseUrl'), '');
             var productCategory = productCategoryAndPage.substring(0, productCategoryAndPage.indexOf('?'));
-            var products = CountdownWebCrawlerService.getProductDetails(config, res.$);
+            var products = _this.getProductDetails(config, res.$);
 
             _this.logVerbose(config, function () {
               return 'Received products for: ' + JSON.stringify(res) + ' - ' + productCategory + ' - ' + JSON.stringify(products.toJS());
@@ -365,109 +460,5 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
   return CountdownWebCrawlerService;
 }(_common.ServiceBase);
-
-CountdownWebCrawlerService.getHighLevelProductCategoriesDetails = function (config, $) {
-  var highLevelProductCategories = (0, _immutable.List)();
-
-  $('#BrowseSlideBox').filter(function filterHighLevelProductCategoriesCallback() {
-    // eslint-disable-line array-callback-return
-    // eslint-disable-line array-callback-return
-    var data = $(this);
-
-    data.find('.toolbar-slidebox-item').each(function onNewProductExtracted() {
-      var highLevelProductCategory = $(this).find('.toolbar-slidebox-link').attr('href');
-
-      highLevelProductCategories = highLevelProductCategories.push(highLevelProductCategory.substring(highLevelProductCategory.lastIndexOf('/') + 1, highLevelProductCategory.length));
-    });
-  });
-
-  return config.get('highLevelProductCategoriesFilterList') ? highLevelProductCategories.filterNot(function (_) {
-    return config.get('highLevelProductCategoriesFilterList').find(function (item) {
-      return item.trim().toLowerCase().localeCompare(_.trim().toLowerCase()) === 0;
-    });
-  }) : highLevelProductCategories;
-};
-
-CountdownWebCrawlerService.getProductDetails = function (config, $) {
-  var products = (0, _immutable.List)();
-
-  $('#product-list').filter(function filterProductListCallback() {
-    // eslint-disable-line array-callback-return
-    // eslint-disable-line array-callback-return
-    var data = $(this);
-
-    data.find('.product-stamp .details-container').each(function onNewProductExtracted() {
-      var product = $(this);
-      var imageUrl = config.get('baseImageUrl') + product.find('.product-stamp-thumbnail img').attr('src');
-      var barcode = CountdownWebCrawlerService.getBarcodeFromImageUrl(imageUrl);
-      var description = product.find('.description').text().trim();
-      var productTagSource = product.find('.product-tag-desktop img').attr('src');
-      var productTagSourceString = productTagSource ? productTagSource.toLowerCase().trim() : '';
-      var special = productTagSourceString.includes('badge-special');
-      var lockdownPrice = productTagSourceString.includes('badge-pricelockdown');
-      var lowPriceEveryDay = productTagSourceString.includes('low_price');
-      var glutenFree = productTagSourceString.includes('badge-gluten-free');
-      var newItem = productTagSourceString.includes('badge-new');
-      var onecard = productTagSourceString.includes('badge-onecard');
-      var viewNutritionInfo = productTagSourceString.includes('view-nutrition-info');
-      var fairTradePromotion = productTagSourceString.includes('fairtrade-promo');
-      var specialMultiBuyIconUrl = productTagSourceString.match(/\dfor\d/);
-      var specialMultiBuyText = specialMultiBuyIconUrl ? productTagSourceString.substring(productTagSourceString.lastIndexOf('/') + 1, productTagSourceString.indexOf('.')) : '';
-      var multipleBuyTextLink = product.find('.product-tag-desktop .visible-phone .multi-buy-text-link');
-      var multiBuyText = multipleBuyTextLink ? multipleBuyTextLink.attr('title') : undefined;
-      var price = product.find('.price').text().trim();
-      var wasPrice = product.find('.was-price').text().trim();
-      var clubPriceTag = product.find('.club-price-wrapper');
-      var clubPrice = clubPriceTag ? clubPriceTag.text().trim() : undefined;
-      var nonClubPriceTag = product.find('.grid-non-club-price');
-      var nonClubPrice = nonClubPriceTag ? nonClubPriceTag.text().trim() : undefined;
-
-      products = products.push((0, _immutable.Map)({
-        description: CountdownWebCrawlerService.convertStringValToObjectProperty(description),
-        barcode: CountdownWebCrawlerService.convertStringValToObjectProperty(barcode),
-        imageUrl: CountdownWebCrawlerService.convertStringValToObjectProperty(imageUrl),
-        special: CountdownWebCrawlerService.convertBoolValToObjectProperty(special),
-        lowPriceEveryDay: CountdownWebCrawlerService.convertBoolValToObjectProperty(lowPriceEveryDay),
-        lockdownPrice: CountdownWebCrawlerService.convertBoolValToObjectProperty(lockdownPrice),
-        glutenFree: CountdownWebCrawlerService.convertBoolValToObjectProperty(glutenFree),
-        newItem: CountdownWebCrawlerService.convertBoolValToObjectProperty(newItem),
-        onecard: CountdownWebCrawlerService.convertBoolValToObjectProperty(onecard),
-        viewNutritionInfo: CountdownWebCrawlerService.convertBoolValToObjectProperty(viewNutritionInfo),
-        fairTradePromotion: CountdownWebCrawlerService.convertBoolValToObjectProperty(fairTradePromotion),
-        specialMultiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(specialMultiBuyText),
-        multiBuyText: CountdownWebCrawlerService.convertStringValToObjectProperty(multiBuyText),
-        price: CountdownWebCrawlerService.convertStringValToObjectProperty(price),
-        wasPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(wasPrice),
-        clubPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(clubPrice),
-        nonClubPrice: CountdownWebCrawlerService.convertStringValToObjectProperty(nonClubPrice)
-      }));
-    });
-  });
-
-  return products;
-};
-
-CountdownWebCrawlerService.convertBoolValToObjectProperty = function (val) {
-  if (val) {
-    return val ? true : undefined;
-  }
-
-  return undefined;
-};
-
-CountdownWebCrawlerService.convertStringValToObjectProperty = function (val) {
-  if (val) {
-    return val.length > 0 ? val : undefined;
-  }
-
-  return undefined;
-};
-
-CountdownWebCrawlerService.getBarcodeFromImageUrl = function (imageUrl) {
-  var str = imageUrl.substr(imageUrl.indexOf('big/') + 4);
-  var barcode = str.substr(0, str.indexOf('.jpg'));
-
-  return barcode;
-};
 
 exports.default = CountdownWebCrawlerService;

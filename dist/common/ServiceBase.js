@@ -23,50 +23,78 @@ var ServiceBase = function ServiceBase(_ref) {
 
   _classCallCheck(this, ServiceBase);
 
-  this.createNewSessionAndGetConfig = function () {
-    var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(sessionKey, config, storeName) {
-      var sessionInfo, promises, finalConfig, results, sessionId;
+  this.getStoreCrawlerConfig = function () {
+    var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(storeName) {
+      var configs;
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return _smartGroceryParseServerCommon.StoreCrawlerConfigurationService.search((0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  key: storeName
+                }),
+                topMost: true
+              }));
+
+            case 2:
+              configs = _context.sent;
+              return _context.abrupt('return', configs.first());
+
+            case 4:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, _callee, _this);
+    }));
+
+    return function (_x) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+
+  this.createNewCrawlSessionAndGetStoreCrawlerConfig = function () {
+    var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(sessionKey, config, storeName) {
+      var sessionInfo, sessionId, finalConfig;
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
             case 0:
               sessionInfo = (0, _immutable.Map)({
                 sessionKey: sessionKey,
                 startDateTime: new Date()
               });
-              promises = _immutable.List.of(_smartGroceryParseServerCommon.CrawlSessionService.create(sessionInfo));
+              _context2.next = 3;
+              return _smartGroceryParseServerCommon.CrawlSessionService.create(sessionInfo);
 
+            case 3:
+              sessionId = _context2.sent;
+              _context2.t0 = config;
 
-              if (!config) {
-                promises = promises.push(_smartGroceryParseServerCommon.StoreCrawlerConfigurationService.search((0, _immutable.Map)({
-                  conditions: (0, _immutable.Map)({
-                    key: storeName
-                  }),
-                  topMost: true
-                })));
+              if (_context2.t0) {
+                _context2.next = 9;
+                break;
               }
 
-              finalConfig = config;
-              _context.next = 6;
-              return Promise.all(promises.toArray());
+              _context2.next = 8;
+              return _this.getStoreCrawlerConfig(storeName);
 
-            case 6:
-              results = _context.sent;
-              sessionId = results[0];
+            case 8:
+              _context2.t0 = _context2.sent.get('config');
 
-
-              if (!finalConfig) {
-                finalConfig = results[1].first().get('config');
-              }
+            case 9:
+              finalConfig = _context2.t0;
 
               if (finalConfig) {
-                _context.next = 11;
+                _context2.next = 12;
                 break;
               }
 
               throw new _microBusinessParseServerCommon.Exception('Failed to retrieve configuration for ' + storeName + ' store crawler.');
 
-            case 11:
+            case 12:
 
               _this.logInfo(finalConfig, function () {
                 return 'Created session and retrieved config. Session Id: ' + sessionId;
@@ -75,21 +103,21 @@ var ServiceBase = function ServiceBase(_ref) {
                 return 'Config: ' + JSON.stringify(finalConfig);
               });
 
-              return _context.abrupt('return', (0, _immutable.Map)({
+              return _context2.abrupt('return', (0, _immutable.Map)({
                 sessionInfo: sessionInfo.set('id', sessionId),
                 config: finalConfig
               }));
 
-            case 14:
+            case 15:
             case 'end':
-              return _context.stop();
+              return _context2.stop();
           }
         }
-      }, _callee, _this);
+      }, _callee2, _this);
     }));
 
-    return function (_x, _x2, _x3) {
-      return _ref2.apply(this, arguments);
+    return function (_x2, _x3, _x4) {
+      return _ref3.apply(this, arguments);
     };
   }();
 
