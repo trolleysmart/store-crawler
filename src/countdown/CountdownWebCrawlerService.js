@@ -4,9 +4,9 @@ import Crawler from 'crawler';
 import { List, Map, Range } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
 import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-server-common';
-import { WebCrawlerService } from '../common';
+import { ServiceBase } from '../common';
 
-export default class CountdownWebCrawlerService extends WebCrawlerService {
+export default class CountdownWebCrawlerService extends ServiceBase {
   static getHighLevelProductCategoriesDetails = (config, $) => {
     let highLevelProductCategories = List();
 

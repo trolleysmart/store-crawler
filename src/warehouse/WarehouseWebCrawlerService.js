@@ -4,9 +4,9 @@ import Crawler from 'crawler';
 import { Map, Set } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
 import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-server-common';
-import { WebCrawlerService } from '../common';
+import { ServiceBase } from '../common';
 
-export default class WarehouseWebCrawlerService extends WebCrawlerService {
+export default class WarehouseWebCrawlerService extends ServiceBase {
   static crawlLevelOneProductCategoriesAndSubProductCategories = (config, $) => {
     let productCategories = Set();
 

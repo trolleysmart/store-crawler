@@ -4,7 +4,7 @@ import { List, Map } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
 import { CrawlSessionService, StoreCrawlerConfigurationService } from 'smart-grocery-parse-server-common';
 
-export default class WebCrawlerService {
+export default class ServiceBase {
   constructor({ logVerboseFunc, logInfoFunc, logErrorFunc }) {
     this.logVerboseFunc = logVerboseFunc;
     this.logInfoFunc = logInfoFunc;

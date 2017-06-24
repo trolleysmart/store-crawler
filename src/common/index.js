@@ -1,3 +1,3 @@
 // @flow
 
-export WebCrawlerService from './WebCrawlerService';
+export ServiceBase from './ServiceBase';
