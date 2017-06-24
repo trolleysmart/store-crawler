@@ -3,9 +3,10 @@
 import Crawler from 'crawler';
 import { List, Map, Range } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
-import { CrawlResultService, CrawlSessionService, StoreCrawlerConfigurationService } from 'smart-grocery-parse-server-common';
+import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-server-common';
+import { WebCrawlerService } from '../common';
 
-export default class CountdownWebCrawlerService {
+export default class CountdownWebCrawlerService extends WebCrawlerService {
   static getHighLevelProductCategoriesDetails = (config, $) => {
     let highLevelProductCategories = List();
 
@@ -116,14 +117,8 @@ export default class CountdownWebCrawlerService {
     return barcode;
   };
 
-  constructor({ logVerboseFunc, logInfoFunc, logErrorFunc }) {
-    this.logVerboseFunc = logVerboseFunc;
-    this.logInfoFunc = logInfoFunc;
-    this.logErrorFunc = logErrorFunc;
-  }
-
   crawlHighLevelProductCategories = async (config) => {
-    const result = await this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config);
+    const result = await this.createNewSessionAndGetConfig('Countdown High Level Product Categories', config, 'Countdown');
     const sessionInfo = result.get('sessionInfo');
     const finalConfig = result.get('config');
 
@@ -133,19 +128,7 @@ export default class CountdownWebCrawlerService {
       await this.crawlHighLevelProductCategoriesAndSaveDetails(sessionInfo.get('id'), finalConfig);
 
       this.logInfo(finalConfig, () => 'Crawling high level product categories successfully completed.');
-    } catch (exception) {
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'failed',
-            error: exception.getErrorMessage(),
-          }),
-        }),
-      );
 
-      await CrawlSessionService.update(updatedSessionInfo);
-    } finally {
       const updatedSessionInfo = sessionInfo.merge(
         Map({
           endDateTime: new Date(),
@@ -156,11 +139,26 @@ export default class CountdownWebCrawlerService {
       );
 
       await CrawlSessionService.update(updatedSessionInfo);
+    } catch (ex) {
+      const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
+      const updatedSessionInfo = sessionInfo.merge(
+        Map({
+          endDateTime: new Date(),
+          additionalInfo: Map({
+            status: 'failed',
+            error: errorMessage,
+          }),
+        }),
+      );
+
+      await CrawlSessionService.update(updatedSessionInfo);
+
+      throw ex;
     }
   };
 
   crawlProducts = async (config) => {
-    const result = await this.createNewSessionAndGetConfig('Countdown Products', config);
+    const result = await this.createNewSessionAndGetConfig('Countdown Products', config, 'Countdown');
     const sessionInfo = result.get('sessionInfo');
     const finalConfig = result.get('config');
     try {
@@ -175,20 +173,7 @@ export default class CountdownWebCrawlerService {
       await this.crawlProductsAndSaveDetails(sessionInfo.get('id'), finalConfig, productsCategoriesPagingInfo);
 
       this.logInfo(finalConfig, () => 'Crawling product successfully completed.');
-    } catch (exception) {
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'failed',
-            error: exception.getErrorMessage(),
-          }),
-        }),
-      );
 
-      await CrawlSessionService.update(updatedSessionInfo);
-      throw exception;
-    } finally {
       const updatedSessionInfo = sessionInfo.merge(
         Map({
           endDateTime: new Date(),
@@ -199,50 +184,21 @@ export default class CountdownWebCrawlerService {
       );
 
       await CrawlSessionService.update(updatedSessionInfo);
-    }
-  };
-
-  createNewSessionAndGetConfig = async (sessionKey, config) => {
-    const sessionInfo = Map({
-      sessionKey,
-      startDateTime: new Date(),
-    });
-
-    let promises = List.of(CrawlSessionService.create(sessionInfo));
-
-    if (!config) {
-      promises = promises.push(
-        StoreCrawlerConfigurationService.search(
-          Map({
-            conditions: Map({
-              key: 'Countdown',
-            }),
-            topMost: true,
+    } catch (ex) {
+      const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
+      const updatedSessionInfo = sessionInfo.merge(
+        Map({
+          endDateTime: new Date(),
+          additionalInfo: Map({
+            status: 'failed',
+            error: errorMessage,
           }),
-        ),
+        }),
       );
+
+      await CrawlSessionService.update(updatedSessionInfo);
+      throw ex;
     }
-
-    let finalConfig = config;
-
-    const results = await Promise.all(promises.toArray());
-    const sessionId = results[0];
-
-    if (!finalConfig) {
-      finalConfig = results[1].first().get('config');
-    }
-
-    if (!finalConfig) {
-      throw new Exception('Failed to retrieve configuration for Countdown store crawler.');
-    }
-
-    this.logInfo(finalConfig, () => `Created session and retrieved config. Session Id: ${sessionId}`);
-    this.logVerbose(finalConfig, () => `Config: ${JSON.stringify(finalConfig)}`);
-
-    return Map({
-      sessionInfo: sessionInfo.set('id', sessionId),
-      config: finalConfig,
-    });
   };
 
   getProductCategoriesPagingInfo = config =>
@@ -385,22 +341,4 @@ export default class CountdownWebCrawlerService {
         ),
       );
     });
-
-  logVerbose = (config, messageFunc) => {
-    if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
-      this.logVerboseFunc(messageFunc());
-    }
-  };
-
-  logInfo = (config, messageFunc) => {
-    if (this.logInfoFunc && config && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
-      this.logInfoFunc(messageFunc());
-    }
-  };
-
-  logError = (config, messageFunc) => {
-    if (this.logErrorFunc && config && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
-      this.logErrorFunc(messageFunc());
-    }
-  };
 }
