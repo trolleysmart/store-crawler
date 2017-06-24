@@ -1,8 +1,8 @@
 // @flow
 
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
-import { CrawlSessionService, StoreCrawlerConfigurationService } from 'smart-grocery-parse-server-common';
+import { CrawlResultService, CrawlSessionService, StoreCrawlerConfigurationService, StoreService } from 'smart-grocery-parse-server-common';
 
 export default class ServiceBase {
   constructor({ logVerboseFunc, logInfoFunc, logErrorFunc }) {
@@ -43,6 +43,59 @@ export default class ServiceBase {
       sessionInfo: sessionInfo.set('id', sessionId),
       config: finalConfig,
     });
+  };
+
+  getStore = async (name) => {
+    const criteria = Map({
+      conditions: Map({
+        name,
+      }),
+    });
+
+    const results = await StoreService.search(criteria);
+
+    if (results.isEmpty()) {
+      return StoreService.read(await StoreService.create(Map({ name })));
+    } else if (results.count() === 1) {
+      return results.first();
+    }
+    throw new Exception(`Multiple store found called ${name}.`);
+  };
+
+  getMostRecentCrawlSessionInfo = async (sessionKey) => {
+    const crawlSessionInfos = await CrawlSessionService.search(
+      Map({
+        conditions: Map({
+          sessionKey,
+        }),
+        topMost: true,
+      }),
+    );
+
+    return crawlSessionInfos.first();
+  };
+
+  getMostRecentCrawlResults = async (sessionKey, mapFunc) => {
+    const crawlSessionInfo = await this.getMostRecentCrawlSessionInfo(sessionKey);
+    const crawlSessionId = crawlSessionInfo.get('id');
+    let results = List();
+    const result = CrawlResultService.searchAll(
+      Map({
+        conditions: Map({
+          crawlSessionId,
+        }),
+      }),
+    );
+
+    try {
+      result.event.subscribe(info => (results = results.push(mapFunc ? mapFunc(info) : info)));
+
+      await result.promise;
+    } finally {
+      result.event.unsubscribeAll();
+    }
+
+    return results;
   };
 
   logVerbose = (config, messageFunc) => {

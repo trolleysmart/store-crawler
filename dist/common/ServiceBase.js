@@ -121,6 +121,143 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
+  this.getStore = function () {
+    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(name) {
+      var criteria, results;
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              criteria = (0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  name: name
+                })
+              });
+              _context3.next = 3;
+              return _smartGroceryParseServerCommon.StoreService.search(criteria);
+
+            case 3:
+              results = _context3.sent;
+
+              if (!results.isEmpty()) {
+                _context3.next = 12;
+                break;
+              }
+
+              _context3.t0 = _smartGroceryParseServerCommon.StoreService;
+              _context3.next = 8;
+              return _smartGroceryParseServerCommon.StoreService.create((0, _immutable.Map)({ name: name }));
+
+            case 8:
+              _context3.t1 = _context3.sent;
+              return _context3.abrupt('return', _context3.t0.read.call(_context3.t0, _context3.t1));
+
+            case 12:
+              if (!(results.count() === 1)) {
+                _context3.next = 14;
+                break;
+              }
+
+              return _context3.abrupt('return', results.first());
+
+            case 14:
+              throw new _microBusinessParseServerCommon.Exception('Multiple store found called ' + name + '.');
+
+            case 15:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, _callee3, _this);
+    }));
+
+    return function (_x5) {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+
+  this.getMostRecentCrawlSessionInfo = function () {
+    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(sessionKey) {
+      var crawlSessionInfos;
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              _context4.next = 2;
+              return _smartGroceryParseServerCommon.CrawlSessionService.search((0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  sessionKey: sessionKey
+                }),
+                topMost: true
+              }));
+
+            case 2:
+              crawlSessionInfos = _context4.sent;
+              return _context4.abrupt('return', crawlSessionInfos.first());
+
+            case 4:
+            case 'end':
+              return _context4.stop();
+          }
+        }
+      }, _callee4, _this);
+    }));
+
+    return function (_x6) {
+      return _ref5.apply(this, arguments);
+    };
+  }();
+
+  this.getMostRecentCrawlResults = function () {
+    var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(sessionKey, mapFunc) {
+      var crawlSessionInfo, crawlSessionId, results, result;
+      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              _context5.next = 2;
+              return _this.getMostRecentCrawlSessionInfo(sessionKey);
+
+            case 2:
+              crawlSessionInfo = _context5.sent;
+              crawlSessionId = crawlSessionInfo.get('id');
+              results = (0, _immutable.List)();
+              result = _smartGroceryParseServerCommon.CrawlResultService.searchAll((0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  crawlSessionId: crawlSessionId
+                })
+              }));
+              _context5.prev = 6;
+
+              result.event.subscribe(function (info) {
+                return results = results.push(mapFunc ? mapFunc(info) : info);
+              });
+
+              _context5.next = 10;
+              return result.promise;
+
+            case 10:
+              _context5.prev = 10;
+
+              result.event.unsubscribeAll();
+              return _context5.finish(10);
+
+            case 13:
+              return _context5.abrupt('return', results);
+
+            case 14:
+            case 'end':
+              return _context5.stop();
+          }
+        }
+      }, _callee5, _this, [[6,, 10, 13]]);
+    }));
+
+    return function (_x7, _x8) {
+      return _ref6.apply(this, arguments);
+    };
+  }();
+
   this.logVerbose = function (config, messageFunc) {
     if (_this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       _this.logVerboseFunc(messageFunc());
