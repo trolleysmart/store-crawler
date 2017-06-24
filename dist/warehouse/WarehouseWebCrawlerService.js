@@ -65,16 +65,18 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       var productCategories = (0, _immutable.Set)();
 
       parentNode.find('.menu-navigation .menu-container-level-2 .inner').filter(function filterMenuItems() {
-        $(this).children().each(function onEachMenuItem() {
-          var menuItem = $(this).find('.category-column .parent-has-child .category-level-2');
+        $(this).find('.category-column').each(function onEachColumn() {
+          $(this).children().each(function onEachMenuItem() {
+            var menuItem = $(this).find('.category-level-2');
 
-          productCategories = productCategories.add((0, _immutable.Map)({
-            categoryKey: menuItem.attr('data-gtm-cgid'),
-            url: menuItem.attr('href'),
-            description: menuItem.text().trim(),
-            weight: 2,
-            subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this).find('.category-column .parent-has-child'))
-          }));
+            productCategories = productCategories.add((0, _immutable.Map)({
+              categoryKey: menuItem.attr('data-gtm-cgid'),
+              url: menuItem.attr('href'),
+              description: menuItem.text().trim(),
+              weight: 2,
+              subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this))
+            }));
+          });
         });
       });
 
