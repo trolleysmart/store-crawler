@@ -1,8 +1,15 @@
 // @flow
 
-import { List, Map } from 'immutable';
-import { Exception } from 'micro-business-parse-server-common';
-import { CrawlResultService, CrawlSessionService, StoreCrawlerConfigurationService, StoreService } from 'smart-grocery-parse-server-common';
+import Immutable, { List, Map, Range, Set } from 'immutable';
+import { Exception, ParseWrapperService } from 'micro-business-parse-server-common';
+import {
+  CrawlResultService,
+  CrawlSessionService,
+  StoreCrawlerConfigurationService,
+  StoreService,
+  StoreMasterProductService,
+  StoreTagService,
+} from 'smart-grocery-parse-server-common';
 
 export default class ServiceBase {
   constructor({ logVerboseFunc, logInfoFunc, logErrorFunc }) {
@@ -10,6 +17,19 @@ export default class ServiceBase {
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
   }
+
+  splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
+
+  getJobConfig = async () => {
+    const config = await ParseWrapperService.getConfig();
+    const jobConfig = config.get('Job');
+
+    if (jobConfig) {
+      return Immutable.fromJS(jobConfig);
+    }
+
+    throw new Exception('No config found called Job.');
+  };
 
   getStoreCrawlerConfig = async (storeName) => {
     const configs = await StoreCrawlerConfigurationService.search(
@@ -96,6 +116,61 @@ export default class ServiceBase {
     }
 
     return results;
+  };
+
+  getExistingStoreTags = async (storeId) => {
+    const result = StoreTagService.searchAll(Map({ conditions: Map({ storeId }) }));
+
+    try {
+      let storeTags = List();
+
+      result.event.subscribe(info => (storeTags = storeTags.push(info)));
+
+      await result.promise;
+
+      return storeTags;
+    } finally {
+      result.event.unsubscribeAll();
+    }
+  };
+
+  createOrUpdateStoreMasterProduct = async (productCategory, productInfo, storeId, storeTags) => {
+    const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0);
+
+    if (!foundStoreTag) {
+      throw new Exception(`Failed to retrieve store tag for ${productCategory.get('categoryKey')}`);
+    }
+
+    const storeMasterProducts = await StoreMasterProductService.search(
+      Map({
+        conditions: Map({
+          description: productInfo.get('description'),
+          storeId,
+        }),
+      }),
+    );
+
+    if (storeMasterProducts.isEmpty()) {
+      await StoreMasterProductService.create(
+        Map({
+          description: productInfo.get('description'),
+          productPageurl: productInfo.get('productPageUrl'),
+          imageUrl: productInfo.get('imageUrl'),
+          storeTagIds: Set([foundStoreTag.get('id')]),
+          storeId,
+        }),
+      );
+    } else if (storeMasterProducts.count() > 1) {
+      throw new Exception(`Multiple store master product found for ${productInfo.get('description')} and store Id: ${storeId}`);
+    } else {
+      const storeMasterProduct = storeMasterProducts.first();
+      const updatedStoreMasterProduct = storeMasterProduct
+        .update('storeTagIds', storeTagIds => storeTagIds.toSet().add(foundStoreTag.get('id')))
+        .set('productPageUrl', productInfo.get('productPageUrl'))
+        .set('imageUrl', productInfo.get('imageUrl'));
+
+      await StoreMasterProductService.update(updatedStoreMasterProduct);
+    }
   };
 
   logVerbose = (config, messageFunc) => {

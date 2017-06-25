@@ -5,7 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.WarehouseWebCrawlerService = undefined;
 
-require('./CrawlWarehouseProductCategories');
+require('./CrawlProductCategories');
+
+require('./SyncProductCategoriesToStoreTags');
+
+require('./CrawlProducts');
 
 var _WarehouseWebCrawlerService2 = require('./WarehouseWebCrawlerService');
 

@@ -14,26 +14,65 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
+var createConfig = function createConfig() {
+  return _immutable2.default.fromJS({
+    baseUrl: 'http://www.thewarehouse.co.nz/',
+    rateLimit: 2000,
+    maxConnections: 1,
+    categoryKeysToExclude: _immutable.List.of('specials', 'electronicsgaming-apple')
+  });
+};
+
 describe('crawlProductCategories', function () {
   test('should crawl all product categories', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
-    var config;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            config = _immutable2.default.fromJS({
-              baseUrl: 'http://www.thewarehouse.co.nz/',
-              rateLimit: 2000,
-              maxConnections: 1
-            });
-            _context.next = 3;
-            return new _WarehouseWebCrawlerService2.default({}).crawlProductCategories(config);
+            _context.next = 2;
+            return new _WarehouseWebCrawlerService2.default({}).crawlProductCategories(createConfig());
 
-          case 3:
+          case 2:
           case 'end':
             return _context.stop();
         }
       }
     }, _callee, undefined);
+  })));
+});
+
+describe('syncProductCategoriesToStoreTags', function () {
+  test('should sync tags to store tag table', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.next = 2;
+            return new _WarehouseWebCrawlerService2.default({}).syncProductCategoriesToStoreTags(createConfig());
+
+          case 2:
+          case 'end':
+            return _context2.stop();
+        }
+      }
+    }, _callee2, undefined);
+  })));
+});
+
+describe('crawlProducts', function () {
+  test('should crawl all products', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            _context3.next = 2;
+            return new _WarehouseWebCrawlerService2.default({}).crawlProducts(createConfig());
+
+          case 2:
+          case 'end':
+            return _context3.stop();
+        }
+      }
+    }, _callee3, undefined);
   })));
 });

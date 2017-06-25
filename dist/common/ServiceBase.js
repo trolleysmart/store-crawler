@@ -6,9 +6,13 @@ Object.defineProperty(exports, "__esModule", {
 
 var _immutable = require('immutable');
 
+var _immutable2 = _interopRequireDefault(_immutable);
+
 var _microBusinessParseServerCommon = require('micro-business-parse-server-common');
 
 var _smartGroceryParseServerCommon = require('smart-grocery-parse-server-common');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
@@ -23,14 +27,51 @@ var ServiceBase = function ServiceBase(_ref) {
 
   _classCallCheck(this, ServiceBase);
 
+  this.splitIntoChunks = function (list, chunkSize) {
+    return (0, _immutable.Range)(0, list.count(), chunkSize).map(function (chunkStart) {
+      return list.slice(chunkStart, chunkStart + chunkSize);
+    });
+  };
+
+  this.getJobConfig = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+    var config, jobConfig;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return _microBusinessParseServerCommon.ParseWrapperService.getConfig();
+
+          case 2:
+            config = _context.sent;
+            jobConfig = config.get('Job');
+
+            if (!jobConfig) {
+              _context.next = 6;
+              break;
+            }
+
+            return _context.abrupt('return', _immutable2.default.fromJS(jobConfig));
+
+          case 6:
+            throw new _microBusinessParseServerCommon.Exception('No config found called Job.');
+
+          case 7:
+          case 'end':
+            return _context.stop();
+        }
+      }
+    }, _callee, _this);
+  }));
+
   this.getStoreCrawlerConfig = function () {
-    var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(storeName) {
+    var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(storeName) {
       var configs;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
-          switch (_context.prev = _context.next) {
+          switch (_context2.prev = _context2.next) {
             case 0:
-              _context.next = 2;
+              _context2.next = 2;
               return _smartGroceryParseServerCommon.StoreCrawlerConfigurationService.search((0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   key: storeName
@@ -39,56 +80,56 @@ var ServiceBase = function ServiceBase(_ref) {
               }));
 
             case 2:
-              configs = _context.sent;
-              return _context.abrupt('return', configs.first());
+              configs = _context2.sent;
+              return _context2.abrupt('return', configs.first());
 
             case 4:
             case 'end':
-              return _context.stop();
+              return _context2.stop();
           }
         }
-      }, _callee, _this);
+      }, _callee2, _this);
     }));
 
     return function (_x) {
-      return _ref2.apply(this, arguments);
+      return _ref3.apply(this, arguments);
     };
   }();
 
   this.createNewCrawlSessionAndGetStoreCrawlerConfig = function () {
-    var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(sessionKey, config, storeName) {
+    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(sessionKey, config, storeName) {
       var sessionInfo, sessionId, finalConfig;
-      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
               sessionInfo = (0, _immutable.Map)({
                 sessionKey: sessionKey,
                 startDateTime: new Date()
               });
-              _context2.next = 3;
+              _context3.next = 3;
               return _smartGroceryParseServerCommon.CrawlSessionService.create(sessionInfo);
 
             case 3:
-              sessionId = _context2.sent;
-              _context2.t0 = config;
+              sessionId = _context3.sent;
+              _context3.t0 = config;
 
-              if (_context2.t0) {
-                _context2.next = 9;
+              if (_context3.t0) {
+                _context3.next = 9;
                 break;
               }
 
-              _context2.next = 8;
+              _context3.next = 8;
               return _this.getStoreCrawlerConfig(storeName);
 
             case 8:
-              _context2.t0 = _context2.sent.get('config');
+              _context3.t0 = _context3.sent.get('config');
 
             case 9:
-              finalConfig = _context2.t0;
+              finalConfig = _context3.t0;
 
               if (finalConfig) {
-                _context2.next = 12;
+                _context3.next = 12;
                 break;
               }
 
@@ -103,65 +144,10 @@ var ServiceBase = function ServiceBase(_ref) {
                 return 'Config: ' + JSON.stringify(finalConfig);
               });
 
-              return _context2.abrupt('return', (0, _immutable.Map)({
+              return _context3.abrupt('return', (0, _immutable.Map)({
                 sessionInfo: sessionInfo.set('id', sessionId),
                 config: finalConfig
               }));
-
-            case 15:
-            case 'end':
-              return _context2.stop();
-          }
-        }
-      }, _callee2, _this);
-    }));
-
-    return function (_x2, _x3, _x4) {
-      return _ref3.apply(this, arguments);
-    };
-  }();
-
-  this.getStore = function () {
-    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(name) {
-      var criteria, results;
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              criteria = (0, _immutable.Map)({
-                conditions: (0, _immutable.Map)({
-                  name: name
-                })
-              });
-              _context3.next = 3;
-              return _smartGroceryParseServerCommon.StoreService.search(criteria);
-
-            case 3:
-              results = _context3.sent;
-
-              if (!results.isEmpty()) {
-                _context3.next = 12;
-                break;
-              }
-
-              _context3.t0 = _smartGroceryParseServerCommon.StoreService;
-              _context3.next = 8;
-              return _smartGroceryParseServerCommon.StoreService.create((0, _immutable.Map)({ name: name }));
-
-            case 8:
-              _context3.t1 = _context3.sent;
-              return _context3.abrupt('return', _context3.t0.read.call(_context3.t0, _context3.t1));
-
-            case 12:
-              if (!(results.count() === 1)) {
-                _context3.next = 14;
-                break;
-              }
-
-              return _context3.abrupt('return', results.first());
-
-            case 14:
-              throw new _microBusinessParseServerCommon.Exception('Multiple store found called ' + name + '.');
 
             case 15:
             case 'end':
@@ -171,19 +157,74 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee3, _this);
     }));
 
-    return function (_x5) {
+    return function (_x2, _x3, _x4) {
       return _ref4.apply(this, arguments);
     };
   }();
 
-  this.getMostRecentCrawlSessionInfo = function () {
-    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(sessionKey) {
-      var crawlSessionInfos;
+  this.getStore = function () {
+    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(name) {
+      var criteria, results;
       return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              _context4.next = 2;
+              criteria = (0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  name: name
+                })
+              });
+              _context4.next = 3;
+              return _smartGroceryParseServerCommon.StoreService.search(criteria);
+
+            case 3:
+              results = _context4.sent;
+
+              if (!results.isEmpty()) {
+                _context4.next = 12;
+                break;
+              }
+
+              _context4.t0 = _smartGroceryParseServerCommon.StoreService;
+              _context4.next = 8;
+              return _smartGroceryParseServerCommon.StoreService.create((0, _immutable.Map)({ name: name }));
+
+            case 8:
+              _context4.t1 = _context4.sent;
+              return _context4.abrupt('return', _context4.t0.read.call(_context4.t0, _context4.t1));
+
+            case 12:
+              if (!(results.count() === 1)) {
+                _context4.next = 14;
+                break;
+              }
+
+              return _context4.abrupt('return', results.first());
+
+            case 14:
+              throw new _microBusinessParseServerCommon.Exception('Multiple store found called ' + name + '.');
+
+            case 15:
+            case 'end':
+              return _context4.stop();
+          }
+        }
+      }, _callee4, _this);
+    }));
+
+    return function (_x5) {
+      return _ref5.apply(this, arguments);
+    };
+  }();
+
+  this.getMostRecentCrawlSessionInfo = function () {
+    var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(sessionKey) {
+      var crawlSessionInfos;
+      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              _context5.next = 2;
               return _smartGroceryParseServerCommon.CrawlSessionService.search((0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   sessionKey: sessionKey
@@ -192,34 +233,34 @@ var ServiceBase = function ServiceBase(_ref) {
               }));
 
             case 2:
-              crawlSessionInfos = _context4.sent;
-              return _context4.abrupt('return', crawlSessionInfos.first());
+              crawlSessionInfos = _context5.sent;
+              return _context5.abrupt('return', crawlSessionInfos.first());
 
             case 4:
             case 'end':
-              return _context4.stop();
+              return _context5.stop();
           }
         }
-      }, _callee4, _this);
+      }, _callee5, _this);
     }));
 
     return function (_x6) {
-      return _ref5.apply(this, arguments);
+      return _ref6.apply(this, arguments);
     };
   }();
 
   this.getMostRecentCrawlResults = function () {
-    var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(sessionKey, mapFunc) {
+    var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(sessionKey, mapFunc) {
       var crawlSessionInfo, crawlSessionId, results, result;
-      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      return regeneratorRuntime.wrap(function _callee6$(_context6) {
         while (1) {
-          switch (_context5.prev = _context5.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
-              _context5.next = 2;
+              _context6.next = 2;
               return _this.getMostRecentCrawlSessionInfo(sessionKey);
 
             case 2:
-              crawlSessionInfo = _context5.sent;
+              crawlSessionInfo = _context6.sent;
               crawlSessionId = crawlSessionInfo.get('id');
               results = (0, _immutable.List)();
               result = _smartGroceryParseServerCommon.CrawlResultService.searchAll((0, _immutable.Map)({
@@ -227,34 +268,152 @@ var ServiceBase = function ServiceBase(_ref) {
                   crawlSessionId: crawlSessionId
                 })
               }));
-              _context5.prev = 6;
+              _context6.prev = 6;
 
               result.event.subscribe(function (info) {
                 return results = results.push(mapFunc ? mapFunc(info) : info);
               });
 
-              _context5.next = 10;
+              _context6.next = 10;
               return result.promise;
 
             case 10:
-              _context5.prev = 10;
+              _context6.prev = 10;
 
               result.event.unsubscribeAll();
-              return _context5.finish(10);
+              return _context6.finish(10);
 
             case 13:
-              return _context5.abrupt('return', results);
+              return _context6.abrupt('return', results);
 
             case 14:
             case 'end':
-              return _context5.stop();
+              return _context6.stop();
           }
         }
-      }, _callee5, _this, [[6,, 10, 13]]);
+      }, _callee6, _this, [[6,, 10, 13]]);
     }));
 
     return function (_x7, _x8) {
-      return _ref6.apply(this, arguments);
+      return _ref7.apply(this, arguments);
+    };
+  }();
+
+  this.getExistingStoreTags = function () {
+    var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(storeId) {
+      var result, storeTags;
+      return regeneratorRuntime.wrap(function _callee7$(_context7) {
+        while (1) {
+          switch (_context7.prev = _context7.next) {
+            case 0:
+              result = _smartGroceryParseServerCommon.StoreTagService.searchAll((0, _immutable.Map)({ conditions: (0, _immutable.Map)({ storeId: storeId }) }));
+              _context7.prev = 1;
+              storeTags = (0, _immutable.List)();
+
+
+              result.event.subscribe(function (info) {
+                return storeTags = storeTags.push(info);
+              });
+
+              _context7.next = 6;
+              return result.promise;
+
+            case 6:
+              return _context7.abrupt('return', storeTags);
+
+            case 7:
+              _context7.prev = 7;
+
+              result.event.unsubscribeAll();
+              return _context7.finish(7);
+
+            case 10:
+            case 'end':
+              return _context7.stop();
+          }
+        }
+      }, _callee7, _this, [[1,, 7, 10]]);
+    }));
+
+    return function (_x9) {
+      return _ref8.apply(this, arguments);
+    };
+  }();
+
+  this.createOrUpdateStoreMasterProduct = function () {
+    var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(productCategory, productInfo, storeId, storeTags) {
+      var foundStoreTag, storeMasterProducts, storeMasterProduct, updatedStoreMasterProduct;
+      return regeneratorRuntime.wrap(function _callee8$(_context8) {
+        while (1) {
+          switch (_context8.prev = _context8.next) {
+            case 0:
+              foundStoreTag = storeTags.find(function (storeTag) {
+                return storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0;
+              });
+
+              if (foundStoreTag) {
+                _context8.next = 3;
+                break;
+              }
+
+              throw new _microBusinessParseServerCommon.Exception('Failed to retrieve store tag for ' + productCategory.get('categoryKey'));
+
+            case 3:
+              _context8.next = 5;
+              return _smartGroceryParseServerCommon.StoreMasterProductService.search((0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  description: productInfo.get('description'),
+                  storeId: storeId
+                })
+              }));
+
+            case 5:
+              storeMasterProducts = _context8.sent;
+
+              if (!storeMasterProducts.isEmpty()) {
+                _context8.next = 11;
+                break;
+              }
+
+              _context8.next = 9;
+              return _smartGroceryParseServerCommon.StoreMasterProductService.create((0, _immutable.Map)({
+                description: productInfo.get('description'),
+                productPageurl: productInfo.get('productPageUrl'),
+                imageUrl: productInfo.get('imageUrl'),
+                storeTagIds: (0, _immutable.Set)([foundStoreTag.get('id')]),
+                storeId: storeId
+              }));
+
+            case 9:
+              _context8.next = 19;
+              break;
+
+            case 11:
+              if (!(storeMasterProducts.count() > 1)) {
+                _context8.next = 15;
+                break;
+              }
+
+              throw new _microBusinessParseServerCommon.Exception('Multiple store master product found for ' + productInfo.get('description') + ' and store Id: ' + storeId);
+
+            case 15:
+              storeMasterProduct = storeMasterProducts.first();
+              updatedStoreMasterProduct = storeMasterProduct.update('storeTagIds', function (storeTagIds) {
+                return storeTagIds.toSet().add(foundStoreTag.get('id'));
+              }).set('productPageUrl', productInfo.get('productPageUrl')).set('imageUrl', productInfo.get('imageUrl'));
+              _context8.next = 19;
+              return _smartGroceryParseServerCommon.StoreMasterProductService.update(updatedStoreMasterProduct);
+
+            case 19:
+            case 'end':
+              return _context8.stop();
+          }
+        }
+      }, _callee8, _this);
+    }));
+
+    return function (_x10, _x11, _x12, _x13) {
+      return _ref9.apply(this, arguments);
     };
   }();
 
