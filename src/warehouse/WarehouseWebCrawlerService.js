@@ -386,8 +386,8 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
 
           if (!productCategory) {
+            // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
             done();
-            reject(`Failed to find product category page info for Url: ${res.request.uri.href}`);
 
             return;
           }
