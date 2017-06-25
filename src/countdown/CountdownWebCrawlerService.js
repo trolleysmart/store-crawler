@@ -7,12 +7,93 @@ import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-ser
 import { ServiceBase } from '../common';
 
 export default class CountdownWebCrawlerService extends ServiceBase {
-  getHighLevelProductCategoriesDetails = (config, $) => {
+  crawlProductCategories = async (config) => {
+    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Product Categories', config, 'Countdown');
+    const sessionInfo = result.get('sessionInfo');
+    const sessionId = sessionInfo.get('id');
+    const finalConfig = result.get('config');
+
+    try {
+      const levelOneProductCategories = await this.crawlLevelOneProductCategories(sessionId, finalConfig);
+      const updatedSessionInfo = sessionInfo.merge(
+        Map({
+          endDateTime: new Date(),
+          additionalInfo: Map({
+            status: 'success',
+          }),
+        }),
+      );
+
+      await CrawlSessionService.update(updatedSessionInfo);
+    } catch (ex) {
+      const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
+      const updatedSessionInfo = sessionInfo.merge(
+        Map({
+          endDateTime: new Date(),
+          additionalInfo: Map({
+            status: 'failed',
+            error: errorMessage,
+          }),
+        }),
+      );
+
+      await CrawlSessionService.update(updatedSessionInfo);
+      throw ex;
+    }
+  };
+
+  crawlLevelOneProductCategories = (sessionId, config) => {
+    let productCategories = List();
+    return new Promise((resolve, reject) => {
+      const crawler = new Crawler({
+        rateLimit: config.get('rateLimit'),
+        maxConnections: config.get('maxConnections'),
+        callback: (error, res, done) => {
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+
+          if (error) {
+            done();
+            reject(`Failed to receive product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+
+            return;
+          }
+
+          const $ = res.$;
+
+          $('#BrowseSlideBox').filter(function filterProductCategories() {
+            $(this).find('.toolbar-slidebox-item').each(function filterProductCategory() {
+              const data = $(this).find('.toolbar-slidebox-link').attr('href');
+              const categoryKey = data.substring(data.lastIndexOf('/') + 1, data.length);
+              if (
+                config.get('categoryKeysToExclude') &&
+                config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
+              ) {
+                return 0;
+              }
+
+              productCategories = productCategories.push(Map({}));
+
+              return 0;
+            });
+
+            return 0;
+          });
+
+          done();
+        },
+      });
+
+      crawler.on('drain', () => resolve());
+      crawler.queue(config.get('baseUrl'));
+    });
+  };
+
+  // ///////////////////////////////////////////////////////////////
+  crawlLevelOneProductCategoriesAndSubProductCategories = (config, $) => {
     let highLevelProductCategories = List();
 
     $('#BrowseSlideBox').filter(function filterHighLevelProductCategoriesCallback() {
-      // eslint-disable-line array-callback-return
-      // eslint-disable-line array-callback-return
       const data = $(this);
 
       data.find('.toolbar-slidebox-item').each(function onNewProductExtracted() {
@@ -254,7 +335,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          const highLevelProductCategories = this.getHighLevelProductCategoriesDetails(config, res.$);
+          const highLevelProductCategories = this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
 
           this.logVerbose(config, () => `Received high level product categories: ${JSON.stringify(highLevelProductCategories.toJS())}`);
 

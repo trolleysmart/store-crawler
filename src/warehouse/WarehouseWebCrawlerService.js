@@ -61,7 +61,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           }
 
           const productCategories = this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
-
           const crawlResult = Map({
             crawlSessionId: sessionId,
             resultSet: Map({
@@ -81,13 +80,10 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
               done();
               reject(`Failed to save products for: ${productCategories}. Error: ${JSON.stringify(err)}`);
             });
-
-          done();
         },
       });
 
       crawler.on('drain', () => resolve());
-
       crawler.queue(config.get('baseUrl'));
     });
 
@@ -104,7 +100,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           config.get('categoryKeysToExclude') &&
           config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
         ) {
-          return;
+          return 0;
         }
 
         productCategories = productCategories.add(
@@ -116,7 +112,11 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem),
           }),
         );
+
+        return 0;
       });
+
+      return 0;
     });
 
     return productCategories;
@@ -136,7 +136,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             config.get('categoryKeysToExclude') &&
             config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
           ) {
-            return;
+            return 0;
           }
 
           productCategories = productCategories.add(
@@ -148,8 +148,14 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
               subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this)),
             }),
           );
+
+          return 0;
         });
+
+        return 0;
       });
+
+      return 0;
     });
 
     return productCategories;
@@ -167,7 +173,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           config.get('categoryKeysToExclude') &&
           config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
         ) {
-          return;
+          return 0;
         }
 
         productCategories = productCategories.add(
@@ -178,7 +184,11 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             weight: 3,
           }),
         );
+
+        return 0;
       });
+
+      return 0;
     });
 
     return productCategories;
@@ -400,7 +410,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       });
 
       crawler.on('drain', () => resolve(productCategoriesToCrawlWithTotalItemsInfo));
-
       productCategories.forEach(productCategory => crawler.queue(productCategory.get('url')));
     });
   };
@@ -415,7 +424,11 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         const spaceIdx = line2.indexOf(' ');
 
         total = parseInt(line2.substring(0, spaceIdx).replace(',', '').trim(), 10);
+
+        return 0;
       });
+
+      return 0;
     });
 
     return total;
@@ -459,7 +472,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       });
 
       crawler.on('drain', () => resolve());
-
       productCategories.forEach(productCategory =>
         Range(0, productCategory.get('totalItems'), 24).forEach(offset => crawler.queue(`${productCategory.get('url')}?sz=24&start=${offset}`)),
       );
@@ -470,9 +482,11 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     $('.tab-content .search-result-content .search-result-items').children().filter(function filterSearchResultItems() {
       const description = $(this).find('.product-info-wrapper .name-link').attr('title');
       const productPageUrl = $(this).find('.product-info-wrapper .name-link').attr('href');
-      const imageUrl = $(this).find('.product-image .thumb-link').children().first().attr('src');
+      const imageLink = $(this).find('.product-image .thumb-link').children().first();
 
-      products = products.push(Map({ description, productPageUrl, imageUrl }));
+      products = products.push(Map({ description, productPageUrl, imageUrl: imageLink.attr('src') }));
+
+      return 0;
     });
 
     return products;
