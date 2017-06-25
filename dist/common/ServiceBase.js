@@ -362,7 +362,7 @@ var ServiceBase = function ServiceBase(_ref) {
               _context8.next = 5;
               return _smartGroceryParseServerCommon.StoreMasterProductService.search((0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
-                  description: productInfo.get('description'),
+                  productPageUrl: productInfo.get('productPageUrl'),
                   storeId: storeId
                 })
               }));
@@ -378,7 +378,7 @@ var ServiceBase = function ServiceBase(_ref) {
               _context8.next = 9;
               return _smartGroceryParseServerCommon.StoreMasterProductService.create((0, _immutable.Map)({
                 description: productInfo.get('description'),
-                productPageurl: productInfo.get('productPageUrl'),
+                productPageUrl: productInfo.get('productPageUrl'),
                 imageUrl: productInfo.get('imageUrl'),
                 storeTagIds: (0, _immutable.Set)([foundStoreTag.get('id')]),
                 storeId: storeId

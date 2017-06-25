@@ -144,7 +144,7 @@ export default class ServiceBase {
     const storeMasterProducts = await StoreMasterProductService.search(
       Map({
         conditions: Map({
-          description: productInfo.get('description'),
+          productPageUrl: productInfo.get('productPageUrl'),
           storeId,
         }),
       }),
@@ -154,7 +154,7 @@ export default class ServiceBase {
       await StoreMasterProductService.create(
         Map({
           description: productInfo.get('description'),
-          productPageurl: productInfo.get('productPageUrl'),
+          productPageUrl: productInfo.get('productPageUrl'),
           imageUrl: productInfo.get('imageUrl'),
           storeTagIds: Set([foundStoreTag.get('id')]),
           storeId,
