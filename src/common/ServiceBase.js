@@ -173,6 +173,72 @@ export default class ServiceBase {
     }
   };
 
+  createOrUpdateLevelOneProductCategory = async (productCategory, storeTags, storeId) => {
+    const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0);
+
+    if (foundStoreTag) {
+      await StoreTagService.update(foundStoreTag.set('description', productCategory.get('description')).set('weight', productCategory.get('weigth')));
+    } else {
+      await StoreTagService.create(
+        Map({ key: productCategory.get('categoryKey'), description: productCategory.get('description'), weight: 1, storeId }),
+      );
+    }
+  };
+
+  createOrUpdateLevelTwoProductCategory = async (productCategory, storeTags, storeId) => {
+    const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0);
+    const parentStoreTagIds = productCategory
+      .map(_ => _.get('parent'))
+      .map(parent => storeTags.find(storeTag => storeTag.get('key').localeCompare(parent) === 0))
+      .map(_ => _.get('id'));
+
+    if (foundStoreTag) {
+      await StoreTagService.update(
+        foundStoreTag
+          .set('description', productCategory.first().get('description'))
+          .set('weight', productCategory.first().get('weigth'))
+          .set('storeTagIds', parentStoreTagIds),
+      );
+    } else {
+      await StoreTagService.create(
+        Map({
+          key: productCategory.first().get('categoryKey'),
+          description: productCategory.first().get('description'),
+          weight: 2,
+          storeId,
+          storeTagIds: parentStoreTagIds,
+        }),
+      );
+    }
+  };
+
+  createOrUpdateLevelThreeProductCategory = async (productCategory, storeTags, storeId) => {
+    const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0);
+    const parentStoreTagIds = productCategory
+      .map(_ => _.get('parent'))
+      .map(parent => storeTags.find(storeTag => storeTag.get('key').localeCompare(parent) === 0))
+      .map(_ => _.get('id'));
+
+    if (foundStoreTag) {
+      await StoreTagService.update(
+        foundStoreTag
+          .set('description', productCategory.first().get('description'))
+          .set('weight', productCategory.first().get('weigth'))
+          .set('storeTagIds', parentStoreTagIds),
+      );
+    } else {
+      await StoreTagService.create(
+        Map({
+          key: productCategory.first().get('categoryKey'),
+          description: productCategory.first().get('description'),
+          weight: 3,
+          storeId,
+          storeTagIds: parentStoreTagIds,
+        }),
+      );
+    }
+  };
+
   logVerbose = (config, messageFunc) => {
     if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       this.logVerboseFunc(messageFunc());

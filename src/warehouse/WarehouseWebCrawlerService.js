@@ -4,7 +4,7 @@ import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
-import { CrawlResultService, CrawlSessionService, StoreTagService } from 'smart-grocery-parse-server-common';
+import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-server-common';
 import { ServiceBase } from '../common';
 
 export default class WarehouseWebCrawlerService extends ServiceBase {
@@ -247,72 +247,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         ),
       ),
     );
-  };
-
-  createOrUpdateLevelOneProductCategory = async (productCategory, storeTags, storeId) => {
-    const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0);
-
-    if (foundStoreTag) {
-      await StoreTagService.update(foundStoreTag.set('description', productCategory.get('description')).set('weight', productCategory.get('weigth')));
-    } else {
-      await StoreTagService.create(
-        Map({ key: productCategory.get('categoryKey'), description: productCategory.get('description'), weight: 1, storeId }),
-      );
-    }
-  };
-
-  createOrUpdateLevelTwoProductCategory = async (productCategory, storeTags, storeId) => {
-    const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0);
-    const parentStoreTagIds = productCategory
-      .map(_ => _.get('parent'))
-      .map(parent => storeTags.find(storeTag => storeTag.get('key').localeCompare(parent) === 0))
-      .map(_ => _.get('id'));
-
-    if (foundStoreTag) {
-      await StoreTagService.update(
-        foundStoreTag
-          .set('description', productCategory.first().get('description'))
-          .set('weight', productCategory.first().get('weigth'))
-          .set('storeTagIds', parentStoreTagIds),
-      );
-    } else {
-      await StoreTagService.create(
-        Map({
-          key: productCategory.first().get('categoryKey'),
-          description: productCategory.first().get('description'),
-          weight: 2,
-          storeId,
-          storeTagIds: parentStoreTagIds,
-        }),
-      );
-    }
-  };
-
-  createOrUpdateLevelThreeProductCategory = async (productCategory, storeTags, storeId) => {
-    const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0);
-    const parentStoreTagIds = productCategory
-      .map(_ => _.get('parent'))
-      .map(parent => storeTags.find(storeTag => storeTag.get('key').localeCompare(parent) === 0))
-      .map(_ => _.get('id'));
-
-    if (foundStoreTag) {
-      await StoreTagService.update(
-        foundStoreTag
-          .set('description', productCategory.first().get('description'))
-          .set('weight', productCategory.first().get('weigth'))
-          .set('storeTagIds', parentStoreTagIds),
-      );
-    } else {
-      await StoreTagService.create(
-        Map({
-          key: productCategory.first().get('categoryKey'),
-          description: productCategory.first().get('description'),
-          weight: 3,
-          storeId,
-          storeTagIds: parentStoreTagIds,
-        }),
-      );
-    }
   };
 
   crawlProducts = async (config) => {

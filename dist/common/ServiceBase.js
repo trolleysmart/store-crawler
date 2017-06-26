@@ -417,6 +417,156 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
+  this.createOrUpdateLevelOneProductCategory = function () {
+    var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(productCategory, storeTags, storeId) {
+      var foundStoreTag;
+      return regeneratorRuntime.wrap(function _callee9$(_context9) {
+        while (1) {
+          switch (_context9.prev = _context9.next) {
+            case 0:
+              foundStoreTag = storeTags.find(function (storeTag) {
+                return storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0;
+              });
+
+              if (!foundStoreTag) {
+                _context9.next = 6;
+                break;
+              }
+
+              _context9.next = 4;
+              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('description', productCategory.get('description')).set('weight', productCategory.get('weigth')));
+
+            case 4:
+              _context9.next = 8;
+              break;
+
+            case 6:
+              _context9.next = 8;
+              return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({ key: productCategory.get('categoryKey'), description: productCategory.get('description'), weight: 1, storeId: storeId }));
+
+            case 8:
+            case 'end':
+              return _context9.stop();
+          }
+        }
+      }, _callee9, _this);
+    }));
+
+    return function (_x14, _x15, _x16) {
+      return _ref10.apply(this, arguments);
+    };
+  }();
+
+  this.createOrUpdateLevelTwoProductCategory = function () {
+    var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(productCategory, storeTags, storeId) {
+      var foundStoreTag, parentStoreTagIds;
+      return regeneratorRuntime.wrap(function _callee10$(_context10) {
+        while (1) {
+          switch (_context10.prev = _context10.next) {
+            case 0:
+              foundStoreTag = storeTags.find(function (storeTag) {
+                return storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0;
+              });
+              parentStoreTagIds = productCategory.map(function (_) {
+                return _.get('parent');
+              }).map(function (parent) {
+                return storeTags.find(function (storeTag) {
+                  return storeTag.get('key').localeCompare(parent) === 0;
+                });
+              }).map(function (_) {
+                return _.get('id');
+              });
+
+              if (!foundStoreTag) {
+                _context10.next = 7;
+                break;
+              }
+
+              _context10.next = 5;
+              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('description', productCategory.first().get('description')).set('weight', productCategory.first().get('weigth')).set('storeTagIds', parentStoreTagIds));
+
+            case 5:
+              _context10.next = 9;
+              break;
+
+            case 7:
+              _context10.next = 9;
+              return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({
+                key: productCategory.first().get('categoryKey'),
+                description: productCategory.first().get('description'),
+                weight: 2,
+                storeId: storeId,
+                storeTagIds: parentStoreTagIds
+              }));
+
+            case 9:
+            case 'end':
+              return _context10.stop();
+          }
+        }
+      }, _callee10, _this);
+    }));
+
+    return function (_x17, _x18, _x19) {
+      return _ref11.apply(this, arguments);
+    };
+  }();
+
+  this.createOrUpdateLevelThreeProductCategory = function () {
+    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(productCategory, storeTags, storeId) {
+      var foundStoreTag, parentStoreTagIds;
+      return regeneratorRuntime.wrap(function _callee11$(_context11) {
+        while (1) {
+          switch (_context11.prev = _context11.next) {
+            case 0:
+              foundStoreTag = storeTags.find(function (storeTag) {
+                return storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0;
+              });
+              parentStoreTagIds = productCategory.map(function (_) {
+                return _.get('parent');
+              }).map(function (parent) {
+                return storeTags.find(function (storeTag) {
+                  return storeTag.get('key').localeCompare(parent) === 0;
+                });
+              }).map(function (_) {
+                return _.get('id');
+              });
+
+              if (!foundStoreTag) {
+                _context11.next = 7;
+                break;
+              }
+
+              _context11.next = 5;
+              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('description', productCategory.first().get('description')).set('weight', productCategory.first().get('weigth')).set('storeTagIds', parentStoreTagIds));
+
+            case 5:
+              _context11.next = 9;
+              break;
+
+            case 7:
+              _context11.next = 9;
+              return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({
+                key: productCategory.first().get('categoryKey'),
+                description: productCategory.first().get('description'),
+                weight: 3,
+                storeId: storeId,
+                storeTagIds: parentStoreTagIds
+              }));
+
+            case 9:
+            case 'end':
+              return _context11.stop();
+          }
+        }
+      }, _callee11, _this);
+    }));
+
+    return function (_x20, _x21, _x22) {
+      return _ref12.apply(this, arguments);
+    };
+  }();
+
   this.logVerbose = function (config, messageFunc) {
     if (_this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       _this.logVerboseFunc(messageFunc());

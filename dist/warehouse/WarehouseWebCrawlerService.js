@@ -345,187 +345,43 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           }
         }
       }, _callee2, _this2);
-    })), _this.createOrUpdateLevelOneProductCategory = function () {
-      var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(productCategory, storeTags, storeId) {
-        var foundStoreTag;
+    })), _this.crawlProducts = function () {
+      var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(config) {
+        var result, sessionInfo, sessionId, finalConfig, store, storeId, storeTags, productCategories, productCategoriesLevelOne, productCategoriesLevelTwo, productCategoriesLevelThree, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
+
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                foundStoreTag = storeTags.find(function (storeTag) {
-                  return storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0;
-                });
-
-                if (!foundStoreTag) {
-                  _context3.next = 6;
-                  break;
-                }
-
-                _context3.next = 4;
-                return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('description', productCategory.get('description')).set('weight', productCategory.get('weigth')));
-
-              case 4:
-                _context3.next = 8;
-                break;
-
-              case 6:
-                _context3.next = 8;
-                return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({ key: productCategory.get('categoryKey'), description: productCategory.get('description'), weight: 1, storeId: storeId }));
-
-              case 8:
-              case 'end':
-                return _context3.stop();
-            }
-          }
-        }, _callee3, _this2);
-      }));
-
-      return function (_x2, _x3, _x4) {
-        return _ref4.apply(this, arguments);
-      };
-    }(), _this.createOrUpdateLevelTwoProductCategory = function () {
-      var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(productCategory, storeTags, storeId) {
-        var foundStoreTag, parentStoreTagIds;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                foundStoreTag = storeTags.find(function (storeTag) {
-                  return storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0;
-                });
-                parentStoreTagIds = productCategory.map(function (_) {
-                  return _.get('parent');
-                }).map(function (parent) {
-                  return storeTags.find(function (storeTag) {
-                    return storeTag.get('key').localeCompare(parent) === 0;
-                  });
-                }).map(function (_) {
-                  return _.get('id');
-                });
-
-                if (!foundStoreTag) {
-                  _context4.next = 7;
-                  break;
-                }
-
-                _context4.next = 5;
-                return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('description', productCategory.first().get('description')).set('weight', productCategory.first().get('weigth')).set('storeTagIds', parentStoreTagIds));
-
-              case 5:
-                _context4.next = 9;
-                break;
-
-              case 7:
-                _context4.next = 9;
-                return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({
-                  key: productCategory.first().get('categoryKey'),
-                  description: productCategory.first().get('description'),
-                  weight: 2,
-                  storeId: storeId,
-                  storeTagIds: parentStoreTagIds
-                }));
-
-              case 9:
-              case 'end':
-                return _context4.stop();
-            }
-          }
-        }, _callee4, _this2);
-      }));
-
-      return function (_x5, _x6, _x7) {
-        return _ref5.apply(this, arguments);
-      };
-    }(), _this.createOrUpdateLevelThreeProductCategory = function () {
-      var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(productCategory, storeTags, storeId) {
-        var foundStoreTag, parentStoreTagIds;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                foundStoreTag = storeTags.find(function (storeTag) {
-                  return storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0;
-                });
-                parentStoreTagIds = productCategory.map(function (_) {
-                  return _.get('parent');
-                }).map(function (parent) {
-                  return storeTags.find(function (storeTag) {
-                    return storeTag.get('key').localeCompare(parent) === 0;
-                  });
-                }).map(function (_) {
-                  return _.get('id');
-                });
-
-                if (!foundStoreTag) {
-                  _context5.next = 7;
-                  break;
-                }
-
-                _context5.next = 5;
-                return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('description', productCategory.first().get('description')).set('weight', productCategory.first().get('weigth')).set('storeTagIds', parentStoreTagIds));
-
-              case 5:
-                _context5.next = 9;
-                break;
-
-              case 7:
-                _context5.next = 9;
-                return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({
-                  key: productCategory.first().get('categoryKey'),
-                  description: productCategory.first().get('description'),
-                  weight: 3,
-                  storeId: storeId,
-                  storeTagIds: parentStoreTagIds
-                }));
-
-              case 9:
-              case 'end':
-                return _context5.stop();
-            }
-          }
-        }, _callee5, _this2);
-      }));
-
-      return function (_x8, _x9, _x10) {
-        return _ref6.apply(this, arguments);
-      };
-    }(), _this.crawlProducts = function () {
-      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(config) {
-        var result, sessionInfo, sessionId, finalConfig, store, storeId, storeTags, productCategories, productCategoriesLevelOne, productCategoriesLevelTwo, productCategoriesLevelThree, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
-
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                _context6.next = 2;
+                _context3.next = 2;
                 return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Product', config, 'Warehouse');
 
               case 2:
-                result = _context6.sent;
+                result = _context3.sent;
                 sessionInfo = result.get('sessionInfo');
                 sessionId = sessionInfo.get('id');
                 finalConfig = result.get('config');
-                _context6.prev = 6;
-                _context6.next = 9;
+                _context3.prev = 6;
+                _context3.next = 9;
                 return _this.getStore('Warehouse');
 
               case 9:
-                store = _context6.sent;
+                store = _context3.sent;
                 storeId = store.get('id');
-                _context6.next = 13;
+                _context3.next = 13;
                 return _this.getExistingStoreTags(storeId);
 
               case 13:
-                storeTags = _context6.sent;
-                _context6.t0 = _immutable2.default;
-                _context6.next = 17;
+                storeTags = _context3.sent;
+                _context3.t0 = _immutable2.default;
+                _context3.next = 17;
                 return _this.getMostRecentCrawlResults('Warehouse Product Categories', function (info) {
                   return info.getIn(['resultSet', 'productCategories']);
                 });
 
               case 17:
-                _context6.t1 = _context6.sent.first();
-                productCategories = _context6.t0.fromJS.call(_context6.t0, _context6.t1);
+                _context3.t1 = _context3.sent.first();
+                productCategories = _context3.t0.fromJS.call(_context3.t0, _context3.t1);
                 productCategoriesLevelOne = productCategories.filter(function (_) {
                   return _.get('subCategories').isEmpty();
                 });
@@ -546,12 +402,12 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   return _.get('subCategories');
                 });
                 productCategoriesToCrawl = productCategoriesLevelOne.concat(productCategoriesLevelTwo).concat(productCategoriesLevelThree);
-                _context6.next = 25;
+                _context3.next = 25;
                 return _this.crawlProductCategoriesTotalItemsInfo(sessionId, finalConfig, productCategoriesToCrawl);
 
               case 25:
-                productCategoriesToCrawlWithTotalItemsInfo = _context6.sent;
-                _context6.next = 28;
+                productCategoriesToCrawlWithTotalItemsInfo = _context3.sent;
+                _context3.next = 28;
                 return _this.crawlProductsForEachProductCategories(sessionId, finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, storeTags);
 
               case 28:
@@ -561,17 +417,17 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                     status: 'success'
                   })
                 }));
-                _context6.next = 31;
+                _context3.next = 31;
                 return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
 
               case 31:
-                _context6.next = 40;
+                _context3.next = 40;
                 break;
 
               case 33:
-                _context6.prev = 33;
-                _context6.t2 = _context6['catch'](6);
-                errorMessage = _context6.t2 instanceof _microBusinessParseServerCommon.Exception ? _context6.t2.getErrorMessage() : _context6.t2;
+                _context3.prev = 33;
+                _context3.t2 = _context3['catch'](6);
+                errorMessage = _context3.t2 instanceof _microBusinessParseServerCommon.Exception ? _context3.t2.getErrorMessage() : _context3.t2;
                 _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
                   endDateTime: new Date(),
                   additionalInfo: (0, _immutable.Map)({
@@ -579,22 +435,22 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                     error: errorMessage
                   })
                 }));
-                _context6.next = 39;
+                _context3.next = 39;
                 return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
 
               case 39:
-                throw _context6.t2;
+                throw _context3.t2;
 
               case 40:
               case 'end':
-                return _context6.stop();
+                return _context3.stop();
             }
           }
-        }, _callee6, _this2, [[6, 33]]);
+        }, _callee3, _this2, [[6, 33]]);
       }));
 
-      return function (_x11) {
-        return _ref7.apply(this, arguments);
+      return function (_x2) {
+        return _ref4.apply(this, arguments);
       };
     }(), _this.crawlProductCategoriesTotalItemsInfo = function (sessionId, config, productCategories) {
       var productCategoriesToCrawlWithTotalItemsInfo = (0, _immutable.List)();

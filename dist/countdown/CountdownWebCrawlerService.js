@@ -4,11 +4,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _bluebird = require('bluebird');
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
 var _crawler = require('crawler');
 
 var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
+
+var _immutable2 = _interopRequireDefault(_immutable);
 
 var _microBusinessParseServerCommon = require('micro-business-parse-server-common');
 
@@ -757,7 +763,101 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
           });
         });
       });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
+    }, _this.syncProductCategoriesToStoreTags = _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
+      var store, storeId, productCategories, storeTags, splittedLevelOneProductCategories, storeTagsWithUpdatedLevelOneProductCategories, levelTwoProductCategories, levelTwoProductCategoriesGroupedByCategoryKey, splittedLevelTwoProductCategories, storeTagsWithUpdatedLevelTwoProductCategories, levelThreeProductCategories, levelThreeProductCategoriesGroupedByCategoryKey, splittedLevelThreeProductCategories;
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              _context4.next = 2;
+              return _this.getStore('Countdown');
+
+            case 2:
+              store = _context4.sent;
+              storeId = store.get('id');
+              _context4.t0 = _immutable2.default;
+              _context4.next = 7;
+              return _this.getMostRecentCrawlResults('Countdown Product Categories', function (info) {
+                return info.getIn(['resultSet', 'productCategories']);
+              });
+
+            case 7:
+              _context4.t1 = _context4.sent.first();
+              productCategories = _context4.t0.fromJS.call(_context4.t0, _context4.t1);
+              _context4.next = 11;
+              return _this.getExistingStoreTags(storeId);
+
+            case 11:
+              storeTags = _context4.sent;
+              splittedLevelOneProductCategories = _this.splitIntoChunks(productCategories, 100);
+              _context4.next = 15;
+              return _bluebird2.default.each(splittedLevelOneProductCategories.toArray(), function (productCategoryChunks) {
+                return Promise.all(productCategoryChunks.map(function (productCategory) {
+                  return _this.createOrUpdateLevelOneProductCategory(productCategory, storeTags, storeId);
+                }));
+              });
+
+            case 15:
+              _context4.next = 17;
+              return _this.getExistingStoreTags(storeId);
+
+            case 17:
+              storeTagsWithUpdatedLevelOneProductCategories = _context4.sent;
+              levelTwoProductCategories = productCategories.map(function (productCategory) {
+                return productCategory.update('subCategories', function (subCategories) {
+                  return subCategories.map(function (subCategory) {
+                    return subCategory.set('parent', productCategory.get('categoryKey'));
+                  });
+                });
+              }).flatMap(function (productCategory) {
+                return productCategory.get('subCategories');
+              });
+              levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(function (productCategory) {
+                return productCategory.get('categoryKey');
+              });
+              splittedLevelTwoProductCategories = _this.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+              _context4.next = 23;
+              return _bluebird2.default.each(splittedLevelTwoProductCategories.toArray(), function (productCategoryChunks) {
+                return Promise.all(productCategoryChunks.map(function (productCategory) {
+                  return _this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories, storeId);
+                }));
+              });
+
+            case 23:
+              _context4.next = 25;
+              return _this.getExistingStoreTags(storeId);
+
+            case 25:
+              storeTagsWithUpdatedLevelTwoProductCategories = _context4.sent;
+              levelThreeProductCategories = productCategories.flatMap(function (productCategory) {
+                return productCategory.get('subCategories');
+              }).map(function (productCategory) {
+                return productCategory.update('subCategories', function (subCategories) {
+                  return subCategories.map(function (subCategory) {
+                    return subCategory.set('parent', productCategory.get('categoryKey'));
+                  });
+                });
+              }).flatMap(function (productCategory) {
+                return productCategory.get('subCategories');
+              });
+              levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(function (productCategory) {
+                return productCategory.get('categoryKey');
+              });
+              splittedLevelThreeProductCategories = _this.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+              _context4.next = 31;
+              return _bluebird2.default.each(splittedLevelThreeProductCategories.toArray(), function (productCategoryChunks) {
+                return Promise.all(productCategoryChunks.map(function (productCategory) {
+                  return _this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories, storeId);
+                }));
+              });
+
+            case 31:
+            case 'end':
+              return _context4.stop();
+          }
+        }
+      }, _callee4, _this2);
+    })), _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   // ///////////////////////////////////////////////////////////////
