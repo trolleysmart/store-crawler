@@ -130,7 +130,6 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             }
 
             var productCategories = _this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
-
             var crawlResult = (0, _immutable.Map)({
               crawlSessionId: sessionId,
               resultSet: (0, _immutable.Map)({
@@ -152,15 +151,12 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               done();
               reject('Failed to save products for: ' + productCategories + '. Error: ' + JSON.stringify(err));
             });
-
-            done();
           }
         });
 
         crawler.on('drain', function () {
           return resolve();
         });
-
         crawler.queue(config.get('baseUrl'));
       });
     }, _this.crawlLevelOneProductCategoriesAndSubProductCategories = function (config, $) {
@@ -175,7 +171,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
             return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
           })) {
-            return;
+            return 0;
           }
 
           productCategories = productCategories.add((0, _immutable.Map)({
@@ -185,7 +181,11 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             weight: 1,
             subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem)
           }));
+
+          return 0;
         });
+
+        return 0;
       });
 
       return productCategories;
@@ -202,7 +202,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
               return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
             })) {
-              return;
+              return 0;
             }
 
             productCategories = productCategories.add((0, _immutable.Map)({
@@ -212,8 +212,14 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               weight: 2,
               subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this))
             }));
+
+            return 0;
           });
+
+          return 0;
         });
+
+        return 0;
       });
 
       return productCategories;
@@ -228,7 +234,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
             return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
           })) {
-            return;
+            return 0;
           }
 
           productCategories = productCategories.add((0, _immutable.Map)({
@@ -237,7 +243,11 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             description: menuItem.text().trim(),
             weight: 3
           }));
+
+          return 0;
         });
+
+        return 0;
       });
 
       return productCategories;
@@ -627,7 +637,6 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
         crawler.on('drain', function () {
           return resolve(productCategoriesToCrawlWithTotalItemsInfo);
         });
-
         productCategories.forEach(function (productCategory) {
           return crawler.queue(productCategory.get('url'));
         });
@@ -642,7 +651,11 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           var spaceIdx = line2.indexOf(' ');
 
           total = parseInt(line2.substring(0, spaceIdx).replace(',', '').trim(), 10);
+
+          return 0;
         });
+
+        return 0;
       });
 
       return total;
@@ -694,7 +707,6 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
         crawler.on('drain', function () {
           return resolve();
         });
-
         productCategories.forEach(function (productCategory) {
           return (0, _immutable.Range)(0, productCategory.get('totalItems'), 24).forEach(function (offset) {
             return crawler.queue(productCategory.get('url') + '?sz=24&start=' + offset);
@@ -706,9 +718,11 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       $('.tab-content .search-result-content .search-result-items').children().filter(function filterSearchResultItems() {
         var description = $(this).find('.product-info-wrapper .name-link').attr('title');
         var productPageUrl = $(this).find('.product-info-wrapper .name-link').attr('href');
-        var imageUrl = $(this).find('.product-image .thumb-link').children().first().attr('src');
+        var imageLink = $(this).find('.product-image .thumb-link').children().first();
 
-        products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl, imageUrl: imageUrl }));
+        products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl, imageUrl: imageLink.attr('src') }));
+
+        return 0;
       });
 
       return products;

@@ -41,12 +41,314 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = CountdownWebCrawlerService.__proto__ || Object.getPrototypeOf(CountdownWebCrawlerService)).call.apply(_ref, [this].concat(args))), _this), _this.getHighLevelProductCategoriesDetails = function (config, $) {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = CountdownWebCrawlerService.__proto__ || Object.getPrototypeOf(CountdownWebCrawlerService)).call.apply(_ref, [this].concat(args))), _this), _this.crawlProductCategories = function () {
+      var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(config) {
+        var result, sessionInfo, sessionId, finalConfig, productCategories, crawlResult, updatedSessionInfo, errorMessage, _updatedSessionInfo;
+
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Product Categories', config, 'Countdown');
+
+              case 2:
+                result = _context.sent;
+                sessionInfo = result.get('sessionInfo');
+                sessionId = sessionInfo.get('id');
+                finalConfig = result.get('config');
+                _context.prev = 6;
+                _context.next = 9;
+                return _this.crawlLevelOneProductCategories(finalConfig);
+
+              case 9:
+                productCategories = _context.sent;
+                _context.next = 12;
+                return _this.crawlLevelTwoProductCategories(finalConfig, productCategories);
+
+              case 12:
+                productCategories = _context.sent;
+                _context.next = 15;
+                return _this.crawlLevelThreeProductCategories(finalConfig, productCategories);
+
+              case 15:
+                productCategories = _context.sent;
+                crawlResult = (0, _immutable.Map)({
+                  crawlSessionId: sessionId,
+                  resultSet: (0, _immutable.Map)({
+                    productCategories: productCategories.toJS()
+                  })
+                });
+                _context.next = 19;
+                return _smartGroceryParseServerCommon.CrawlResultService.create(crawlResult);
+
+              case 19:
+                updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
+                  endDateTime: new Date(),
+                  additionalInfo: (0, _immutable.Map)({
+                    status: 'success'
+                  })
+                }));
+                _context.next = 22;
+                return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
+
+              case 22:
+                _context.next = 31;
+                break;
+
+              case 24:
+                _context.prev = 24;
+                _context.t0 = _context['catch'](6);
+                errorMessage = _context.t0 instanceof _microBusinessParseServerCommon.Exception ? _context.t0.getErrorMessage() : _context.t0;
+                _updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
+                  endDateTime: new Date(),
+                  additionalInfo: (0, _immutable.Map)({
+                    status: 'failed',
+                    error: errorMessage
+                  })
+                }));
+                _context.next = 30;
+                return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo);
+
+              case 30:
+                throw _context.t0;
+
+              case 31:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, _this2, [[6, 24]]);
+      }));
+
+      return function (_x) {
+        return _ref2.apply(this, arguments);
+      };
+    }(), _this.crawlLevelOneProductCategories = function (config) {
+      var productCategories = (0, _immutable.List)();
+
+      return new Promise(function (resolve, reject) {
+        var crawler = new _crawler2.default({
+          rateLimit: config.get('rateLimit'),
+          maxConnections: config.get('maxConnections'),
+          callback: function callback(error, res, done) {
+            _this.logInfo(config, function () {
+              return 'Received response for: ' + res.request.uri.href;
+            });
+            _this.logVerbose(config, function () {
+              return 'Received response for: ' + JSON.stringify(res);
+            });
+
+            if (error) {
+              done();
+              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+
+              return;
+            }
+
+            var $ = res.$;
+
+            $('#BrowseSlideBox .row-fluid').children().filter(function filterCategoriesColumns() {
+              $(this).find('.toolbar-slidebox-item').each(function filterProductCategory() {
+                var menuItem = $(this).find('.toolbar-slidebox-link');
+                var url = menuItem.attr('href');
+                var categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+
+                if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
+                  return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
+                })) {
+                  return 0;
+                }
+
+                productCategories = productCategories.push((0, _immutable.Map)({
+                  categoryKey: categoryKey,
+                  description: menuItem.text().trim(),
+                  url: '' + config.get('baseUrl') + url,
+                  weight: 1
+                }));
+
+                return 0;
+              });
+
+              return 0;
+            });
+
+            done();
+          }
+        });
+
+        crawler.on('drain', function () {
+          return resolve(productCategories);
+        });
+        crawler.queue(config.get('baseUrl'));
+      });
+    }, _this.crawlLevelTwoProductCategories = function (config, productCategories) {
+      var updatedProductCategories = productCategories;
+
+      return new Promise(function (resolve, reject) {
+        var crawler = new _crawler2.default({
+          rateLimit: config.get('rateLimit'),
+          maxConnections: config.get('maxConnections'),
+          callback: function callback(error, res, done) {
+            _this.logInfo(config, function () {
+              return 'Received response for: ' + res.request.uri.href;
+            });
+            _this.logVerbose(config, function () {
+              return 'Received response for: ' + JSON.stringify(res);
+            });
+
+            if (error) {
+              done();
+              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+
+              return;
+            }
+
+            var levelOneProductCategoryIdx = productCategories.findIndex(function (_) {
+              return _.get('url').localeCompare(res.request.uri.href) === 0;
+            });
+
+            if (levelOneProductCategoryIdx === -1) {
+              // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
+              _this.logError(config, function () {
+                return 'Failed to match retrieved URL ' + res.request.uri.href + ' against provided level one category.';
+              });
+
+              return;
+            }
+
+            var levelOneProductCategory = productCategories.get(levelOneProductCategoryIdx);
+            var $ = res.$;
+            var levelTwoProductCategories = (0, _immutable.List)();
+
+            $('#left-navigation #navigation-panel .single-level-navigation .navigation-toggle-children .clearfix').children().filter(function filterLeftNavigationPanel() {
+              $(this).each(function filterProductCategory() {
+                var menuItem = $(this).find('.din');
+                var url = menuItem.attr('href');
+                var categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+
+                if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
+                  return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
+                })) {
+                  return 0;
+                }
+
+                levelTwoProductCategories = levelTwoProductCategories.push((0, _immutable.Map)({ categoryKey: categoryKey, description: menuItem.text().trim(), url: '' + config.get('baseUrl') + url, weight: 2 }));
+
+                return 0;
+              });
+
+              return 0;
+            });
+
+            updatedProductCategories = updatedProductCategories.set(levelOneProductCategoryIdx, levelOneProductCategory.set('subCategories', levelTwoProductCategories));
+
+            done();
+          }
+        });
+
+        crawler.on('drain', function () {
+          return resolve(updatedProductCategories);
+        });
+        productCategories.forEach(function (productCategory) {
+          return crawler.queue(productCategory.get('url'));
+        });
+      });
+    }, _this.crawlLevelThreeProductCategories = function (config, productCategories) {
+      var updatedProductCategories = productCategories;
+
+      return new Promise(function (resolve, reject) {
+        var crawler = new _crawler2.default({
+          rateLimit: config.get('rateLimit'),
+          maxConnections: config.get('maxConnections'),
+          callback: function callback(error, res, done) {
+            _this.logInfo(config, function () {
+              return 'Received response for: ' + res.request.uri.href;
+            });
+            _this.logVerbose(config, function () {
+              return 'Received response for: ' + JSON.stringify(res);
+            });
+
+            if (error) {
+              done();
+              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+
+              return;
+            }
+
+            var levelOneProductCategoryIdx = updatedProductCategories.findIndex(function (_) {
+              return res.request.uri.href.indexOf(_.get('url')) !== -1;
+            });
+
+            if (levelOneProductCategoryIdx === -1) {
+              // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
+              _this.logError(config, function () {
+                return 'Failed to match retrieved URL ' + res.request.uri.href + ' against provided level one category.';
+              });
+
+              return;
+            }
+
+            var levelOneProductCategory = updatedProductCategories.get(levelOneProductCategoryIdx);
+            var levelOneProductSubCategoriesCategory = levelOneProductCategory.get('subCategories');
+            var levelTwoProductCategoryIdx = levelOneProductSubCategoriesCategory.findIndex(function (_) {
+              return _.get('url').localeCompare(res.request.uri.href) === 0;
+            });
+
+            if (levelTwoProductCategoryIdx === -1) {
+              // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
+              _this.logError(config, function () {
+                return 'Failed to match retrieved URL ' + res.request.uri.href + ' against provided level two category.';
+              });
+
+              return;
+            }
+
+            var levelTwoProductCategory = levelOneProductSubCategoriesCategory.get(levelTwoProductCategoryIdx);
+            var $ = res.$;
+            var levelThreeProductCategories = (0, _immutable.List)();
+
+            $('#left-navigation #navigation-panel .single-level-navigation .navigation-toggle-children .clearfix').children().filter(function filterLeftNavigationPanel() {
+              $(this).each(function filterProductCategory() {
+                var menuItem = $(this).find('.din');
+                var url = menuItem.attr('href');
+                var categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+
+                if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
+                  return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
+                })) {
+                  return 0;
+                }
+
+                levelThreeProductCategories = levelThreeProductCategories.push((0, _immutable.Map)({ categoryKey: categoryKey, description: menuItem.text().trim(), url: '' + config.get('baseUrl') + url, weight: 3 }));
+
+                return 0;
+              });
+
+              return 0;
+            });
+
+            updatedProductCategories = updatedProductCategories.set(levelOneProductCategoryIdx, levelOneProductCategory.update('subCategories', function (subcategories) {
+              return subcategories.set(levelTwoProductCategoryIdx, levelTwoProductCategory.set('subCategories', levelThreeProductCategories));
+            }));
+
+            done();
+          }
+        });
+
+        crawler.on('drain', function () {
+          return resolve(updatedProductCategories);
+        });
+        productCategories.flatMap(function (productCategory) {
+          return productCategory.get('subCategories');
+        }).forEach(function (productCategory) {
+          return crawler.queue(productCategory.get('url'));
+        });
+      });
+    }, _this.crawlLevelOneProductCategoriesAndSubProductCategories = function (config, $) {
       var highLevelProductCategories = (0, _immutable.List)();
 
       $('#BrowseSlideBox').filter(function filterHighLevelProductCategoriesCallback() {
-        // eslint-disable-line array-callback-return
-        // eslint-disable-line array-callback-return
         var data = $(this);
 
         data.find('.toolbar-slidebox-item').each(function onNewProductExtracted() {
@@ -137,27 +439,27 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
       return barcode;
     }, _this.crawlHighLevelProductCategories = function () {
-      var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(config) {
-        var result, sessionInfo, finalConfig, updatedSessionInfo, errorMessage, _updatedSessionInfo;
+      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(config) {
+        var result, sessionInfo, finalConfig, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
 
-        return regeneratorRuntime.wrap(function _callee$(_context) {
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context.prev = _context.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
-                _context.next = 2;
+                _context2.next = 2;
                 return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown High Level Product Categories', config, 'Countdown');
 
               case 2:
-                result = _context.sent;
+                result = _context2.sent;
                 sessionInfo = result.get('sessionInfo');
                 finalConfig = result.get('config');
-                _context.prev = 5;
+                _context2.prev = 5;
 
                 _this.logInfo(finalConfig, function () {
                   return 'Start fetching product categories paging info...';
                 });
 
-                _context.next = 9;
+                _context2.next = 9;
                 return _this.crawlHighLevelProductCategoriesAndSaveDetails(sessionInfo.get('id'), finalConfig);
 
               case 9:
@@ -172,67 +474,67 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                     status: 'success'
                   })
                 }));
-                _context.next = 13;
+                _context2.next = 13;
                 return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
 
               case 13:
-                _context.next = 22;
+                _context2.next = 22;
                 break;
 
               case 15:
-                _context.prev = 15;
-                _context.t0 = _context['catch'](5);
-                errorMessage = _context.t0 instanceof _microBusinessParseServerCommon.Exception ? _context.t0.getErrorMessage() : _context.t0;
-                _updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
+                _context2.prev = 15;
+                _context2.t0 = _context2['catch'](5);
+                errorMessage = _context2.t0 instanceof _microBusinessParseServerCommon.Exception ? _context2.t0.getErrorMessage() : _context2.t0;
+                _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
                   endDateTime: new Date(),
                   additionalInfo: (0, _immutable.Map)({
                     status: 'failed',
                     error: errorMessage
                   })
                 }));
-                _context.next = 21;
-                return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo);
+                _context2.next = 21;
+                return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
 
               case 21:
-                throw _context.t0;
+                throw _context2.t0;
 
               case 22:
               case 'end':
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee, _this2, [[5, 15]]);
+        }, _callee2, _this2, [[5, 15]]);
       }));
 
-      return function (_x) {
-        return _ref2.apply(this, arguments);
+      return function (_x2) {
+        return _ref3.apply(this, arguments);
       };
     }(), _this.crawlProducts = function () {
-      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(config) {
-        var result, sessionInfo, finalConfig, productsCategoriesPagingInfo, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
+      var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(config) {
+        var result, sessionInfo, finalConfig, productsCategoriesPagingInfo, updatedSessionInfo, errorMessage, _updatedSessionInfo3;
 
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
-                _context2.next = 2;
+                _context3.next = 2;
                 return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Products', config, 'Countdown');
 
               case 2:
-                result = _context2.sent;
+                result = _context3.sent;
                 sessionInfo = result.get('sessionInfo');
                 finalConfig = result.get('config');
-                _context2.prev = 5;
+                _context3.prev = 5;
 
                 _this.logInfo(finalConfig, function () {
                   return 'Start fetching product categories paging info...';
                 });
 
-                _context2.next = 9;
+                _context3.next = 9;
                 return _this.getProductCategoriesPagingInfo(finalConfig);
 
               case 9:
-                productsCategoriesPagingInfo = _context2.sent;
+                productsCategoriesPagingInfo = _context3.sent;
 
                 _this.logInfo(finalConfig, function () {
                   return 'Finished fetching product categories paging info.';
@@ -245,7 +547,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   return 'Start crawling products and save the details...';
                 });
 
-                _context2.next = 15;
+                _context3.next = 15;
                 return _this.crawlProductsAndSaveDetails(sessionInfo.get('id'), finalConfig, productsCategoriesPagingInfo);
 
               case 15:
@@ -260,40 +562,40 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                     status: 'success'
                   })
                 }));
-                _context2.next = 19;
+                _context3.next = 19;
                 return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
 
               case 19:
-                _context2.next = 28;
+                _context3.next = 28;
                 break;
 
               case 21:
-                _context2.prev = 21;
-                _context2.t0 = _context2['catch'](5);
-                errorMessage = _context2.t0 instanceof _microBusinessParseServerCommon.Exception ? _context2.t0.getErrorMessage() : _context2.t0;
-                _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
+                _context3.prev = 21;
+                _context3.t0 = _context3['catch'](5);
+                errorMessage = _context3.t0 instanceof _microBusinessParseServerCommon.Exception ? _context3.t0.getErrorMessage() : _context3.t0;
+                _updatedSessionInfo3 = sessionInfo.merge((0, _immutable.Map)({
                   endDateTime: new Date(),
                   additionalInfo: (0, _immutable.Map)({
                     status: 'failed',
                     error: errorMessage
                   })
                 }));
-                _context2.next = 27;
-                return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
+                _context3.next = 27;
+                return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo3);
 
               case 27:
-                throw _context2.t0;
+                throw _context3.t0;
 
               case 28:
               case 'end':
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, _this2, [[5, 21]]);
+        }, _callee3, _this2, [[5, 21]]);
       }));
 
-      return function (_x2) {
-        return _ref3.apply(this, arguments);
+      return function (_x3) {
+        return _ref4.apply(this, arguments);
       };
     }(), _this.getProductCategoriesPagingInfo = function (config) {
       return new Promise(function (resolve, reject) {
@@ -356,7 +658,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            var highLevelProductCategories = _this.getHighLevelProductCategoriesDetails(config, res.$);
+            var highLevelProductCategories = _this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
 
             _this.logVerbose(config, function () {
               return 'Received high level product categories: ' + JSON.stringify(highLevelProductCategories.toJS());
@@ -457,6 +759,9 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
+
+  // ///////////////////////////////////////////////////////////////
+
 
   return CountdownWebCrawlerService;
 }(_common.ServiceBase);

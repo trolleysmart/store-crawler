@@ -14,7 +14,19 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const finalConfig = result.get('config');
 
     try {
-      const levelOneProductCategories = await this.crawlLevelOneProductCategories(sessionId, finalConfig);
+      let productCategories = await this.crawlLevelOneProductCategories(finalConfig);
+      productCategories = await this.crawlLevelTwoProductCategories(finalConfig, productCategories);
+      productCategories = await this.crawlLevelThreeProductCategories(finalConfig, productCategories);
+
+      const crawlResult = Map({
+        crawlSessionId: sessionId,
+        resultSet: Map({
+          productCategories: productCategories.toJS(),
+        }),
+      });
+
+      await CrawlResultService.create(crawlResult);
+
       const updatedSessionInfo = sessionInfo.merge(
         Map({
           endDateTime: new Date(),
@@ -42,8 +54,9 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     }
   };
 
-  crawlLevelOneProductCategories = (sessionId, config) => {
+  crawlLevelOneProductCategories = (config) => {
     let productCategories = List();
+
     return new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
@@ -61,10 +74,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
           const $ = res.$;
 
-          $('#BrowseSlideBox').filter(function filterProductCategories() {
+          $('#BrowseSlideBox .row-fluid').children().filter(function filterCategoriesColumns() {
             $(this).find('.toolbar-slidebox-item').each(function filterProductCategory() {
-              const data = $(this).find('.toolbar-slidebox-link').attr('href');
-              const categoryKey = data.substring(data.lastIndexOf('/') + 1, data.length);
+              const menuItem = $(this).find('.toolbar-slidebox-link');
+              const url = menuItem.attr('href');
+              const categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+
               if (
                 config.get('categoryKeysToExclude') &&
                 config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
@@ -72,7 +87,14 @@ export default class CountdownWebCrawlerService extends ServiceBase {
                 return 0;
               }
 
-              productCategories = productCategories.push(Map({}));
+              productCategories = productCategories.push(
+                Map({
+                  categoryKey,
+                  description: menuItem.text().trim(),
+                  url: `${config.get('baseUrl')}${url}`,
+                  weight: 1,
+                }),
+              );
 
               return 0;
             });
@@ -84,8 +106,165 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         },
       });
 
-      crawler.on('drain', () => resolve());
+      crawler.on('drain', () => resolve(productCategories));
       crawler.queue(config.get('baseUrl'));
+    });
+  };
+
+  crawlLevelTwoProductCategories = (config, productCategories) => {
+    let updatedProductCategories = productCategories;
+
+    return new Promise((resolve, reject) => {
+      const crawler = new Crawler({
+        rateLimit: config.get('rateLimit'),
+        maxConnections: config.get('maxConnections'),
+        callback: (error, res, done) => {
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+
+          if (error) {
+            done();
+            reject(`Failed to receive product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+
+            return;
+          }
+
+          const levelOneProductCategoryIdx = productCategories.findIndex(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
+
+          if (levelOneProductCategoryIdx === -1) {
+            // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
+            this.logError(config, () => `Failed to match retrieved URL ${res.request.uri.href} against provided level one category.`);
+
+            return;
+          }
+
+          const levelOneProductCategory = productCategories.get(levelOneProductCategoryIdx);
+          const $ = res.$;
+          let levelTwoProductCategories = List();
+
+          $('#left-navigation #navigation-panel .single-level-navigation .navigation-toggle-children .clearfix')
+            .children()
+            .filter(function filterLeftNavigationPanel() {
+              $(this).each(function filterProductCategory() {
+                const menuItem = $(this).find('.din');
+                const url = menuItem.attr('href');
+                const categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+
+                if (
+                  config.get('categoryKeysToExclude') &&
+                  config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
+                ) {
+                  return 0;
+                }
+
+                levelTwoProductCategories = levelTwoProductCategories.push(
+                  Map({ categoryKey, description: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, weight: 2 }),
+                );
+
+                return 0;
+              });
+
+              return 0;
+            });
+
+          updatedProductCategories = updatedProductCategories.set(
+            levelOneProductCategoryIdx,
+            levelOneProductCategory.set('subCategories', levelTwoProductCategories),
+          );
+
+          done();
+        },
+      });
+
+      crawler.on('drain', () => resolve(updatedProductCategories));
+      productCategories.forEach(productCategory => crawler.queue(productCategory.get('url')));
+    });
+  };
+
+  crawlLevelThreeProductCategories = (config, productCategories) => {
+    let updatedProductCategories = productCategories;
+
+    return new Promise((resolve, reject) => {
+      const crawler = new Crawler({
+        rateLimit: config.get('rateLimit'),
+        maxConnections: config.get('maxConnections'),
+        callback: (error, res, done) => {
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+
+          if (error) {
+            done();
+            reject(`Failed to receive product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+
+            return;
+          }
+
+          const levelOneProductCategoryIdx = updatedProductCategories.findIndex(_ => res.request.uri.href.indexOf(_.get('url')) !== -1);
+
+          if (levelOneProductCategoryIdx === -1) {
+            // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
+            this.logError(config, () => `Failed to match retrieved URL ${res.request.uri.href} against provided level one category.`);
+
+            return;
+          }
+
+          const levelOneProductCategory = updatedProductCategories.get(levelOneProductCategoryIdx);
+          const levelOneProductSubCategoriesCategory = levelOneProductCategory.get('subCategories');
+          const levelTwoProductCategoryIdx = levelOneProductSubCategoriesCategory.findIndex(
+            _ => _.get('url').localeCompare(res.request.uri.href) === 0,
+          );
+
+          if (levelTwoProductCategoryIdx === -1) {
+            // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
+            this.logError(config, () => `Failed to match retrieved URL ${res.request.uri.href} against provided level two category.`);
+
+            return;
+          }
+
+          const levelTwoProductCategory = levelOneProductSubCategoriesCategory.get(levelTwoProductCategoryIdx);
+          const $ = res.$;
+          let levelThreeProductCategories = List();
+
+          $('#left-navigation #navigation-panel .single-level-navigation .navigation-toggle-children .clearfix')
+            .children()
+            .filter(function filterLeftNavigationPanel() {
+              $(this).each(function filterProductCategory() {
+                const menuItem = $(this).find('.din');
+                const url = menuItem.attr('href');
+                const categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+
+                if (
+                  config.get('categoryKeysToExclude') &&
+                  config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
+                ) {
+                  return 0;
+                }
+
+                levelThreeProductCategories = levelThreeProductCategories.push(
+                  Map({ categoryKey, description: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, weight: 3 }),
+                );
+
+                return 0;
+              });
+
+              return 0;
+            });
+
+          updatedProductCategories = updatedProductCategories.set(
+            levelOneProductCategoryIdx,
+            levelOneProductCategory.update('subCategories', subcategories =>
+              subcategories.set(levelTwoProductCategoryIdx, levelTwoProductCategory.set('subCategories', levelThreeProductCategories)),
+            ),
+          );
+
+          done();
+        },
+      });
+
+      crawler.on('drain', () => resolve(updatedProductCategories));
+      productCategories
+        .flatMap(productCategory => productCategory.get('subCategories'))
+        .forEach(productCategory => crawler.queue(productCategory.get('url')));
     });
   };
 

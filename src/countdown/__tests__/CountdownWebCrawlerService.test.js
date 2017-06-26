@@ -1,6 +1,6 @@
 // @flow
 
-import Immutable from 'immutable';
+import Immutable, { List } from 'immutable';
 import '../../../bootstrap';
 import CountdownWebCrawlerService from '../CountdownWebCrawlerService';
 
@@ -63,20 +63,19 @@ describe('crawlHighLevelProductCategories', () => {
 });
 
 describe('crawlProducts', () => {
-  test('should crawl products and save to database', () => {
+  test('should crawl products and save to database', async () => {
     const config = Immutable.fromJS({
-      baseUrl: 'https://shop.countdown.co.nz/Shop/Browse/',
+      baseUrl: 'https://shop.countdown.co.nz',
       baseImageUrl: 'https://shop.countdown.co.nz',
       rateLimit: 2000,
       maxConnections: 1,
-      logLevel: 1,
-      productCategories: ['bakery/desserts-pies'],
+      categoryKeysToExclude: List.of('restricted-items', 'christmas'),
     });
 
-    return new CountdownWebCrawlerService({
+    await new CountdownWebCrawlerService({
       logVerboseFunc: message => console.log(message),
       logInfoFunc: message => console.log(message),
       logErrorFunc: message => console.log(message),
-    }).crawlProducts(config);
+    }).crawlProductCategories(config);
   });
 });
