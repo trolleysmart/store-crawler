@@ -60,6 +60,8 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return;
           }
 
+          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+
           const productCategories = this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
           const crawlResult = Map({
             crawlSessionId: sessionId,
@@ -250,66 +252,30 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
   };
 
   crawlProducts = async (config) => {
-    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Product', config, 'Warehouse');
-    const sessionInfo = result.get('sessionInfo');
-    const sessionId = sessionInfo.get('id');
-    const finalConfig = result.get('config');
+    const finalConfig = config || (await this.getStoreCrawlerConfig('Warehouse')).get('config');
+    const store = await this.getStore('Warehouse');
+    const storeId = store.get('id');
+    const storeTags = await this.getExistingStoreTags(storeId);
+    const productCategories = Immutable.fromJS(
+      (await this.getMostRecentCrawlResults('Warehouse Product Categories', info => info.getIn(['resultSet', 'productCategories']))).first(),
+    );
+    const productCategoriesLevelOne = productCategories.filter(_ => _.get('subCategories').isEmpty());
+    const productCategoriesLevelTwo = productCategories
+      .filterNot(_ => _.get('subCategories').isEmpty())
+      .flatMap(_ => _.get('subCategories'))
+      .filter(_ => _.get('subCategories').isEmpty());
+    const productCategoriesLevelThree = productCategories
+      .filterNot(_ => _.get('subCategories').isEmpty())
+      .flatMap(_ => _.get('subCategories'))
+      .filterNot(_ => _.get('subCategories').isEmpty())
+      .flatMap(_ => _.get('subCategories'));
+    const productCategoriesToCrawl = productCategoriesLevelOne.concat(productCategoriesLevelTwo).concat(productCategoriesLevelThree);
+    const productCategoriesToCrawlWithTotalItemsInfo = await this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
 
-    try {
-      const store = await this.getStore('Warehouse');
-      const storeId = store.get('id');
-      const storeTags = await this.getExistingStoreTags(storeId);
-      const productCategories = Immutable.fromJS(
-        (await this.getMostRecentCrawlResults('Warehouse Product Categories', info => info.getIn(['resultSet', 'productCategories']))).first(),
-      );
-
-      const productCategoriesLevelOne = productCategories.filter(_ => _.get('subCategories').isEmpty());
-      const productCategoriesLevelTwo = productCategories
-        .filterNot(_ => _.get('subCategories').isEmpty())
-        .flatMap(_ => _.get('subCategories'))
-        .filter(_ => _.get('subCategories').isEmpty());
-      const productCategoriesLevelThree = productCategories
-        .filterNot(_ => _.get('subCategories').isEmpty())
-        .flatMap(_ => _.get('subCategories'))
-        .filterNot(_ => _.get('subCategories').isEmpty())
-        .flatMap(_ => _.get('subCategories'));
-      const productCategoriesToCrawl = productCategoriesLevelOne.concat(productCategoriesLevelTwo).concat(productCategoriesLevelThree);
-      const productCategoriesToCrawlWithTotalItemsInfo = await this.crawlProductCategoriesTotalItemsInfo(
-        sessionId,
-        finalConfig,
-        productCategoriesToCrawl,
-      );
-
-      await this.crawlProductsForEachProductCategories(sessionId, finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, storeTags);
-
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'success',
-          }),
-        }),
-      );
-
-      await CrawlSessionService.update(updatedSessionInfo);
-    } catch (ex) {
-      const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'failed',
-            error: errorMessage,
-          }),
-        }),
-      );
-
-      await CrawlSessionService.update(updatedSessionInfo);
-      throw ex;
-    }
+    await this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, storeTags);
   };
 
-  crawlProductCategoriesTotalItemsInfo = (sessionId, config, productCategories) => {
+  crawlProductCategoriesTotalItemsInfo = (config, productCategories) => {
     let productCategoriesToCrawlWithTotalItemsInfo = List();
 
     return new Promise((resolve, reject) => {
@@ -327,6 +293,8 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return;
           }
 
+          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
 
           if (!productCategory) {
@@ -337,7 +305,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           }
 
           productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(
-            productCategory.set('totalItems', this.crawlTotalItemsInfofo(config, res.$)),
+            productCategory.set('totalItems', this.crawlTotalItemsInfo(config, res.$)),
           );
           done();
         },
@@ -348,7 +316,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     });
   };
 
-  crawlTotalItemsInfofo = (config, $) => {
+  crawlTotalItemsInfo = (config, $) => {
     let total = 0;
 
     $('.tab-content #results-products .pagination').filter(function filterPagination() {
@@ -368,7 +336,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return total;
   };
 
-  crawlProductsForEachProductCategories = (sessionId, config, productCategories, storeId, storeTags) =>
+  crawlProductsForEachProductCategories = (config, productCategories, storeId, storeTags) =>
     new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
@@ -383,6 +351,9 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
             return;
           }
+
+          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+
           const urlOffset = res.request.uri.href.indexOf('?');
           const baseUrl = res.request.uri.href.substring(0, urlOffset);
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(baseUrl) === 0);

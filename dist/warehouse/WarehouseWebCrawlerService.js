@@ -129,6 +129,10 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
+            _this.logVerbose(config, function () {
+              return 'Received response for: ' + res.request.uri.href;
+            });
+
             var productCategories = _this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
             var crawlResult = (0, _immutable.Map)({
               crawlSessionId: sessionId,
@@ -347,41 +351,46 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       }, _callee2, _this2);
     })), _this.crawlProducts = function () {
       var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(config) {
-        var result, sessionInfo, sessionId, finalConfig, store, storeId, storeTags, productCategories, productCategoriesLevelOne, productCategoriesLevelTwo, productCategoriesLevelThree, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
-
+        var finalConfig, store, storeId, storeTags, productCategories, productCategoriesLevelOne, productCategoriesLevelTwo, productCategoriesLevelThree, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                _context3.next = 2;
-                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Product', config, 'Warehouse');
+                _context3.t0 = config;
 
-              case 2:
-                result = _context3.sent;
-                sessionInfo = result.get('sessionInfo');
-                sessionId = sessionInfo.get('id');
-                finalConfig = result.get('config');
-                _context3.prev = 6;
-                _context3.next = 9;
+                if (_context3.t0) {
+                  _context3.next = 5;
+                  break;
+                }
+
+                _context3.next = 4;
+                return _this.getStoreCrawlerConfig('Warehouse');
+
+              case 4:
+                _context3.t0 = _context3.sent.get('config');
+
+              case 5:
+                finalConfig = _context3.t0;
+                _context3.next = 8;
                 return _this.getStore('Warehouse');
 
-              case 9:
+              case 8:
                 store = _context3.sent;
                 storeId = store.get('id');
-                _context3.next = 13;
+                _context3.next = 12;
                 return _this.getExistingStoreTags(storeId);
 
-              case 13:
+              case 12:
                 storeTags = _context3.sent;
-                _context3.t0 = _immutable2.default;
-                _context3.next = 17;
+                _context3.t1 = _immutable2.default;
+                _context3.next = 16;
                 return _this.getMostRecentCrawlResults('Warehouse Product Categories', function (info) {
                   return info.getIn(['resultSet', 'productCategories']);
                 });
 
-              case 17:
-                _context3.t1 = _context3.sent.first();
-                productCategories = _context3.t0.fromJS.call(_context3.t0, _context3.t1);
+              case 16:
+                _context3.t2 = _context3.sent.first();
+                productCategories = _context3.t1.fromJS.call(_context3.t1, _context3.t2);
                 productCategoriesLevelOne = productCategories.filter(function (_) {
                   return _.get('subCategories').isEmpty();
                 });
@@ -402,57 +411,26 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   return _.get('subCategories');
                 });
                 productCategoriesToCrawl = productCategoriesLevelOne.concat(productCategoriesLevelTwo).concat(productCategoriesLevelThree);
-                _context3.next = 25;
-                return _this.crawlProductCategoriesTotalItemsInfo(sessionId, finalConfig, productCategoriesToCrawl);
+                _context3.next = 24;
+                return _this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
 
-              case 25:
+              case 24:
                 productCategoriesToCrawlWithTotalItemsInfo = _context3.sent;
-                _context3.next = 28;
-                return _this.crawlProductsForEachProductCategories(sessionId, finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, storeTags);
+                _context3.next = 27;
+                return _this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, storeTags);
 
-              case 28:
-                updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-                  endDateTime: new Date(),
-                  additionalInfo: (0, _immutable.Map)({
-                    status: 'success'
-                  })
-                }));
-                _context3.next = 31;
-                return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
-
-              case 31:
-                _context3.next = 40;
-                break;
-
-              case 33:
-                _context3.prev = 33;
-                _context3.t2 = _context3['catch'](6);
-                errorMessage = _context3.t2 instanceof _microBusinessParseServerCommon.Exception ? _context3.t2.getErrorMessage() : _context3.t2;
-                _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
-                  endDateTime: new Date(),
-                  additionalInfo: (0, _immutable.Map)({
-                    status: 'failed',
-                    error: errorMessage
-                  })
-                }));
-                _context3.next = 39;
-                return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
-
-              case 39:
-                throw _context3.t2;
-
-              case 40:
+              case 27:
               case 'end':
                 return _context3.stop();
             }
           }
-        }, _callee3, _this2, [[6, 33]]);
+        }, _callee3, _this2);
       }));
 
       return function (_x2) {
         return _ref4.apply(this, arguments);
       };
-    }(), _this.crawlProductCategoriesTotalItemsInfo = function (sessionId, config, productCategories) {
+    }(), _this.crawlProductCategoriesTotalItemsInfo = function (config, productCategories) {
       var productCategoriesToCrawlWithTotalItemsInfo = (0, _immutable.List)();
 
       return new Promise(function (resolve, reject) {
@@ -474,6 +452,10 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
+            _this.logVerbose(config, function () {
+              return 'Received response for: ' + res.request.uri.href;
+            });
+
             var productCategory = productCategories.find(function (_) {
               return _.get('url').localeCompare(res.request.uri.href) === 0;
             });
@@ -485,7 +467,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(productCategory.set('totalItems', _this.crawlTotalItemsInfofo(config, res.$)));
+            productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(productCategory.set('totalItems', _this.crawlTotalItemsInfo(config, res.$)));
             done();
           }
         });
@@ -497,7 +479,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           return crawler.queue(productCategory.get('url'));
         });
       });
-    }, _this.crawlTotalItemsInfofo = function (config, $) {
+    }, _this.crawlTotalItemsInfo = function (config, $) {
       var total = 0;
 
       $('.tab-content #results-products .pagination').filter(function filterPagination() {
@@ -515,7 +497,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       });
 
       return total;
-    }, _this.crawlProductsForEachProductCategories = function (sessionId, config, productCategories, storeId, storeTags) {
+    }, _this.crawlProductsForEachProductCategories = function (config, productCategories, storeId, storeTags) {
       return new Promise(function (resolve, reject) {
         var crawler = new _crawler2.default({
           rateLimit: config.get('rateLimit'),
@@ -534,6 +516,11 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
               return;
             }
+
+            _this.logVerbose(config, function () {
+              return 'Received response for: ' + res.request.uri.href;
+            });
+
             var urlOffset = res.request.uri.href.indexOf('?');
             var baseUrl = res.request.uri.href.substring(0, urlOffset);
             var productCategory = productCategories.find(function (_) {
