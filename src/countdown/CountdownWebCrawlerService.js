@@ -1,6 +1,5 @@
 // @flow
 
-import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Range } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
@@ -73,8 +72,6 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
-
           const $ = res.$;
 
           $('#BrowseSlideBox .row-fluid').children().filter(function filterCategoriesColumns() {
@@ -131,8 +128,6 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
             return;
           }
-
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const levelOneProductCategoryIdx = productCategories.findIndex(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
 
@@ -203,8 +198,6 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
             return;
           }
-
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const levelOneProductCategoryIdx = updatedProductCategories.findIndex(_ => res.request.uri.href.indexOf(_.get('url')) !== -1);
 
@@ -307,8 +300,6 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
-
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
 
           if (!productCategory) {
@@ -360,8 +351,6 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
             return;
           }
-
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const urlOffset = res.request.uri.href.indexOf('?');
           const baseUrl = res.request.uri.href.substring(0, urlOffset);

@@ -4,10 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _bluebird = require('bluebird');
-
-var _bluebird2 = _interopRequireDefault(_bluebird);
-
 var _crawler = require('crawler');
 
 var _crawler2 = _interopRequireDefault(_crawler);
@@ -152,10 +148,6 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
-
             var $ = res.$;
 
             $('#BrowseSlideBox .row-fluid').children().filter(function filterCategoriesColumns() {
@@ -213,10 +205,6 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
               return;
             }
-
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
 
             var levelOneProductCategoryIdx = productCategories.findIndex(function (_) {
               return _.get('url').localeCompare(res.request.uri.href) === 0;
@@ -289,10 +277,6 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
               return;
             }
-
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
 
             var levelOneProductCategoryIdx = updatedProductCategories.findIndex(function (_) {
               return res.request.uri.href.indexOf(_.get('url')) !== -1;
@@ -451,10 +435,6 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
-
             var productCategory = productCategories.find(function (_) {
               return _.get('url').localeCompare(res.request.uri.href) === 0;
             });
@@ -510,10 +490,6 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
               return;
             }
-
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
 
             var urlOffset = res.request.uri.href.indexOf('?');
             var baseUrl = res.request.uri.href.substring(0, urlOffset);

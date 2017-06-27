@@ -129,10 +129,6 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
-
             var productCategories = _this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
             var crawlResult = (0, _immutable.Map)({
               crawlSessionId: sessionId,
@@ -452,10 +448,6 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
-
             var productCategory = productCategories.find(function (_) {
               return _.get('url').localeCompare(res.request.uri.href) === 0;
             });
@@ -516,10 +508,6 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
               return;
             }
-
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
 
             var urlOffset = res.request.uri.href.indexOf('?');
             var baseUrl = res.request.uri.href.substring(0, urlOffset);

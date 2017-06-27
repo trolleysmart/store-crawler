@@ -60,8 +60,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
-
           const productCategories = this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
           const crawlResult = Map({
             crawlSessionId: sessionId,
@@ -293,8 +291,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
-
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
 
           if (!productCategory) {
@@ -351,8 +347,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
             return;
           }
-
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const urlOffset = res.request.uri.href.indexOf('?');
           const baseUrl = res.request.uri.href.substring(0, urlOffset);
