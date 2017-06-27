@@ -555,7 +555,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       $('#middle-panel .side-gutter #content-panel #product-list').children().filter(function filterProductList() {
         $(this).find('.product-stamp .details-container').each(function filterProductDetails() {
           var description = $(this).find('.description').text().trim();
-          var imageUrl = $(this).get('baseImageUrl') + $(this).find('.product-stamp-thumbnail img').attr('src');
+          var imageUrl = $(this).get('baseUrl') + $(this).find('.product-stamp-thumbnail img').attr('src');
           var productPageUrl = config.get('baseUrl') + $(this).find('.grid-stamp-pull-top h3 a').attr('href');
 
           products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl, imageUrl: imageUrl }));
