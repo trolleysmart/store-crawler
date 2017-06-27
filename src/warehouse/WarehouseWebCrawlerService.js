@@ -60,7 +60,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const productCategories = this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
           const crawlResult = Map({
@@ -293,7 +293,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
 
@@ -352,7 +352,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const urlOffset = res.request.uri.href.indexOf('?');
           const baseUrl = res.request.uri.href.substring(0, urlOffset);

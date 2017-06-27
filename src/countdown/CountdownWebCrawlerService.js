@@ -73,7 +73,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const $ = res.$;
 
@@ -132,7 +132,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const levelOneProductCategoryIdx = productCategories.findIndex(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
 
@@ -204,7 +204,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const levelOneProductCategoryIdx = updatedProductCategories.findIndex(_ => res.request.uri.href.indexOf(_.get('url')) !== -1);
 
@@ -307,7 +307,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
 
@@ -361,7 +361,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             return;
           }
 
-          this.logVerbose(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
 
           const urlOffset = res.request.uri.href.indexOf('?');
           const baseUrl = res.request.uri.href.substring(0, urlOffset);

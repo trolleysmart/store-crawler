@@ -129,7 +129,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            _this.logVerbose(config, function () {
+            _this.logInfo(config, function () {
               return 'Received response for: ' + res.request.uri.href;
             });
 
@@ -452,7 +452,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            _this.logVerbose(config, function () {
+            _this.logInfo(config, function () {
               return 'Received response for: ' + res.request.uri.href;
             });
 
@@ -517,7 +517,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return;
             }
 
-            _this.logVerbose(config, function () {
+            _this.logInfo(config, function () {
               return 'Received response for: ' + res.request.uri.href;
             });
 
