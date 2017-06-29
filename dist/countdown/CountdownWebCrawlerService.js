@@ -620,7 +620,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
         $(this).find('.product-stamp .details-container').each(function filterProductDetails() {
           var description = $(this).find('.description').text().trim();
           var imageUrl = $(this).get('baseUrl') + $(this).find('.product-stamp-thumbnail img').attr('src');
-          var productPageUrl = config.get('baseUrl') + $(this).find('.grid-stamp-pull-top h3 a').attr('href');
+          var productPageUrl = config.get('baseUrl') + $(this).find('._jumpTop').attr('href');
 
           products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl, imageUrl: imageUrl }));
 

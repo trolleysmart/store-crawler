@@ -442,7 +442,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
       $(this).find('.product-stamp .details-container').each(function filterProductDetails() {
         const description = $(this).find('.description').text().trim();
         const imageUrl = $(this).get('baseUrl') + $(this).find('.product-stamp-thumbnail img').attr('src');
-        const productPageUrl = config.get('baseUrl') + $(this).find('.grid-stamp-pull-top h3 a').attr('href');
+        const productPageUrl = config.get('baseUrl') + $(this).find('._jumpTop').attr('href');
 
         products = products.push(Map({ description, productPageUrl, imageUrl }));
 

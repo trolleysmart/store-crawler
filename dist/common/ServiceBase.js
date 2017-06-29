@@ -381,7 +381,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 break;
               }
 
-              throw new _microBusinessParseServerCommon.Exception('Multiple store master product found for ' + productInfo.get('description') + ' and store Id: ' + storeId);
+              throw new _microBusinessParseServerCommon.Exception('Multiple store master product found for ' + productInfo.get('description') + ' and store Id: ' + storeId + ' and productPageUrl:' + productInfo.get('productPageUrl'));
 
             case 12:
               storeMasterProduct = storeMasterProducts.first();

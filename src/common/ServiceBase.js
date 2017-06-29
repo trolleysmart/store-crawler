@@ -154,7 +154,11 @@ export default class ServiceBase {
         }),
       );
     } else if (storeMasterProducts.count() > 1) {
-      throw new Exception(`Multiple store master product found for ${productInfo.get('description')} and store Id: ${storeId}`);
+      throw new Exception(
+        `Multiple store master product found for ${productInfo.get('description')} and store Id: ${storeId} and productPageUrl:${productInfo.get(
+          'productPageUrl',
+        )}`,
+      );
     } else {
       const storeMasterProduct = storeMasterProducts.first();
       const updatedStoreMasterProduct = storeMasterProduct
