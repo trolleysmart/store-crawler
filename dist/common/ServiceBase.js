@@ -341,25 +341,13 @@ var ServiceBase = function ServiceBase(_ref) {
   }();
 
   this.createOrUpdateStoreMasterProduct = function () {
-    var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(productCategory, productInfo, storeId, storeTags) {
-      var foundStoreTag, storeMasterProducts, storeMasterProduct, updatedStoreMasterProduct;
+    var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(productCategory, productInfo, storeId) {
+      var storeMasterProducts, storeMasterProduct, updatedStoreMasterProduct;
       return regeneratorRuntime.wrap(function _callee8$(_context8) {
         while (1) {
           switch (_context8.prev = _context8.next) {
             case 0:
-              foundStoreTag = storeTags.find(function (storeTag) {
-                return storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0;
-              });
-
-              if (foundStoreTag) {
-                _context8.next = 3;
-                break;
-              }
-
-              throw new _microBusinessParseServerCommon.Exception('Failed to retrieve store tag for ' + productCategory.get('categoryKey'));
-
-            case 3:
-              _context8.next = 5;
+              _context8.next = 2;
               return _smartGroceryParseServerCommon.StoreMasterProductService.search((0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   productPageUrl: productInfo.get('productPageUrl'),
@@ -367,44 +355,41 @@ var ServiceBase = function ServiceBase(_ref) {
                 })
               }));
 
-            case 5:
+            case 2:
               storeMasterProducts = _context8.sent;
 
               if (!storeMasterProducts.isEmpty()) {
-                _context8.next = 11;
+                _context8.next = 8;
                 break;
               }
 
-              _context8.next = 9;
+              _context8.next = 6;
               return _smartGroceryParseServerCommon.StoreMasterProductService.create((0, _immutable.Map)({
                 description: productInfo.get('description'),
                 productPageUrl: productInfo.get('productPageUrl'),
                 imageUrl: productInfo.get('imageUrl'),
-                storeTagIds: (0, _immutable.Set)([foundStoreTag.get('id')]),
                 storeId: storeId
               }));
 
-            case 9:
-              _context8.next = 19;
+            case 6:
+              _context8.next = 16;
               break;
 
-            case 11:
+            case 8:
               if (!(storeMasterProducts.count() > 1)) {
-                _context8.next = 15;
+                _context8.next = 12;
                 break;
               }
 
               throw new _microBusinessParseServerCommon.Exception('Multiple store master product found for ' + productInfo.get('description') + ' and store Id: ' + storeId);
 
-            case 15:
+            case 12:
               storeMasterProduct = storeMasterProducts.first();
-              updatedStoreMasterProduct = storeMasterProduct.update('storeTagIds', function (storeTagIds) {
-                return storeTagIds.toSet().add(foundStoreTag.get('id'));
-              }).set('productPageUrl', productInfo.get('productPageUrl')).set('imageUrl', productInfo.get('imageUrl'));
-              _context8.next = 19;
+              updatedStoreMasterProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl')).set('imageUrl', productInfo.get('imageUrl'));
+              _context8.next = 16;
               return _smartGroceryParseServerCommon.StoreMasterProductService.update(updatedStoreMasterProduct);
 
-            case 19:
+            case 16:
             case 'end':
               return _context8.stop();
           }
@@ -412,7 +397,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee8, _this);
     }));
 
-    return function (_x10, _x11, _x12, _x13) {
+    return function (_x10, _x11, _x12) {
       return _ref9.apply(this, arguments);
     };
   }();
@@ -452,7 +437,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee9, _this);
     }));
 
-    return function (_x14, _x15, _x16) {
+    return function (_x13, _x14, _x15) {
       return _ref10.apply(this, arguments);
     };
   }();
@@ -507,7 +492,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee10, _this);
     }));
 
-    return function (_x17, _x18, _x19) {
+    return function (_x16, _x17, _x18) {
       return _ref11.apply(this, arguments);
     };
   }();
@@ -562,7 +547,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee11, _this);
     }));
 
-    return function (_x20, _x21, _x22) {
+    return function (_x19, _x20, _x21) {
       return _ref12.apply(this, arguments);
     };
   }();

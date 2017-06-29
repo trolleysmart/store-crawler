@@ -17,9 +17,10 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 var createConfig = function createConfig() {
   return _immutable2.default.fromJS({
     baseUrl: 'http://www.thewarehouse.co.nz/',
-    rateLimit: 2000,
+    rateLimit: 1,
     maxConnections: 1,
-    categoryKeysToExclude: _immutable.List.of('specials', 'electronicsgaming-apple')
+    logLevel: 2,
+    categoryKeysToExclude: ['specials', 'electronicsgaming-apple']
   });
 };
 
@@ -30,7 +31,17 @@ describe('crawlProductCategories', function () {
         switch (_context.prev = _context.next) {
           case 0:
             _context.next = 2;
-            return new _WarehouseWebCrawlerService2.default({}).crawlProductCategories(createConfig());
+            return new _WarehouseWebCrawlerService2.default({
+              logVerboseFunc: function logVerboseFunc(message) {
+                return console.log(message);
+              },
+              logInfoFunc: function logInfoFunc(message) {
+                return console.log(message);
+              },
+              logErrorFunc: function logErrorFunc(message) {
+                return console.log(message);
+              }
+            }).crawlProductCategories(createConfig());
 
           case 2:
           case 'end':
@@ -48,7 +59,17 @@ describe('syncProductCategoriesToStoreTags', function () {
         switch (_context2.prev = _context2.next) {
           case 0:
             _context2.next = 2;
-            return new _WarehouseWebCrawlerService2.default({}).syncProductCategoriesToStoreTags(createConfig());
+            return new _WarehouseWebCrawlerService2.default({
+              logVerboseFunc: function logVerboseFunc(message) {
+                return console.log(message);
+              },
+              logInfoFunc: function logInfoFunc(message) {
+                return console.log(message);
+              },
+              logErrorFunc: function logErrorFunc(message) {
+                return console.log(message);
+              }
+            }).syncProductCategoriesToStoreTags(createConfig());
 
           case 2:
           case 'end':
@@ -66,7 +87,17 @@ describe('crawlProducts', function () {
         switch (_context3.prev = _context3.next) {
           case 0:
             _context3.next = 2;
-            return new _WarehouseWebCrawlerService2.default({}).crawlProducts(createConfig());
+            return new _WarehouseWebCrawlerService2.default({
+              logVerboseFunc: function logVerboseFunc(message) {
+                return console.log(message);
+              },
+              logInfoFunc: function logInfoFunc(message) {
+                return console.log(message);
+              },
+              logErrorFunc: function logErrorFunc(message) {
+                return console.log(message);
+              }
+            }).crawlProducts(createConfig());
 
           case 2:
           case 'end':

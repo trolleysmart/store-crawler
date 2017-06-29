@@ -5,10 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.CountdownWebCrawlerService = undefined;
 
-require('./CrawlCountdownProducts');
-
-require('./CrawlCountdownHighLevelProductCategories');
-
 require('./CrawlProductCategories');
 
 require('./SyncProductCategoriesToStoreTags');

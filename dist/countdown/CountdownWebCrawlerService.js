@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _bluebird = require('bluebird');
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
 var _crawler = require('crawler');
 
 var _crawler2 = _interopRequireDefault(_crawler);
@@ -347,71 +351,155 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
           return crawler.queue(productCategory.get('url'));
         });
       });
-    }, _this.crawlProducts = function () {
-      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(config) {
-        var finalConfig, store, storeId, storeTags, productCategories, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo;
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _context2.t0 = config;
+    }, _this.syncProductCategoriesToStoreTags = _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+      var store, storeId, productCategories, storeTags, splittedLevelOneProductCategories, storeTagsWithUpdatedLevelOneProductCategories, levelTwoProductCategories, levelTwoProductCategoriesGroupedByCategoryKey, splittedLevelTwoProductCategories, storeTagsWithUpdatedLevelTwoProductCategories, levelThreeProductCategories, levelThreeProductCategoriesGroupedByCategoryKey, splittedLevelThreeProductCategories;
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _context2.next = 2;
+              return _this.getStore('Countdown');
 
-                if (_context2.t0) {
-                  _context2.next = 5;
+            case 2:
+              store = _context2.sent;
+              storeId = store.get('id');
+              _context2.t0 = _immutable2.default;
+              _context2.next = 7;
+              return _this.getMostRecentCrawlResults('Countdown Product Categories', function (info) {
+                return info.getIn(['resultSet', 'productCategories']);
+              });
+
+            case 7:
+              _context2.t1 = _context2.sent.first();
+              productCategories = _context2.t0.fromJS.call(_context2.t0, _context2.t1);
+              _context2.next = 11;
+              return _this.getExistingStoreTags(storeId);
+
+            case 11:
+              storeTags = _context2.sent;
+              splittedLevelOneProductCategories = _this.splitIntoChunks(productCategories, 100);
+              _context2.next = 15;
+              return _bluebird2.default.each(splittedLevelOneProductCategories.toArray(), function (productCategoryChunks) {
+                return Promise.all(productCategoryChunks.map(function (productCategory) {
+                  return _this.createOrUpdateLevelOneProductCategory(productCategory, storeTags, storeId);
+                }));
+              });
+
+            case 15:
+              _context2.next = 17;
+              return _this.getExistingStoreTags(storeId);
+
+            case 17:
+              storeTagsWithUpdatedLevelOneProductCategories = _context2.sent;
+              levelTwoProductCategories = productCategories.map(function (productCategory) {
+                return productCategory.update('subCategories', function (subCategories) {
+                  return subCategories.map(function (subCategory) {
+                    return subCategory.set('parent', productCategory.get('categoryKey'));
+                  });
+                });
+              }).flatMap(function (productCategory) {
+                return productCategory.get('subCategories');
+              });
+              levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(function (productCategory) {
+                return productCategory.get('categoryKey');
+              });
+              splittedLevelTwoProductCategories = _this.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+              _context2.next = 23;
+              return _bluebird2.default.each(splittedLevelTwoProductCategories.toArray(), function (productCategoryChunks) {
+                return Promise.all(productCategoryChunks.map(function (productCategory) {
+                  return _this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories, storeId);
+                }));
+              });
+
+            case 23:
+              _context2.next = 25;
+              return _this.getExistingStoreTags(storeId);
+
+            case 25:
+              storeTagsWithUpdatedLevelTwoProductCategories = _context2.sent;
+              levelThreeProductCategories = productCategories.flatMap(function (productCategory) {
+                return productCategory.get('subCategories');
+              }).map(function (productCategory) {
+                return productCategory.update('subCategories', function (subCategories) {
+                  return subCategories.map(function (subCategory) {
+                    return subCategory.set('parent', productCategory.get('categoryKey'));
+                  });
+                });
+              }).flatMap(function (productCategory) {
+                return productCategory.get('subCategories');
+              });
+              levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(function (productCategory) {
+                return productCategory.get('categoryKey');
+              });
+              splittedLevelThreeProductCategories = _this.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+              _context2.next = 31;
+              return _bluebird2.default.each(splittedLevelThreeProductCategories.toArray(), function (productCategoryChunks) {
+                return Promise.all(productCategoryChunks.map(function (productCategory) {
+                  return _this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories, storeId);
+                }));
+              });
+
+            case 31:
+            case 'end':
+              return _context2.stop();
+          }
+        }
+      }, _callee2, _this2);
+    })), _this.crawlProducts = function () {
+      var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(config) {
+        var finalConfig, store, storeId, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.t0 = config;
+
+                if (_context3.t0) {
+                  _context3.next = 5;
                   break;
                 }
 
-                _context2.next = 4;
+                _context3.next = 4;
                 return _this.getStoreCrawlerConfig('Countdown');
 
               case 4:
-                _context2.t0 = _context2.sent.get('config');
+                _context3.t0 = _context3.sent.get('config');
 
               case 5:
-                finalConfig = _context2.t0;
-                _context2.next = 8;
+                finalConfig = _context3.t0;
+                _context3.next = 8;
                 return _this.getStore('Countdown');
 
               case 8:
-                store = _context2.sent;
+                store = _context3.sent;
                 storeId = store.get('id');
-                _context2.next = 12;
-                return _this.getExistingStoreTags(storeId);
-
-              case 12:
-                storeTags = _context2.sent;
-                _context2.t1 = _immutable2.default;
-                _context2.next = 16;
+                _context3.t1 = _immutable2.default;
+                _context3.next = 13;
                 return _this.getMostRecentCrawlResults('Countdown Product Categories', function (info) {
                   return info.getIn(['resultSet', 'productCategories']);
                 });
 
-              case 16:
-                _context2.t2 = _context2.sent.first();
-                productCategories = _context2.t1.fromJS.call(_context2.t1, _context2.t2);
-                productCategoriesToCrawl = productCategories.flatMap(function (_) {
-                  return _.get('subCategories');
-                }).flatMap(function (_) {
-                  return _.get('subCategories');
-                });
-                _context2.next = 21;
+              case 13:
+                _context3.t2 = _context3.sent.first();
+                productCategoriesToCrawl = _context3.t1.fromJS.call(_context3.t1, _context3.t2);
+                _context3.next = 17;
                 return _this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
 
-              case 21:
-                productCategoriesToCrawlWithTotalItemsInfo = _context2.sent;
-                _context2.next = 24;
-                return _this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, storeTags);
+              case 17:
+                productCategoriesToCrawlWithTotalItemsInfo = _context3.sent;
+                _context3.next = 20;
+                return _this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId);
 
-              case 24:
+              case 20:
               case 'end':
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, _this2);
+        }, _callee3, _this2);
       }));
 
       return function (_x2) {
-        return _ref3.apply(this, arguments);
+        return _ref4.apply(this, arguments);
       };
     }(), _this.crawlProductCategoriesTotalItemsInfo = function (config, productCategories) {
       var productCategoriesToCrawlWithTotalItemsInfo = (0, _immutable.List)();
@@ -471,7 +559,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       });
 
       return total;
-    }, _this.crawlProductsForEachProductCategories = function (config, productCategories, storeId, storeTags) {
+    }, _this.crawlProductsForEachProductCategories = function (config, productCategories, storeId) {
       return new Promise(function (resolve, reject) {
         var crawler = new _crawler2.default({
           rateLimit: config.get('rateLimit'),
@@ -507,7 +595,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
             var productInfos = _this.crawlProductInfo(config, res.$);
 
             Promise.all(productInfos.map(function (productInfo) {
-              return _this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId, storeTags);
+              return _this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId);
             })).then(function () {
               return done();
             }).catch(function (storeProductUpdateError) {

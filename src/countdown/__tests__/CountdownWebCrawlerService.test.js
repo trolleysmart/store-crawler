@@ -7,9 +7,9 @@ import CountdownWebCrawlerService from '../CountdownWebCrawlerService';
 const createConfig = () =>
   Immutable.fromJS({
     baseUrl: 'https://shop.countdown.co.nz',
-    baseImageUrl: 'https://shop.countdown.co.nz',
-    rateLimit: 2000,
+    rateLimit: 1,
     maxConnections: 1,
+    logLevel: 2,
     categoryKeysToExclude: List.of('restricted-items', 'christmas'),
   });
 
@@ -20,6 +20,16 @@ describe('crawlProductCategories', () => {
       logInfoFunc: message => console.log(message),
       logErrorFunc: message => console.log(message),
     }).crawlProductCategories(createConfig());
+  });
+});
+
+describe('syncProductCategoriesToStoreTags', () => {
+  test('should sync product categories that have already been cralwed into store tags', async () => {
+    await new CountdownWebCrawlerService({
+      logVerboseFunc: message => console.log(message),
+      logInfoFunc: message => console.log(message),
+      logErrorFunc: message => console.log(message),
+    }).syncProductCategoriesToStoreTags(createConfig());
   });
 });
 

@@ -347,7 +347,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       }, _callee2, _this2);
     })), _this.crawlProducts = function () {
       var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(config) {
-        var finalConfig, store, storeId, storeTags, productCategories, productCategoriesLevelOne, productCategoriesLevelTwo, productCategoriesLevelThree, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo;
+        var finalConfig, store, storeId, productCategories, productCategoriesLevelOne, productCategoriesLevelTwo, productCategoriesLevelThree, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
@@ -373,18 +373,13 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               case 8:
                 store = _context3.sent;
                 storeId = store.get('id');
-                _context3.next = 12;
-                return _this.getExistingStoreTags(storeId);
-
-              case 12:
-                storeTags = _context3.sent;
                 _context3.t1 = _immutable2.default;
-                _context3.next = 16;
+                _context3.next = 13;
                 return _this.getMostRecentCrawlResults('Warehouse Product Categories', function (info) {
                   return info.getIn(['resultSet', 'productCategories']);
                 });
 
-              case 16:
+              case 13:
                 _context3.t2 = _context3.sent.first();
                 productCategories = _context3.t1.fromJS.call(_context3.t1, _context3.t2);
                 productCategoriesLevelOne = productCategories.filter(function (_) {
@@ -407,15 +402,15 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   return _.get('subCategories');
                 });
                 productCategoriesToCrawl = productCategoriesLevelOne.concat(productCategoriesLevelTwo).concat(productCategoriesLevelThree);
-                _context3.next = 24;
+                _context3.next = 21;
                 return _this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
 
-              case 24:
+              case 21:
                 productCategoriesToCrawlWithTotalItemsInfo = _context3.sent;
-                _context3.next = 27;
-                return _this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, storeTags);
+                _context3.next = 24;
+                return _this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId);
 
-              case 27:
+              case 24:
               case 'end':
                 return _context3.stop();
             }
@@ -426,52 +421,69 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return function (_x2) {
         return _ref4.apply(this, arguments);
       };
-    }(), _this.crawlProductCategoriesTotalItemsInfo = function (config, productCategories) {
-      var productCategoriesToCrawlWithTotalItemsInfo = (0, _immutable.List)();
+    }(), _this.crawlProductCategoriesTotalItemsInfo = function () {
+      var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(config, productCategories) {
+        var productCategoriesToCrawlWithTotalItemsInfo;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                productCategoriesToCrawlWithTotalItemsInfo = (0, _immutable.List)();
+                return _context4.abrupt('return', new Promise(function (resolve, reject) {
+                  var crawler = new _crawler2.default({
+                    rateLimit: config.get('rateLimit'),
+                    maxConnections: config.get('maxConnections'),
+                    callback: function callback(error, res, done) {
+                      _this.logInfo(config, function () {
+                        return 'Received response for: ' + res.request.uri.href;
+                      });
+                      _this.logVerbose(config, function () {
+                        return 'Received response for: ' + JSON.stringify(res);
+                      });
 
-      return new Promise(function (resolve, reject) {
-        var crawler = new _crawler2.default({
-          rateLimit: config.get('rateLimit'),
-          maxConnections: config.get('maxConnections'),
-          callback: function callback(error, res, done) {
-            _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
-            });
-            _this.logVerbose(config, function () {
-              return 'Received response for: ' + JSON.stringify(res);
-            });
+                      if (error) {
+                        done();
+                        reject('Failed to receive product category page info for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
 
-            if (error) {
-              done();
-              reject('Failed to receive product category page info for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+                        return;
+                      }
 
-              return;
+                      var productCategory = productCategories.find(function (_) {
+                        return _.get('url').localeCompare(res.request.uri.href) === 0;
+                      });
+
+                      if (!productCategory) {
+                        // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
+                        done();
+
+                        return;
+                      }
+
+                      productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(productCategory.set('totalItems', _this.crawlTotalItemsInfo(config, res.$)));
+                      done();
+                    }
+                  });
+
+                  crawler.on('drain', function () {
+                    return resolve(productCategoriesToCrawlWithTotalItemsInfo);
+                  });
+                  productCategories.forEach(function (productCategory) {
+                    return crawler.queue(productCategory.get('url'));
+                  });
+                }));
+
+              case 2:
+              case 'end':
+                return _context4.stop();
             }
-
-            var productCategory = productCategories.find(function (_) {
-              return _.get('url').localeCompare(res.request.uri.href) === 0;
-            });
-
-            if (!productCategory) {
-              // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
-              done();
-
-              return;
-            }
-
-            productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(productCategory.set('totalItems', _this.crawlTotalItemsInfo(config, res.$)));
-            done();
           }
-        });
+        }, _callee4, _this2);
+      }));
 
-        crawler.on('drain', function () {
-          return resolve(productCategoriesToCrawlWithTotalItemsInfo);
-        });
-        productCategories.forEach(function (productCategory) {
-          return crawler.queue(productCategory.get('url'));
-        });
-      });
-    }, _this.crawlTotalItemsInfo = function (config, $) {
+      return function (_x3, _x4) {
+        return _ref5.apply(this, arguments);
+      };
+    }(), _this.crawlTotalItemsInfo = function (config, $) {
       var total = 0;
 
       $('.tab-content #results-products .pagination').filter(function filterPagination() {
@@ -489,7 +501,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       });
 
       return total;
-    }, _this.crawlProductsForEachProductCategories = function (config, productCategories, storeId, storeTags) {
+    }, _this.crawlProductsForEachProductCategories = function (config, productCategories, storeId) {
       return new Promise(function (resolve, reject) {
         var crawler = new _crawler2.default({
           rateLimit: config.get('rateLimit'),
@@ -525,7 +537,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             var productInfos = _this.crawlProductInfo(config, res.$);
 
             Promise.all(productInfos.map(function (productInfo) {
-              return _this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId, storeTags);
+              return _this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId);
             })).then(function () {
               return done();
             }).catch(function (storeProductUpdateError) {

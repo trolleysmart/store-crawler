@@ -253,7 +253,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const finalConfig = config || (await this.getStoreCrawlerConfig('Warehouse')).get('config');
     const store = await this.getStore('Warehouse');
     const storeId = store.get('id');
-    const storeTags = await this.getExistingStoreTags(storeId);
     const productCategories = Immutable.fromJS(
       (await this.getMostRecentCrawlResults('Warehouse Product Categories', info => info.getIn(['resultSet', 'productCategories']))).first(),
     );
@@ -270,10 +269,10 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const productCategoriesToCrawl = productCategoriesLevelOne.concat(productCategoriesLevelTwo).concat(productCategoriesLevelThree);
     const productCategoriesToCrawlWithTotalItemsInfo = await this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
 
-    await this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, storeTags);
+    await this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId);
   };
 
-  crawlProductCategoriesTotalItemsInfo = (config, productCategories) => {
+  crawlProductCategoriesTotalItemsInfo = async (config, productCategories) => {
     let productCategoriesToCrawlWithTotalItemsInfo = List();
 
     return new Promise((resolve, reject) => {
@@ -332,7 +331,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return total;
   };
 
-  crawlProductsForEachProductCategories = (config, productCategories, storeId, storeTags) =>
+  crawlProductsForEachProductCategories = (config, productCategories, storeId) =>
     new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
@@ -361,7 +360,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
           const productInfos = this.crawlProductInfo(config, res.$);
 
-          Promise.all(productInfos.map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId, storeTags)))
+          Promise.all(productInfos.map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId)))
             .then(() => done())
             .catch((storeProductUpdateError) => {
               done();

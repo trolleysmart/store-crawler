@@ -17,9 +17,9 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 var createConfig = function createConfig() {
   return _immutable2.default.fromJS({
     baseUrl: 'https://shop.countdown.co.nz',
-    baseImageUrl: 'https://shop.countdown.co.nz',
-    rateLimit: 2000,
+    rateLimit: 1,
     maxConnections: 1,
+    logLevel: 2,
     categoryKeysToExclude: _immutable.List.of('restricted-items', 'christmas')
   });
 };
@@ -52,8 +52,8 @@ describe('crawlProductCategories', function () {
   })));
 });
 
-describe('crawlProducts', function () {
-  test('should crawl products and save to database', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+describe('syncProductCategoriesToStoreTags', function () {
+  test('should sync product categories that have already been cralwed into store tags', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
@@ -69,7 +69,7 @@ describe('crawlProducts', function () {
               logErrorFunc: function logErrorFunc(message) {
                 return console.log(message);
               }
-            }).crawlProducts(createConfig());
+            }).syncProductCategoriesToStoreTags(createConfig());
 
           case 2:
           case 'end':
@@ -77,5 +77,33 @@ describe('crawlProducts', function () {
         }
       }
     }, _callee2, undefined);
+  })));
+});
+
+describe('crawlProducts', function () {
+  test('should crawl products and save to database', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            _context3.next = 2;
+            return new _CountdownWebCrawlerService2.default({
+              logVerboseFunc: function logVerboseFunc(message) {
+                return console.log(message);
+              },
+              logInfoFunc: function logInfoFunc(message) {
+                return console.log(message);
+              },
+              logErrorFunc: function logErrorFunc(message) {
+                return console.log(message);
+              }
+            }).crawlProducts(createConfig());
+
+          case 2:
+          case 'end':
+            return _context3.stop();
+        }
+      }
+    }, _callee3, undefined);
   })));
 });

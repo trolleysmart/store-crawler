@@ -1,6 +1,6 @@
 // @flow
 
-import Immutable, { List, Map, Range, Set } from 'immutable';
+import Immutable, { List, Map, Range } from 'immutable';
 import { Exception, ParseWrapperService } from 'micro-business-parse-server-common';
 import {
   CrawlResultService,
@@ -134,13 +134,7 @@ export default class ServiceBase {
     }
   };
 
-  createOrUpdateStoreMasterProduct = async (productCategory, productInfo, storeId, storeTags) => {
-    const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0);
-
-    if (!foundStoreTag) {
-      throw new Exception(`Failed to retrieve store tag for ${productCategory.get('categoryKey')}`);
-    }
-
+  createOrUpdateStoreMasterProduct = async (productCategory, productInfo, storeId) => {
     const storeMasterProducts = await StoreMasterProductService.search(
       Map({
         conditions: Map({
@@ -156,7 +150,6 @@ export default class ServiceBase {
           description: productInfo.get('description'),
           productPageUrl: productInfo.get('productPageUrl'),
           imageUrl: productInfo.get('imageUrl'),
-          storeTagIds: Set([foundStoreTag.get('id')]),
           storeId,
         }),
       );
@@ -165,7 +158,6 @@ export default class ServiceBase {
     } else {
       const storeMasterProduct = storeMasterProducts.first();
       const updatedStoreMasterProduct = storeMasterProduct
-        .update('storeTagIds', storeTagIds => storeTagIds.toSet().add(foundStoreTag.get('id')))
         .set('productPageUrl', productInfo.get('productPageUrl'))
         .set('imageUrl', productInfo.get('imageUrl'));
 
