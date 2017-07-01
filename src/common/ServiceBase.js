@@ -149,7 +149,6 @@ export default class ServiceBase {
         Map({
           description: productInfo.get('description'),
           productPageUrl: productInfo.get('productPageUrl'),
-          imageUrl: productInfo.get('imageUrl'),
           storeId,
         }),
       );
@@ -161,9 +160,7 @@ export default class ServiceBase {
       );
     } else {
       const storeMasterProduct = storeMasterProducts.first();
-      const updatedStoreMasterProduct = storeMasterProduct
-        .set('productPageUrl', productInfo.get('productPageUrl'))
-        .set('imageUrl', productInfo.get('imageUrl'));
+      const updatedStoreMasterProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl'));
 
       await StoreMasterProductService.update(updatedStoreMasterProduct);
     }

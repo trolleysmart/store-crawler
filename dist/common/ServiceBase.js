@@ -367,7 +367,6 @@ var ServiceBase = function ServiceBase(_ref) {
               return _smartGroceryParseServerCommon.StoreMasterProductService.create((0, _immutable.Map)({
                 description: productInfo.get('description'),
                 productPageUrl: productInfo.get('productPageUrl'),
-                imageUrl: productInfo.get('imageUrl'),
                 storeId: storeId
               }));
 
@@ -385,7 +384,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
             case 12:
               storeMasterProduct = storeMasterProducts.first();
-              updatedStoreMasterProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl')).set('imageUrl', productInfo.get('imageUrl'));
+              updatedStoreMasterProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl'));
               _context8.next = 16;
               return _smartGroceryParseServerCommon.StoreMasterProductService.update(updatedStoreMasterProduct);
 

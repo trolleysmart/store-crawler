@@ -380,9 +380,8 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     $('.tab-content .search-result-content .search-result-items').children().filter(function filterSearchResultItems() {
       const description = $(this).find('.product-info-wrapper .name-link').attr('title');
       const productPageUrl = $(this).find('.product-info-wrapper .name-link').attr('href');
-      const imageLink = $(this).find('.product-image .thumb-link').children().first();
 
-      products = products.push(Map({ description, productPageUrl, imageUrl: imageLink.attr('src') }));
+      products = products.push(Map({ description, productPageUrl }));
 
       return 0;
     });

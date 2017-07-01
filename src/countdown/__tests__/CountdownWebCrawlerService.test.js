@@ -42,3 +42,13 @@ describe('crawlProducts', () => {
     }).crawlProducts(createConfig());
   });
 });
+
+describe('crawlProductsDetails', () => {
+  test('should crawl store master products details', async () => {
+    await new CountdownWebCrawlerService({
+      logVerboseFunc: message => console.log(message),
+      logInfoFunc: message => console.log(message),
+      logErrorFunc: message => console.log(message),
+    }).crawlProductsDetails(createConfig());
+  });
+});

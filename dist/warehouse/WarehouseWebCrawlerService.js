@@ -561,9 +561,8 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       $('.tab-content .search-result-content .search-result-items').children().filter(function filterSearchResultItems() {
         var description = $(this).find('.product-info-wrapper .name-link').attr('title');
         var productPageUrl = $(this).find('.product-info-wrapper .name-link').attr('href');
-        var imageLink = $(this).find('.product-image .thumb-link').children().first();
 
-        products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl, imageUrl: imageLink.attr('src') }));
+        products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl }));
 
         return 0;
       });

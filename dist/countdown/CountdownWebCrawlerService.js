@@ -619,10 +619,9 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       $('#middle-panel .side-gutter #content-panel #product-list').children().filter(function filterProductList() {
         $(this).find('.product-stamp .details-container').each(function filterProductDetails() {
           var description = $(this).find('.description').text().trim();
-          var imageUrl = $(this).get('baseUrl') + $(this).find('.product-stamp-thumbnail img').attr('src');
           var productPageUrl = config.get('baseUrl') + $(this).find('._jumpTop').attr('href');
 
-          products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl, imageUrl: imageUrl }));
+          products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl }));
 
           return 0;
         });
@@ -630,6 +629,334 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       });
 
       return products;
+    }, _this.crawlProductsDetails = function () {
+      var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(config) {
+        var result, sessionInfo, sessionId, finalConfig, store, storeId, products, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
+
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.next = 2;
+                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Products', config, 'Countdown');
+
+              case 2:
+                result = _context4.sent;
+                sessionInfo = result.get('sessionInfo');
+                sessionId = sessionInfo.get('id');
+                finalConfig = result.get('config');
+                _context4.prev = 6;
+                _context4.next = 9;
+                return _this.getStore('Countdown');
+
+              case 9:
+                store = _context4.sent;
+                storeId = store.get('id');
+                _context4.next = 13;
+                return _this.getProducts(finalConfig, storeId, false);
+
+              case 13:
+                products = _context4.sent;
+                _context4.next = 16;
+                return _bluebird2.default.each(products.toArray(), function (product) {
+                  return _this.crawlProductDetails(finalConfig, product, sessionId);
+                });
+
+              case 16:
+                updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
+                  endDateTime: new Date(),
+                  additionalInfo: (0, _immutable.Map)({
+                    status: 'success'
+                  })
+                }));
+                _context4.next = 19;
+                return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
+
+              case 19:
+                _context4.next = 28;
+                break;
+
+              case 21:
+                _context4.prev = 21;
+                _context4.t0 = _context4['catch'](6);
+                errorMessage = _context4.t0 instanceof _microBusinessParseServerCommon.Exception ? _context4.t0.getErrorMessage() : _context4.t0;
+                _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
+                  endDateTime: new Date(),
+                  additionalInfo: (0, _immutable.Map)({
+                    status: 'failed',
+                    error: errorMessage
+                  })
+                }));
+                _context4.next = 27;
+                return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
+
+              case 27:
+                throw _context4.t0;
+
+              case 28:
+              case 'end':
+                return _context4.stop();
+            }
+          }
+        }, _callee4, _this2, [[6, 21]]);
+      }));
+
+      return function (_x3) {
+        return _ref5.apply(this, arguments);
+      };
+    }(), _this.getProducts = function () {
+      var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config, storeId, withoutMasterProductLinkSet) {
+        var criteria, products, result;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                criteria = (0, _immutable.Map)({
+                  conditions: (0, _immutable.Map)({
+                    storeId: storeId,
+                    without_masterProduct: withoutMasterProductLinkSet
+                  })
+                });
+                products = (0, _immutable.List)();
+                result = _smartGroceryParseServerCommon.StoreMasterProductService.searchAll(criteria);
+                _context5.prev = 3;
+
+                result.event.subscribe(function (info) {
+                  return products = products.push(info);
+                });
+
+                _context5.next = 7;
+                return result.promise;
+
+              case 7:
+                _context5.prev = 7;
+
+                result.event.unsubscribeAll();
+                return _context5.finish(7);
+
+              case 10:
+                return _context5.abrupt('return', products);
+
+              case 11:
+              case 'end':
+                return _context5.stop();
+            }
+          }
+        }, _callee5, _this2, [[3,, 7, 10]]);
+      }));
+
+      return function (_x4, _x5, _x6) {
+        return _ref6.apply(this, arguments);
+      };
+    }(), _this.crawlProductDetails = function (config, product, sessionId) {
+      return new Promise(function (resolve, reject) {
+        var productInfo = (0, _immutable.Map)();
+        var crawler = new _crawler2.default({
+          rateLimit: config.get('rateLimit'),
+          maxConnections: config.get('maxConnections'),
+          callback: function callback(error, res, done) {
+            _this.logInfo(config, function () {
+              return 'Received response for: ' + res.request.uri.href;
+            });
+            _this.logVerbose(config, function () {
+              return 'Received response for: ' + JSON.stringify(res);
+            });
+
+            if (error) {
+              done();
+              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+
+              return;
+            }
+
+            var $ = res.$;
+            var self = _this;
+
+            $('#breadcrumb-panel .breadcrumbs').children().last().filter(function filterProductTags() {
+              var tags = _immutable2.default.fromJS($(this).attr('href').split('/')).map(function (_) {
+                return _.trim();
+              }).filterNot(function (_) {
+                return _.length === 0;
+              }).skip(2);
+
+              productInfo = productInfo.merge({ tags: tags });
+
+              return 0;
+            });
+
+            $('#content-container #content-panel #product-details').filter(function filterProductDetails() {
+              var productTagWrapperContainer = $(this).find('.product-tag-wrapper');
+              var productTagDesktop = productTagWrapperContainer.find('.main-product .product-tag-desktop');
+
+              productTagDesktop.children().each(function filterBadges() {
+                var badgeSrc = $(this).attr('src');
+
+                if (badgeSrc) {
+                  productInfo = productInfo.merge(self.translateBadge(badgeSrc));
+                } else {
+                  var badgeUrl = $(this).find('a img').attr('src');
+
+                  if (badgeUrl) {
+                    productInfo = productInfo.merge(self.translateBadge(badgeUrl));
+                  } else {
+                    var multiBuyLinkContainer = $(this).find('.multi-buy-link');
+
+                    if (multiBuyLinkContainer) {
+                      var awardQuantityFullText = multiBuyLinkContainer.find('.multi-buy-award-quantity').text().trim();
+                      var awardQuantity = awardQuantityFullText.substring(0, awardQuantityFullText.indexOf(' '));
+                      var awardValue = multiBuyLinkContainer.find('.multi-buy-award-value').text().trim();
+
+                      productInfo = productInfo.merge({
+                        multiBuyInfo: (0, _immutable.Map)({
+                          awardQuantity: awardQuantity,
+                          awardValue: awardValue
+                        })
+                      });
+                    }
+                  }
+                }
+
+                return 0;
+              });
+
+              var bigImageUrl = productTagWrapperContainer.find('.big-image-container .product-image .product-image').attr('src');
+              var productDetailsBasicInfo = $(this).find('#product-details-info-content .prod-details-basic-info');
+              var titleContainer = productDetailsBasicInfo.find('.product-title h1');
+              var title = titleContainer.text().trim();
+              var size = titleContainer.find('span').text().trim();
+              var description = title.substring(0, title.indexOf(size)).trim();
+
+              productInfo = productInfo.merge({
+                description: description,
+                size: size,
+                bigImageUrl: config.get('baseUrl') + bigImageUrl
+              });
+
+              productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
+                var priceContent = $(this).find('.product-price');
+                var currentPrice = self.getCurrentPrice(priceContent);
+                var wasPrice = self.getWasPrice(priceContent);
+                var unitPrice = self.getUnitPrice($(this));
+
+                productInfo = productInfo.merge({
+                  currentPrice: currentPrice,
+                  wasPrice: wasPrice,
+                  unitPrice: unitPrice
+                });
+
+                return 0;
+              });
+
+              productDetailsBasicInfo.find('.cost-container .club-price-container').filter(function filterClubPriceDetails() {
+                var clubPriceContent = $(this).find('.drop-down-club-price-wrapper');
+                var currentPrice = self.getClubPrice(clubPriceContent);
+                var nonClubPriceContent = $(this).find('.grid-non-club-price').text().trim();
+                var noneClubPrice = self.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
+                var unitPrice = self.getUnitPrice($(this));
+
+                productInfo = productInfo.merge({
+                  currentPrice: currentPrice,
+                  noneClubPrice: noneClubPrice,
+                  unitPrice: unitPrice
+                });
+
+                return 0;
+              });
+
+              var crawlResult = (0, _immutable.Map)({
+                crawlSessionId: sessionId,
+                resultSet: (0, _immutable.Map)({
+                  product: product.toJS(),
+                  productInfo: productInfo.toJS()
+                })
+              });
+
+              _smartGroceryParseServerCommon.CrawlResultService.create(crawlResult).then(function () {
+                return done();
+              }).catch(function (crawlResultCreationError) {
+                done();
+                reject(crawlResultCreationError);
+              });
+
+              return 0;
+            });
+          }
+        });
+
+        crawler.on('drain', function () {
+          return resolve();
+        });
+        crawler.queue(product.get('productPageUrl'));
+      });
+    }, _this.getCurrentPrice = function (productPriceContent) {
+      var currentPriceContent = productPriceContent.find('.price').text().trim();
+      var currentPriceTails = productPriceContent.find('.price .visible-phone').text().trim();
+      var currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
+
+      return _this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+    }, _this.getWasPrice = function (productPriceContent) {
+      var wasPriceContent = productPriceContent.find('.was-price').text().trim();
+
+      return wasPriceContent.substring(wasPriceContent.indexOf('$') + 1);
+    }, _this.getUnitPrice = function (priceContainer) {
+      var unitPriceContent = priceContainer.find('.cup-price').text().trim();
+
+      return (0, _immutable.Map)({
+        unitPrice: _this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/'))),
+        unitSize: unitPriceContent.substring(unitPriceContent.indexOf('/') + 1)
+      });
+    }, _this.translateBadge = function (url) {
+      var lowerCaseUrl = url.toLowerCase();
+      if (lowerCaseUrl.indexOf('badge-special') !== -1) {
+        return (0, _immutable.Map)({ special: true });
+      }
+
+      if (lowerCaseUrl.indexOf('badge-pricelockdown') !== -1) {
+        return (0, _immutable.Map)({ priceLockDown: true });
+      }
+
+      if (lowerCaseUrl.indexOf('view-nutrition-info') !== -1) {
+        return (0, _immutable.Map)({ viewNutritionInfo: true });
+      }
+
+      if (lowerCaseUrl.indexOf('badge-gluten-free') !== -1) {
+        return (0, _immutable.Map)({ glutenFree: true });
+      }
+
+      if (lowerCaseUrl.indexOf('badge-onecard') !== -1) {
+        return (0, _immutable.Map)({ onecard: true });
+      }
+
+      if (lowerCaseUrl.indexOf('low_price') !== -1) {
+        return (0, _immutable.Map)({ lowPriceEveryday: true });
+      }
+
+      if (lowerCaseUrl.indexOf('badge-new') !== -1) {
+        return (0, _immutable.Map)({ new: true });
+      }
+
+      var multiBuyIconUrl = lowerCaseUrl.match(/\dfor\d/);
+
+      if (multiBuyIconUrl) {
+        var multiBuyFullText = lowerCaseUrl.substring(lowerCaseUrl.lastIndexOf('/') + 1, lowerCaseUrl.indexOf('.')).trim();
+
+        return (0, _immutable.Map)({
+          multiBuyInfo: (0, _immutable.Map)({
+            awardQuantity: multiBuyFullText.substring(0, multiBuyFullText.indexOf('for')),
+            awardValue: multiBuyFullText.substring(multiBuyFullText.indexOf('for') + 'for'.length)
+          })
+        });
+      }
+
+      return (0, _immutable.Map)();
+    }, _this.getClubPrice = function (productPriceContent) {
+      var currentPriceContent = productPriceContent.text().trim();
+      var currentPriceTails = productPriceContent.find('.visible-phone').text().trim();
+      var currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
+
+      return _this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+    }, _this.removeDollarSignFromPrice = function (priceWithDollarSign) {
+      return priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim();
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 

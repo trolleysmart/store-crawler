@@ -107,3 +107,31 @@ describe('crawlProducts', function () {
     }, _callee3, undefined);
   })));
 });
+
+describe('crawlProductsDetails', function () {
+  test('should crawl store master products details', _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
+    return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            _context4.next = 2;
+            return new _CountdownWebCrawlerService2.default({
+              logVerboseFunc: function logVerboseFunc(message) {
+                return console.log(message);
+              },
+              logInfoFunc: function logInfoFunc(message) {
+                return console.log(message);
+              },
+              logErrorFunc: function logErrorFunc(message) {
+                return console.log(message);
+              }
+            }).crawlProductsDetails(createConfig());
+
+          case 2:
+          case 'end':
+            return _context4.stop();
+        }
+      }
+    }, _callee4, undefined);
+  })));
+});
