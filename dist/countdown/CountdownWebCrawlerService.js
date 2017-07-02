@@ -56,7 +56,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Product Categories', config, 'Countdown');
+                return _this.createNewCrawlSessionAndGetConfig('Countdown Product Categories', config, 'Countdown');
 
               case 2:
                 result = _context.sent;
@@ -168,7 +168,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
                 productCategories = productCategories.push((0, _immutable.Map)({
                   categoryKey: categoryKey,
-                  description: menuItem.text().trim(),
+                  name: menuItem.text().trim(),
                   url: '' + config.get('baseUrl') + url,
                   weight: 1
                 }));
@@ -239,7 +239,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   return 0;
                 }
 
-                levelTwoProductCategories = levelTwoProductCategories.push((0, _immutable.Map)({ categoryKey: categoryKey, description: menuItem.text().trim(), url: '' + config.get('baseUrl') + url, weight: 2 }));
+                levelTwoProductCategories = levelTwoProductCategories.push((0, _immutable.Map)({ categoryKey: categoryKey, name: menuItem.text().trim(), url: '' + config.get('baseUrl') + url, weight: 2 }));
 
                 return 0;
               });
@@ -326,7 +326,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   return 0;
                 }
 
-                levelThreeProductCategories = levelThreeProductCategories.push((0, _immutable.Map)({ categoryKey: categoryKey, description: menuItem.text().trim(), url: '' + config.get('baseUrl') + url, weight: 3 }));
+                levelThreeProductCategories = levelThreeProductCategories.push((0, _immutable.Map)({ categoryKey: categoryKey, name: menuItem.text().trim(), url: '' + config.get('baseUrl') + url, weight: 3 }));
 
                 return 0;
               });
@@ -460,10 +460,10 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 }
 
                 _context3.next = 4;
-                return _this.getStoreCrawlerConfig('Countdown');
+                return _this.getConfig('Countdown');
 
               case 4:
-                _context3.t0 = _context3.sent.get('config');
+                _context3.t0 = _context3.sent;
 
               case 5:
                 finalConfig = _context3.t0;
@@ -618,10 +618,9 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       var products = (0, _immutable.List)();
       $('#middle-panel .side-gutter #content-panel #product-list').children().filter(function filterProductList() {
         $(this).find('.product-stamp .details-container').each(function filterProductDetails() {
-          var description = $(this).find('.description').text().trim();
           var productPageUrl = config.get('baseUrl') + $(this).find('._jumpTop').attr('href');
 
-          products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl }));
+          products = products.push((0, _immutable.Map)({ productPageUrl: productPageUrl }));
 
           return 0;
         });
@@ -638,7 +637,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.next = 2;
-                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Products', config, 'Countdown');
+                return _this.createNewCrawlSessionAndGetConfig('Countdown Products', config, 'Countdown');
 
               case 2:
                 result = _context4.sent;
@@ -780,10 +779,10 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var titleContainer = productDetailsBasicInfo.find('.product-title h1');
               var title = titleContainer.text().trim();
               var size = titleContainer.find('span').text().trim();
-              var description = title.substring(0, title.indexOf(size)).trim();
+              var name = title.substring(0, title.indexOf(size)).trim();
 
               productInfo = productInfo.merge({
-                description: description,
+                name: name,
                 size: size,
                 imageUrl: config.get('baseUrl') + imageUrl
               });

@@ -56,7 +56,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Product Categories', config, 'Warehouse');
+                return _this.createNewCrawlSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse');
 
               case 2:
                 result = _context.sent;
@@ -177,7 +177,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           productCategories = productCategories.add((0, _immutable.Map)({
             categoryKey: categoryKey,
             url: menuItem.find('.level-1').attr('href'),
-            description: menuItem.find('.level-1').text().trim(),
+            name: menuItem.find('.level-1').text().trim(),
             weight: 1,
             subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem)
           }));
@@ -208,7 +208,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             productCategories = productCategories.add((0, _immutable.Map)({
               categoryKey: categoryKey,
               url: menuItem.attr('href'),
-              description: menuItem.text().trim(),
+              name: menuItem.text().trim(),
               weight: 2,
               subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this))
             }));
@@ -240,7 +240,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           productCategories = productCategories.add((0, _immutable.Map)({
             categoryKey: categoryKey,
             url: menuItem.attr('href'),
-            description: menuItem.text().trim(),
+            name: menuItem.text().trim(),
             weight: 3
           }));
 
@@ -360,10 +360,10 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 }
 
                 _context3.next = 4;
-                return _this.getStoreCrawlerConfig('Warehouse');
+                return _this.getConfig('Warehouse');
 
               case 4:
-                _context3.t0 = _context3.sent.get('config');
+                _context3.t0 = _context3.sent;
 
               case 5:
                 finalConfig = _context3.t0;
@@ -559,10 +559,9 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
     }, _this.crawlProductInfo = function (config, $) {
       var products = (0, _immutable.List)();
       $('.tab-content .search-result-content .search-result-items').children().filter(function filterSearchResultItems() {
-        var description = $(this).find('.product-info-wrapper .name-link').attr('title');
         var productPageUrl = $(this).find('.product-info-wrapper .name-link').attr('href');
 
-        products = products.push((0, _immutable.Map)({ description: description, productPageUrl: productPageUrl }));
+        products = products.push((0, _immutable.Map)({ productPageUrl: productPageUrl }));
 
         return 0;
       });
@@ -577,7 +576,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.next = 2;
-                return _this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Products', config, 'Warehouse');
+                return _this.createNewCrawlSessionAndGetConfig('Warehouse Products', config, 'Warehouse');
 
               case 2:
                 result = _context5.sent;

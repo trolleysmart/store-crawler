@@ -9,7 +9,7 @@ import { ServiceBase } from '../common';
 
 export default class WarehouseWebCrawlerService extends ServiceBase {
   crawlProductCategories = async (config) => {
-    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Product Categories', config, 'Warehouse');
+    const result = await this.createNewCrawlSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse');
     const sessionInfo = result.get('sessionInfo');
     const sessionId = sessionInfo.get('id');
     const finalConfig = result.get('config');
@@ -107,7 +107,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           Map({
             categoryKey,
             url: menuItem.find('.level-1').attr('href'),
-            description: menuItem.find('.level-1').text().trim(),
+            name: menuItem.find('.level-1').text().trim(),
             weight: 1,
             subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem),
           }),
@@ -143,7 +143,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             Map({
               categoryKey,
               url: menuItem.attr('href'),
-              description: menuItem.text().trim(),
+              name: menuItem.text().trim(),
               weight: 2,
               subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this)),
             }),
@@ -180,7 +180,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           Map({
             categoryKey,
             url: menuItem.attr('href'),
-            description: menuItem.text().trim(),
+            name: menuItem.text().trim(),
             weight: 3,
           }),
         );
@@ -250,7 +250,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
   };
 
   crawlProducts = async (config) => {
-    const finalConfig = config || (await this.getStoreCrawlerConfig('Warehouse')).get('config');
+    const finalConfig = config || (await this.getConfig('Warehouse'));
     const store = await this.getStore('Warehouse');
     const storeId = store.get('id');
     const productCategories = Immutable.fromJS(
@@ -378,10 +378,9 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
   crawlProductInfo = (config, $) => {
     let products = List();
     $('.tab-content .search-result-content .search-result-items').children().filter(function filterSearchResultItems() {
-      const description = $(this).find('.product-info-wrapper .name-link').attr('title');
       const productPageUrl = $(this).find('.product-info-wrapper .name-link').attr('href');
 
-      products = products.push(Map({ description, productPageUrl }));
+      products = products.push(Map({ productPageUrl }));
 
       return 0;
     });
@@ -390,7 +389,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
   };
 
   crawlProductsDetails = async (config) => {
-    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Products', config, 'Warehouse');
+    const result = await this.createNewCrawlSessionAndGetConfig('Warehouse Products', config, 'Warehouse');
     const sessionInfo = result.get('sessionInfo');
     const sessionId = sessionInfo.get('id');
     const finalConfig = result.get('config');

@@ -2,14 +2,7 @@
 
 import Immutable, { List, Map, Range } from 'immutable';
 import { Exception, ParseWrapperService } from 'micro-business-parse-server-common';
-import {
-  CrawlResultService,
-  CrawlSessionService,
-  StoreCrawlerConfigurationService,
-  StoreService,
-  StoreMasterProductService,
-  StoreTagService,
-} from 'smart-grocery-parse-server-common';
+import { CrawlResultService, CrawlSessionService, StoreService, StoreMasterProductService, StoreTagService } from 'smart-grocery-parse-server-common';
 
 export default class ServiceBase {
   constructor({ logVerboseFunc, logInfoFunc, logErrorFunc }) {
@@ -20,37 +13,24 @@ export default class ServiceBase {
 
   splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
 
-  getJobConfig = async () => {
-    const config = await ParseWrapperService.getConfig();
-    const jobConfig = config.get('Job');
+  getConfig = async (key) => {
+    const configs = await ParseWrapperService.getConfig();
+    const config = configs.get(key);
 
-    if (jobConfig) {
-      return Immutable.fromJS(jobConfig);
+    if (config) {
+      return Immutable.fromJS(config);
     }
 
-    throw new Exception('No config found called Job.');
+    throw new Exception(`No config found called ${key}.`);
   };
 
-  getStoreCrawlerConfig = async (storeName) => {
-    const configs = await StoreCrawlerConfigurationService.search(
-      Map({
-        conditions: Map({
-          key: storeName,
-        }),
-        topMost: true,
-      }),
-    );
-
-    return configs.first();
-  };
-
-  createNewCrawlSessionAndGetStoreCrawlerConfig = async (sessionKey, config, storeName) => {
+  createNewCrawlSessionAndGetConfig = async (sessionKey, config, storeName) => {
     const sessionInfo = Map({
       sessionKey,
       startDateTime: new Date(),
     });
     const sessionId = await CrawlSessionService.create(sessionInfo);
-    const finalConfig = config || (await this.getStoreCrawlerConfig(storeName)).get('config');
+    const finalConfig = config || (await this.getConfig(storeName));
 
     if (!finalConfig) {
       throw new Exception(`Failed to retrieve configuration for ${storeName} store crawler.`);
@@ -147,17 +127,12 @@ export default class ServiceBase {
     if (storeMasterProducts.isEmpty()) {
       await StoreMasterProductService.create(
         Map({
-          description: productInfo.get('description'),
           productPageUrl: productInfo.get('productPageUrl'),
           storeId,
         }),
       );
     } else if (storeMasterProducts.count() > 1) {
-      throw new Exception(
-        `Multiple store master product found for ${productInfo.get('description')} and store Id: ${storeId} and productPageUrl:${productInfo.get(
-          'productPageUrl',
-        )}`,
-      );
+      throw new Exception(`Multiple store master product found for store Id: ${storeId} and productPageUrl: ${productInfo.get('productPageUrl')}`);
     } else {
       const storeMasterProduct = storeMasterProducts.first();
       const updatedStoreMasterProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl'));
@@ -170,11 +145,9 @@ export default class ServiceBase {
     const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0);
 
     if (foundStoreTag) {
-      await StoreTagService.update(foundStoreTag.set('description', productCategory.get('description')).set('weight', productCategory.get('weigth')));
+      await StoreTagService.update(foundStoreTag.set('name', productCategory.get('name')).set('weight', productCategory.get('weigth')));
     } else {
-      await StoreTagService.create(
-        Map({ key: productCategory.get('categoryKey'), description: productCategory.get('description'), weight: 1, storeId }),
-      );
+      await StoreTagService.create(Map({ key: productCategory.get('categoryKey'), name: productCategory.get('name'), weight: 1, storeId }));
     }
   };
 
@@ -188,7 +161,7 @@ export default class ServiceBase {
     if (foundStoreTag) {
       await StoreTagService.update(
         foundStoreTag
-          .set('description', productCategory.first().get('description'))
+          .set('name', productCategory.first().get('name'))
           .set('weight', productCategory.first().get('weigth'))
           .set('storeTagIds', parentStoreTagIds),
       );
@@ -196,7 +169,7 @@ export default class ServiceBase {
       await StoreTagService.create(
         Map({
           key: productCategory.first().get('categoryKey'),
-          description: productCategory.first().get('description'),
+          name: productCategory.first().get('name'),
           weight: 2,
           storeId,
           storeTagIds: parentStoreTagIds,
@@ -215,7 +188,7 @@ export default class ServiceBase {
     if (foundStoreTag) {
       await StoreTagService.update(
         foundStoreTag
-          .set('description', productCategory.first().get('description'))
+          .set('name', productCategory.first().get('name'))
           .set('weight', productCategory.first().get('weigth'))
           .set('storeTagIds', parentStoreTagIds),
       );
@@ -223,7 +196,7 @@ export default class ServiceBase {
       await StoreTagService.create(
         Map({
           key: productCategory.first().get('categoryKey'),
-          description: productCategory.first().get('description'),
+          name: productCategory.first().get('name'),
           weight: 3,
           storeId,
           storeTagIds: parentStoreTagIds,

@@ -9,7 +9,7 @@ import { ServiceBase } from '../common';
 
 export default class CountdownWebCrawlerService extends ServiceBase {
   crawlProductCategories = async (config) => {
-    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Product Categories', config, 'Countdown');
+    const result = await this.createNewCrawlSessionAndGetConfig('Countdown Product Categories', config, 'Countdown');
     const sessionInfo = result.get('sessionInfo');
     const sessionId = sessionInfo.get('id');
     const finalConfig = result.get('config');
@@ -91,7 +91,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               productCategories = productCategories.push(
                 Map({
                   categoryKey,
-                  description: menuItem.text().trim(),
+                  name: menuItem.text().trim(),
                   url: `${config.get('baseUrl')}${url}`,
                   weight: 1,
                 }),
@@ -159,7 +159,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
                 }
 
                 levelTwoProductCategories = levelTwoProductCategories.push(
-                  Map({ categoryKey, description: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, weight: 2 }),
+                  Map({ categoryKey, name: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, weight: 2 }),
                 );
 
                 return 0;
@@ -242,7 +242,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
                 }
 
                 levelThreeProductCategories = levelThreeProductCategories.push(
-                  Map({ categoryKey, description: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, weight: 3 }),
+                  Map({ categoryKey, name: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, weight: 3 }),
                 );
 
                 return 0;
@@ -325,7 +325,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   };
 
   crawlProducts = async (config) => {
-    const finalConfig = config || (await this.getStoreCrawlerConfig('Countdown')).get('config');
+    const finalConfig = config || (await this.getConfig('Countdown'));
     const store = await this.getStore('Countdown');
     const storeId = store.get('id');
     const productCategoriesToCrawl = Immutable.fromJS(
@@ -440,10 +440,9 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     let products = List();
     $('#middle-panel .side-gutter #content-panel #product-list').children().filter(function filterProductList() {
       $(this).find('.product-stamp .details-container').each(function filterProductDetails() {
-        const description = $(this).find('.description').text().trim();
         const productPageUrl = config.get('baseUrl') + $(this).find('._jumpTop').attr('href');
 
-        products = products.push(Map({ description, productPageUrl }));
+        products = products.push(Map({ productPageUrl }));
 
         return 0;
       });
@@ -454,7 +453,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   };
 
   crawlProductsDetails = async (config) => {
-    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Countdown Products', config, 'Countdown');
+    const result = await this.createNewCrawlSessionAndGetConfig('Countdown Products', config, 'Countdown');
     const sessionInfo = result.get('sessionInfo');
     const sessionId = sessionInfo.get('id');
     const finalConfig = result.get('config');
@@ -561,10 +560,10 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const titleContainer = productDetailsBasicInfo.find('.product-title h1');
             const title = titleContainer.text().trim();
             const size = titleContainer.find('span').text().trim();
-            const description = title.substring(0, title.indexOf(size)).trim();
+            const name = title.substring(0, title.indexOf(size)).trim();
 
             productInfo = productInfo.merge({
-              description,
+              name,
               size,
               imageUrl: config.get('baseUrl') + imageUrl,
             });
