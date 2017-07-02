@@ -503,8 +503,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return 0;
           });
 
-          console.log(productInfo.toJS());
-
           const crawlResult = Map({
             crawlSessionId: sessionId,
             resultSet: Map({

@@ -721,8 +721,6 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return 0;
             });
 
-            console.log(productInfo.toJS());
-
             var crawlResult = (0, _immutable.Map)({
               crawlSessionId: sessionId,
               resultSet: (0, _immutable.Map)({
