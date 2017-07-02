@@ -232,6 +232,29 @@ export default class ServiceBase {
     }
   };
 
+  getProducts = async (config, storeId, withoutMasterProductLinkSet) => {
+    const criteria = Map({
+      conditions: Map({
+        storeId,
+        without_masterProduct: withoutMasterProductLinkSet,
+      }),
+    });
+
+    return await StoreMasterProductService.search(criteria.set('limit', 1));
+    let products = List();
+    const result = StoreMasterProductService.searchAll(criteria);
+
+    try {
+      result.event.subscribe(info => (products = products.push(info)));
+
+      await result.promise;
+    } finally {
+      result.event.unsubscribeAll();
+    }
+
+    return products;
+  };
+
   logVerbose = (config, messageFunc) => {
     if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       this.logVerboseFunc(messageFunc());

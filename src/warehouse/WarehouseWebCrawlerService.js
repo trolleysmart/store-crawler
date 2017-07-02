@@ -388,4 +388,84 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
     return products;
   };
+
+  crawlProductsDetails = async (config) => {
+    const result = await this.createNewCrawlSessionAndGetStoreCrawlerConfig('Warehouse Products', config, 'Warehouse');
+    const sessionInfo = result.get('sessionInfo');
+    const sessionId = sessionInfo.get('id');
+    const finalConfig = result.get('config');
+
+    try {
+      const store = await this.getStore('Warehouse');
+      const storeId = store.get('id');
+      const products = await this.getProducts(finalConfig, storeId, false);
+
+      await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, sessionId));
+
+      const updatedSessionInfo = sessionInfo.merge(
+        Map({
+          endDateTime: new Date(),
+          additionalInfo: Map({
+            status: 'success',
+          }),
+        }),
+      );
+
+      await CrawlSessionService.update(updatedSessionInfo);
+    } catch (ex) {
+      const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
+      const updatedSessionInfo = sessionInfo.merge(
+        Map({
+          endDateTime: new Date(),
+          additionalInfo: Map({
+            status: 'failed',
+            error: errorMessage,
+          }),
+        }),
+      );
+
+      await CrawlSessionService.update(updatedSessionInfo);
+      throw ex;
+    }
+  };
+
+  crawlProductDetails = (config, product, sessionId) =>
+    new Promise((resolve, reject) => {
+      let productInfo = Map();
+      const crawler = new Crawler({
+        rateLimit: config.get('rateLimit'),
+        maxConnections: config.get('maxConnections'),
+        callback: (error, res, done) => {
+          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+
+          if (error) {
+            done();
+            reject(`Failed to receive product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+
+            return;
+          }
+
+          const $ = res.$;
+            const self = this;
+            let tags = List();
+
+            $('.breadcrumb').children().filter(function filterProductTags() {
+                const tag = $(this).find('a').attr('href');
+
+                tags = tags.push(tag);
+
+            return 0;
+            });
+
+            tags = tags.skip(1).pop();
+
+                productInfo = productInfo.merge({ tags });
+        },
+      });
+
+      crawler.on('drain', () => resolve());
+      crawler.queue(product.get('productPageUrl'));
+    });
+
 }

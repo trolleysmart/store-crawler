@@ -493,28 +493,6 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     }
   };
 
-  getProducts = async (config, storeId, withoutMasterProductLinkSet) => {
-    const criteria = Map({
-      conditions: Map({
-        storeId,
-        without_masterProduct: withoutMasterProductLinkSet,
-      }),
-    });
-
-    let products = List();
-    const result = StoreMasterProductService.searchAll(criteria);
-
-    try {
-      result.event.subscribe(info => (products = products.push(info)));
-
-      await result.promise;
-    } finally {
-      result.event.unsubscribeAll();
-    }
-
-    return products;
-  };
-
   crawlProductDetails = (config, product, sessionId) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
