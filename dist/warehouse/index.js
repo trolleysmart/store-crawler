@@ -11,6 +11,8 @@ require('./SyncProductCategoriesToStoreTags');
 
 require('./CrawlProducts');
 
+require('./CrawlProductsDetails');
+
 var _WarehouseWebCrawlerService2 = require('./WarehouseWebCrawlerService');
 
 var _WarehouseWebCrawlerService3 = _interopRequireDefault(_WarehouseWebCrawlerService2);
