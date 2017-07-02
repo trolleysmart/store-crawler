@@ -13,44 +13,42 @@ const createConfig = () =>
     categoryKeysToExclude: ['specials', 'electronicsgaming-apple'],
   });
 
-/* describe('crawlProductCategories', () => {
- *   test('should crawl all product categories', async () => {
- *     await new WarehouseWebCrawlerService({
- *       logVerboseFunc: message => console.log(message),
- *       logInfoFunc: message => console.log(message),
- *       logErrorFunc: message => console.log(message),
- *     }).crawlProductCategories(createConfig());
- *   });
- * });
- * 
- * describe('syncProductCategoriesToStoreTags', () => {
- *   test('should sync tags to store tag table', async () => {
- *     await new WarehouseWebCrawlerService({
- *       logVerboseFunc: message => console.log(message),
- *       logInfoFunc: message => console.log(message),
- *       logErrorFunc: message => console.log(message),
- *     }).syncProductCategoriesToStoreTags(createConfig());
- *   });
- * });
- * 
- * describe('crawlProducts', () => {
- *   test('should crawl all products', async () => {
- *     await new WarehouseWebCrawlerService({
- *       logVerboseFunc: message => console.log(message),
- *       logInfoFunc: message => console.log(message),
- *       logErrorFunc: message => console.log(message),
- *     }).crawlProducts(createConfig());
- *   });
- * });*/
+describe('crawlProductCategories', () => {
+  test('should crawl all product categories', async () => {
+    await new WarehouseWebCrawlerService({
+      logVerboseFunc: message => console.log(message),
+      logInfoFunc: message => console.log(message),
+      logErrorFunc: message => console.log(message),
+    }).crawlProductCategories(createConfig());
+  });
+});
 
- describe('crawlProductsDetails', () => {
-   test('should crawl store master products details', async () => {
-       /* jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;*/
+describe('syncProductCategoriesToStoreTags', () => {
+  test('should sync tags to store tag table', async () => {
+    await new WarehouseWebCrawlerService({
+      logVerboseFunc: message => console.log(message),
+      logInfoFunc: message => console.log(message),
+      logErrorFunc: message => console.log(message),
+    }).syncProductCategoriesToStoreTags(createConfig());
+  });
+});
 
-       await new WarehouseWebCrawlerService({
-       logVerboseFunc: message => console.log(message),
-       logInfoFunc: message => console.log(message),
-       logErrorFunc: message => console.log(message),
-     }).crawlProductsDetails(createConfig());
-   });
- });
+describe('crawlProducts', () => {
+  test('should crawl all products', async () => {
+    await new WarehouseWebCrawlerService({
+      logVerboseFunc: message => console.log(message),
+      logInfoFunc: message => console.log(message),
+      logErrorFunc: message => console.log(message),
+    }).crawlProducts(createConfig());
+  });
+});
+
+describe('crawlProductsDetails', () => {
+  test('should crawl store master products details', async () => {
+    await new WarehouseWebCrawlerService({
+      logVerboseFunc: message => console.log(message),
+      logInfoFunc: message => console.log(message),
+      logErrorFunc: message => console.log(message),
+    }).crawlProductsDetails(createConfig());
+  });
+});

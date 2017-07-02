@@ -4,7 +4,7 @@ import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Range } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
-import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'smart-grocery-parse-server-common';
+import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-server-common';
 import { ServiceBase } from '../common';
 
 export default class CountdownWebCrawlerService extends ServiceBase {
@@ -556,7 +556,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               return 0;
             });
 
-            const bigImageUrl = productTagWrapperContainer.find('.big-image-container .product-image .product-image').attr('src');
+            const imageUrl = productTagWrapperContainer.find('.big-image-container .product-image .product-image').attr('src');
             const productDetailsBasicInfo = $(this).find('#product-details-info-content .prod-details-basic-info');
             const titleContainer = productDetailsBasicInfo.find('.product-title h1');
             const title = titleContainer.text().trim();
@@ -566,7 +566,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             productInfo = productInfo.merge({
               description,
               size,
-              bigImageUrl: config.get('baseUrl') + bigImageUrl,
+              imageUrl: config.get('baseUrl') + imageUrl,
             });
 
             productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
@@ -698,6 +698,4 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
     return this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
   };
-
-  removeDollarSignFromPrice = priceWithDollarSign => priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim();
 }

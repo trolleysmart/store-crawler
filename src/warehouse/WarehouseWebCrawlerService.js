@@ -447,20 +447,76 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           }
 
           const $ = res.$;
-            const self = this;
-            let tags = List();
+          const self = this;
+          let tags = List();
 
-            $('.breadcrumb').children().filter(function filterProductTags() {
-                const tag = $(this).find('a').attr('href');
+          $('.breadcrumb').children().filter(function filterTags() {
+            const tag = $(this).find('a').attr('href');
 
-                tags = tags.push(tag);
+            tags = tags.push(tag);
 
             return 0;
+          });
+
+          tags = tags.skip(1).pop();
+
+          productInfo = productInfo.merge({ tags });
+
+          $('#pdpMain').filter(function filterMainContainer() {
+            const mainContainer = $(this);
+
+            mainContainer.find('.row-product-details').filter(function filterDetails() {
+              $(this).find('.product-image-container .product-primary-image .product-image .primary-image').filter(function filterImage() {
+                productInfo = productInfo.merge({
+                  imageUrl: $(this).attr('src'),
+                });
+
+                return 0;
+              });
+
+              $(this).find('.product-detail').filter(function filterDetail() {
+                const name = $(this).find('.product-name').text().trim();
+                const descriptionContainer = $(this).find('.product-description');
+                const description = descriptionContainer.find('.description-text').text().trim().split('\r\n')[0];
+                const barCode = descriptionContainer.find('.product-number .product-id').text().trim().split('\r\n')[0];
+                const priceContainer = $(this).find('#product-content .upper-product-price .product-price');
+
+                productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
+                productInfo = productInfo.merge(self.crawlSalePrice($, priceContainer));
+                productInfo = productInfo.merge(self.crawlSavingPrice($, priceContainer, productInfo));
+                productInfo = productInfo.merge(self.crawlOfferEndDate($, priceContainer));
+
+                productInfo = productInfo.merge({
+                  name,
+                  description,
+                  barCode,
+                });
+
+                return 0;
+              });
+
+              return 0;
             });
 
-            tags = tags.skip(1).pop();
+            productInfo = productInfo.merge(self.crawlBenefitAndFeatures($, mainContainer));
 
-                productInfo = productInfo.merge({ tags });
+            return 0;
+          });
+
+          console.log(productInfo.toJS());
+
+          const crawlResult = Map({
+            crawlSessionId: sessionId,
+            resultSet: Map({
+              product: product.toJS(),
+              productInfo: productInfo.toJS(),
+            }),
+          });
+
+          CrawlResultService.create(crawlResult).then(() => done()).catch((crawlResultCreationError) => {
+            done();
+            reject(crawlResultCreationError);
+          });
         },
       });
 
@@ -468,4 +524,82 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       crawler.queue(product.get('productPageUrl'));
     });
 
+  crawlStandardPrice = ($, priceContainer) => {
+    const self = this;
+    let result = Map();
+
+    priceContainer.find('.standardprice .pv-price').filter(function filterstandardPrice() {
+      const currentPriceWithDollarSign = $(this).text().trim();
+      const currentPrice = self.removeDollarSignFromPrice(currentPriceWithDollarSign);
+
+      result = Map({ currentPrice });
+
+      return 0;
+    });
+
+    return result;
+  };
+
+  crawlSalePrice = ($, priceContainer) => {
+    const self = this;
+    let result = Map();
+
+    priceContainer.find('.price-sales .pv-price').filter(function filterStandardPrice() {
+      const currentPriceWithDollarSign = $(this).text().trim();
+      const currentPrice = self.removeDollarSignFromPrice(currentPriceWithDollarSign);
+
+      result = Map({ currentPrice });
+
+      return 0;
+    });
+
+    return result;
+  };
+
+  crawlSavingPrice = ($, priceContainer, productInfo) => {
+    const self = this;
+    let result = Map();
+
+    priceContainer.find('.promotion .save-amount').filter(function filterSalePrice() {
+      const savingText = $(this).text().trim();
+      const savingWithDollarSign = savingText.substring(savingText.indexOf('$'));
+      const saving = self.removeDollarSignFromPrice(savingWithDollarSign);
+
+      result = Map({
+        saving,
+        wasPrice: Math.round((productInfo.get('currentPrice') + saving) * 100) / 100,
+      });
+
+      return 0;
+    });
+
+    return result;
+  };
+
+  crawlOfferEndDate = ($, priceContainer) => {
+    let result = Map();
+
+    priceContainer.find('.offers-end').filter(function filterOfferEndDate() {
+      const offerEndDateText = $(this).text().trim();
+      const offerEndDate = offerEndDateText.substring(offerEndDateText.lastIndexOf(' ')).trim();
+
+      result = Map({ offerEndDate: new Date(offerEndDate) });
+
+      return 0;
+    });
+
+    return result;
+  };
+
+  crawlBenefitAndFeatures = ($, mainContainer) => {
+    let benefitsAndFeatures = List();
+
+    mainContainer.find('.row .product-features-print .product-features .featuresbenefits-text ul').children().filter(function filterFeatureBenefit() {
+      benefitsAndFeatures = benefitsAndFeatures.push($(this).text().trim());
+
+      return 0;
+    });
+
+    return Map({ benefitsAndFeatures });
+  };
 }

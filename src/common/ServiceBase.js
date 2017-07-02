@@ -240,7 +240,6 @@ export default class ServiceBase {
       }),
     });
 
-    return await StoreMasterProductService.search(criteria.set('limit', 1));
     let products = List();
     const result = StoreMasterProductService.searchAll(criteria);
 
@@ -254,6 +253,8 @@ export default class ServiceBase {
 
     return products;
   };
+
+  removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
 
   logVerbose = (config, messageFunc) => {
     if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
