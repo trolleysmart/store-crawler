@@ -557,7 +557,9 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               return 0;
             });
 
-            const imageUrl = productTagWrapperContainer.find('.big-image-container .product-image .product-image').attr('src');
+            const imageUrl =
+              config.get('baseUrl') + productTagWrapperContainer.find('.big-image-container .product-image .product-image').attr('src');
+            const barcode = self.getBarcodeFromImageUrl(imageUrl);
             const productDetailsBasicInfo = $(this).find('#product-details-info-content .prod-details-basic-info');
             const titleContainer = productDetailsBasicInfo.find('.product-title h1');
             const title = titleContainer.text().trim();
@@ -569,7 +571,8 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               name,
               description,
               size,
-              imageUrl: config.get('baseUrl') + imageUrl,
+              imageUrl,
+              barcode,
             });
 
             productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
@@ -700,5 +703,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
     return this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+  };
+
+  getBarcodeFromImageUrl = (imageUrl) => {
+    const str = imageUrl.substr(imageUrl.indexOf('large/') + 6);
+    const barcode = str.substr(0, str.indexOf('.jpg'));
+
+    return barcode;
   };
 }
