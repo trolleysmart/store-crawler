@@ -16,6 +16,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
     try {
       let productCategories = await this.crawlLevelOneProductCategories(finalConfig);
+
       productCategories = await this.crawlLevelTwoProductCategories(finalConfig, productCategories);
       productCategories = await this.crawlLevelThreeProductCategories(finalConfig, productCategories);
 
@@ -562,9 +563,11 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const title = titleContainer.text().trim();
             const size = titleContainer.find('span').text().trim();
             const name = title.substring(0, title.indexOf(size)).trim();
+            const description = productDetailsBasicInfo.find('#product-details-rating p').text().trim();
 
             productInfo = productInfo.merge({
               name,
+              description,
               size,
               imageUrl: config.get('baseUrl') + imageUrl,
             });

@@ -781,9 +781,11 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var title = titleContainer.text().trim();
               var size = titleContainer.find('span').text().trim();
               var name = title.substring(0, title.indexOf(size)).trim();
+              var description = productDetailsBasicInfo.find('#product-details-rating p').text().trim();
 
               productInfo = productInfo.merge({
                 name: name,
+                description: description,
                 size: size,
                 imageUrl: config.get('baseUrl') + imageUrl
               });
