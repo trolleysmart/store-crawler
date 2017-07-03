@@ -53,7 +53,7 @@ describe('crawlProductCategories', function () {
 });
 
 describe('syncProductCategoriesToStoreTags', function () {
-  test('should sync product categories that have already been cralwed into store tags', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+  test('should sync product categories that have already been crawled into store tags', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {

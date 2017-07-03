@@ -24,7 +24,7 @@ describe('crawlProductCategories', () => {
 });
 
 describe('syncProductCategoriesToStoreTags', () => {
-  test('should sync product categories that have already been cralwed into store tags', async () => {
+  test('should sync product categories that have already been crawled into store tags', async () => {
     await new CountdownWebCrawlerService({
       logVerboseFunc: message => console.log(message),
       logInfoFunc: message => console.log(message),

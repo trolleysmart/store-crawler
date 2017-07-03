@@ -25,7 +25,7 @@ var createConfig = function createConfig() {
 };
 
 describe('crawlProductCategories', function () {
-  test('should crawl all product categories', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+  test('should crawl product categories and save to database', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -53,7 +53,7 @@ describe('crawlProductCategories', function () {
 });
 
 describe('syncProductCategoriesToStoreTags', function () {
-  test('should sync tags to store tag table', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+  test('should sync product categories that have already been crawled into store tags', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
@@ -81,7 +81,7 @@ describe('syncProductCategoriesToStoreTags', function () {
 });
 
 describe('crawlProducts', function () {
-  test('should crawl all products', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+  test('should crawl products and save to database', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {

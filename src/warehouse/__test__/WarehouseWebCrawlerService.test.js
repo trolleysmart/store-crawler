@@ -14,7 +14,7 @@ const createConfig = () =>
   });
 
 describe('crawlProductCategories', () => {
-  test('should crawl all product categories', async () => {
+  test('should crawl product categories and save to database', async () => {
     await new WarehouseWebCrawlerService({
       logVerboseFunc: message => console.log(message),
       logInfoFunc: message => console.log(message),
@@ -24,7 +24,7 @@ describe('crawlProductCategories', () => {
 });
 
 describe('syncProductCategoriesToStoreTags', () => {
-  test('should sync tags to store tag table', async () => {
+  test('should sync product categories that have already been crawled into store tags', async () => {
     await new WarehouseWebCrawlerService({
       logVerboseFunc: message => console.log(message),
       logInfoFunc: message => console.log(message),
@@ -34,7 +34,7 @@ describe('syncProductCategoriesToStoreTags', () => {
 });
 
 describe('crawlProducts', () => {
-  test('should crawl all products', async () => {
+  test('should crawl products and save to database', async () => {
     await new WarehouseWebCrawlerService({
       logVerboseFunc: message => console.log(message),
       logInfoFunc: message => console.log(message),
