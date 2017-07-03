@@ -391,7 +391,11 @@ var ServiceBase = function ServiceBase(_ref) {
               }
 
               _context8.next = 4;
-              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('name', productCategory.get('name')).set('weight', productCategory.get('weigth')));
+              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.merge((0, _immutable.Map)({
+                name: productCategory.get('name'),
+                weight: productCategory.get('weigth'),
+                url: productCategory.get('url')
+              })));
 
             case 4:
               _context8.next = 8;
@@ -399,7 +403,13 @@ var ServiceBase = function ServiceBase(_ref) {
 
             case 6:
               _context8.next = 8;
-              return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({ key: productCategory.get('categoryKey'), name: productCategory.get('name'), weight: 1, storeId: storeId }));
+              return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({
+                key: productCategory.get('categoryKey'),
+                storeId: storeId,
+                name: productCategory.get('name'),
+                weight: 1,
+                url: productCategory.get('url')
+              }));
 
             case 8:
             case 'end':
@@ -440,7 +450,12 @@ var ServiceBase = function ServiceBase(_ref) {
               }
 
               _context9.next = 5;
-              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('name', productCategory.first().get('name')).set('weight', productCategory.first().get('weigth')).set('storeTagIds', parentStoreTagIds));
+              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.merge((0, _immutable.Map)({
+                storeTagIds: parentStoreTagIds,
+                name: productCategory.first().get('name'),
+                weight: productCategory.first().get('weigth'),
+                url: productCategory.first().get('url')
+              })));
 
             case 5:
               _context9.next = 9;
@@ -450,10 +465,11 @@ var ServiceBase = function ServiceBase(_ref) {
               _context9.next = 9;
               return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({
                 key: productCategory.first().get('categoryKey'),
+                storeId: storeId,
+                storeTagIds: parentStoreTagIds,
                 name: productCategory.first().get('name'),
                 weight: 2,
-                storeId: storeId,
-                storeTagIds: parentStoreTagIds
+                url: productCategory.first().get('url')
               }));
 
             case 9:
@@ -495,7 +511,12 @@ var ServiceBase = function ServiceBase(_ref) {
               }
 
               _context10.next = 5;
-              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.set('name', productCategory.first().get('name')).set('weight', productCategory.first().get('weigth')).set('storeTagIds', parentStoreTagIds));
+              return _smartGroceryParseServerCommon.StoreTagService.update(foundStoreTag.merge((0, _immutable.Map)({
+                storeTagIds: parentStoreTagIds,
+                name: productCategory.first().get('name'),
+                weight: productCategory.first().get('weigth'),
+                url: productCategory.first().get('url')
+              })));
 
             case 5:
               _context10.next = 9;
@@ -505,10 +526,11 @@ var ServiceBase = function ServiceBase(_ref) {
               _context10.next = 9;
               return _smartGroceryParseServerCommon.StoreTagService.create((0, _immutable.Map)({
                 key: productCategory.first().get('categoryKey'),
+                storeId: storeId,
+                storeTagIds: parentStoreTagIds,
                 name: productCategory.first().get('name'),
                 weight: 3,
-                storeId: storeId,
-                storeTagIds: parentStoreTagIds
+                url: productCategory.first().get('url')
               }));
 
             case 9:

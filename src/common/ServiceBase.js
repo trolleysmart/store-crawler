@@ -145,9 +145,25 @@ export default class ServiceBase {
     const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0);
 
     if (foundStoreTag) {
-      await StoreTagService.update(foundStoreTag.set('name', productCategory.get('name')).set('weight', productCategory.get('weigth')));
+      await StoreTagService.update(
+        foundStoreTag.merge(
+          Map({
+            name: productCategory.get('name'),
+            weight: productCategory.get('weigth'),
+            url: productCategory.get('url'),
+          }),
+        ),
+      );
     } else {
-      await StoreTagService.create(Map({ key: productCategory.get('categoryKey'), name: productCategory.get('name'), weight: 1, storeId }));
+      await StoreTagService.create(
+        Map({
+          key: productCategory.get('categoryKey'),
+          storeId,
+          name: productCategory.get('name'),
+          weight: 1,
+          url: productCategory.get('url'),
+        }),
+      );
     }
   };
 
@@ -160,19 +176,24 @@ export default class ServiceBase {
 
     if (foundStoreTag) {
       await StoreTagService.update(
-        foundStoreTag
-          .set('name', productCategory.first().get('name'))
-          .set('weight', productCategory.first().get('weigth'))
-          .set('storeTagIds', parentStoreTagIds),
+        foundStoreTag.merge(
+          Map({
+            storeTagIds: parentStoreTagIds,
+            name: productCategory.first().get('name'),
+            weight: productCategory.first().get('weigth'),
+            url: productCategory.first().get('url'),
+          }),
+        ),
       );
     } else {
       await StoreTagService.create(
         Map({
           key: productCategory.first().get('categoryKey'),
-          name: productCategory.first().get('name'),
-          weight: 2,
           storeId,
           storeTagIds: parentStoreTagIds,
+          name: productCategory.first().get('name'),
+          weight: 2,
+          url: productCategory.first().get('url'),
         }),
       );
     }
@@ -187,19 +208,24 @@ export default class ServiceBase {
 
     if (foundStoreTag) {
       await StoreTagService.update(
-        foundStoreTag
-          .set('name', productCategory.first().get('name'))
-          .set('weight', productCategory.first().get('weigth'))
-          .set('storeTagIds', parentStoreTagIds),
+        foundStoreTag.merge(
+          Map({
+            storeTagIds: parentStoreTagIds,
+            name: productCategory.first().get('name'),
+            weight: productCategory.first().get('weigth'),
+            url: productCategory.first().get('url'),
+          }),
+        ),
       );
     } else {
       await StoreTagService.create(
         Map({
           key: productCategory.first().get('categoryKey'),
-          name: productCategory.first().get('name'),
-          weight: 3,
           storeId,
           storeTagIds: parentStoreTagIds,
+          name: productCategory.first().get('name'),
+          weight: 3,
+          url: productCategory.first().get('url'),
         }),
       );
     }
