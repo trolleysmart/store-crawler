@@ -170,7 +170,8 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   categoryKey: categoryKey,
                   name: menuItem.text().trim(),
                   url: '' + config.get('baseUrl') + url,
-                  weight: 1
+                  weight: 1,
+                  subCategories: (0, _immutable.List)()
                 }));
 
                 return 0;

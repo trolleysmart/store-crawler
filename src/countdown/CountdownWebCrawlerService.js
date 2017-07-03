@@ -94,6 +94,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
                   name: menuItem.text().trim(),
                   url: `${config.get('baseUrl')}${url}`,
                   weight: 1,
+                  subCategories: List(),
                 }),
               );
 
