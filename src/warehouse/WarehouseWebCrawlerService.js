@@ -200,14 +200,14 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const productCategories = Immutable.fromJS(
       (await this.getMostRecentCrawlResults('Warehouse Product Categories', info => info.getIn(['resultSet', 'productCategories']))).first(),
     );
-    const storeTags = await this.getExistingStoreTags(storeId);
+    const storeTags = await this.getStoreTags(storeId);
     const splittedLevelOneProductCategories = this.splitIntoChunks(productCategories, 100);
 
     await BluebirdPromise.each(splittedLevelOneProductCategories.toArray(), productCategoryChunks =>
       Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags, storeId))),
     );
 
-    const storeTagsWithUpdatedLevelOneProductCategories = await this.getExistingStoreTags(storeId);
+    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(storeId);
     const levelTwoProductCategories = productCategories
       .map(productCategory =>
         productCategory.update('subCategories', subCategories =>
@@ -226,7 +226,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       ),
     );
 
-    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getExistingStoreTags(storeId);
+    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags(storeId);
     const levelThreeProductCategories = productCategories
       .flatMap(productCategory => productCategory.get('subCategories'))
       .map(productCategory =>

@@ -273,7 +273,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               _context2.t1 = _context2.sent.first();
               productCategories = _context2.t0.fromJS.call(_context2.t0, _context2.t1);
               _context2.next = 11;
-              return _this.getExistingStoreTags(storeId);
+              return _this.getStoreTags(storeId);
 
             case 11:
               storeTags = _context2.sent;
@@ -287,7 +287,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
             case 15:
               _context2.next = 17;
-              return _this.getExistingStoreTags(storeId);
+              return _this.getStoreTags(storeId);
 
             case 17:
               storeTagsWithUpdatedLevelOneProductCategories = _context2.sent;
@@ -313,7 +313,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
             case 23:
               _context2.next = 25;
-              return _this.getExistingStoreTags(storeId);
+              return _this.getStoreTags(storeId);
 
             case 25:
               storeTagsWithUpdatedLevelTwoProductCategories = _context2.sent;

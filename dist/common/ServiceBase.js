@@ -273,7 +273,7 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
-  this.getExistingStoreTags = function () {
+  this.getStoreTags = function () {
     var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(storeId) {
       var result, storeTags;
       return regeneratorRuntime.wrap(function _callee6$(_context6) {
