@@ -569,7 +569,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return products;
     }, _this.crawlProductsDetails = function () {
       var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config) {
-        var result, sessionInfo, sessionId, finalConfig, store, storeId, products, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
+        var result, sessionInfo, sessionId, finalConfig, store, storeId, lastCrawlDateTime, products, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
 
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
@@ -590,32 +590,37 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               case 9:
                 store = _context5.sent;
                 storeId = store.get('id');
-                _context5.next = 13;
-                return _this.getProducts(finalConfig, storeId, false);
+                lastCrawlDateTime = new Date();
 
-              case 13:
+
+                lastCrawlDateTime.setDate(new Date().getDate() - 1);
+
+                _context5.next = 15;
+                return _this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
+
+              case 15:
                 products = _context5.sent;
-                _context5.next = 16;
+                _context5.next = 18;
                 return _bluebird2.default.each(products.toArray(), function (product) {
                   return _this.crawlProductDetails(finalConfig, product, sessionId);
                 });
 
-              case 16:
+              case 18:
                 updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
                   endDateTime: new Date(),
                   additionalInfo: (0, _immutable.Map)({
                     status: 'success'
                   })
                 }));
-                _context5.next = 19;
+                _context5.next = 21;
                 return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
 
-              case 19:
-                _context5.next = 28;
+              case 21:
+                _context5.next = 30;
                 break;
 
-              case 21:
-                _context5.prev = 21;
+              case 23:
+                _context5.prev = 23;
                 _context5.t0 = _context5['catch'](6);
                 errorMessage = _context5.t0 instanceof _microBusinessParseServerCommon.Exception ? _context5.t0.getErrorMessage() : _context5.t0;
                 _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
@@ -625,18 +630,18 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                     error: errorMessage
                   })
                 }));
-                _context5.next = 27;
+                _context5.next = 29;
                 return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
 
-              case 27:
+              case 29:
                 throw _context5.t0;
 
-              case 28:
+              case 30:
               case 'end':
                 return _context5.stop();
             }
           }
-        }, _callee5, _this2, [[6, 21]]);
+        }, _callee5, _this2, [[6, 23]]);
       }));
 
       return function (_x5) {
@@ -723,8 +728,9 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             var crawlResult = (0, _immutable.Map)({
               crawlSessionId: sessionId,
               resultSet: (0, _immutable.Map)({
-                product: product.toJS(),
-                productInfo: productInfo.toJS()
+                productId: product.get('id'),
+                store: product.get('storeId'),
+                productInfo: productInfo
               })
             });
 

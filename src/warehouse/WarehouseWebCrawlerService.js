@@ -397,7 +397,11 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     try {
       const store = await this.getStore('Warehouse');
       const storeId = store.get('id');
-      const products = await this.getProducts(finalConfig, storeId, false);
+      const lastCrawlDateTime = new Date();
+
+      lastCrawlDateTime.setDate(new Date().getDate() - 1);
+
+      const products = await this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
 
       await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, sessionId));
 
@@ -505,8 +509,9 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           const crawlResult = Map({
             crawlSessionId: sessionId,
             resultSet: Map({
-              product: product.toJS(),
-              productInfo: productInfo.toJS(),
+              productId: product.get('id'),
+              store: product.get('storeId'),
+              productInfo,
             }),
           });
 

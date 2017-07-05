@@ -128,6 +128,7 @@ export default class ServiceBase {
       await StoreMasterProductService.create(
         Map({
           productPageUrl: productInfo.get('productPageUrl'),
+          lastCrawlDateTime: new Date(1970, 1, 1),
           storeId,
         }),
       );
@@ -231,26 +232,16 @@ export default class ServiceBase {
     }
   };
 
-  getProducts = async (config, storeId, withoutMasterProductLinkSet) => {
+  getStoreProducts = async (config, storeId, withoutMasterProductLinkSet, lastCrawlDateTime) => {
     const criteria = Map({
       conditions: Map({
         storeId,
         without_masterProduct: withoutMasterProductLinkSet,
+        lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime,
       }),
     });
 
-    let products = List();
-    const result = StoreMasterProductService.searchAll(criteria);
-
-    try {
-      result.event.subscribe(info => (products = products.push(info)));
-
-      await result.promise;
-    } finally {
-      result.event.unsubscribeAll();
-    }
-
-    return products;
+    return StoreMasterProductService.search(criteria.set('limit', 1));
   };
 
   removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());

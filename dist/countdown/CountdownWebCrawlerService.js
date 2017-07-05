@@ -82,7 +82,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 crawlResult = (0, _immutable.Map)({
                   crawlSessionId: sessionId,
                   resultSet: (0, _immutable.Map)({
-                    productCategories: productCategories.toJS()
+                    productCategories: productCategories
                   })
                 });
                 _context.next = 19;
@@ -631,7 +631,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return products;
     }, _this.crawlProductsDetails = function () {
       var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(config) {
-        var result, sessionInfo, sessionId, finalConfig, store, storeId, products, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
+        var result, sessionInfo, sessionId, finalConfig, store, storeId, lastCrawlDateTime, products, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
 
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
@@ -652,32 +652,37 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               case 9:
                 store = _context4.sent;
                 storeId = store.get('id');
-                _context4.next = 13;
-                return _this.getProducts(finalConfig, storeId, false);
+                lastCrawlDateTime = new Date();
 
-              case 13:
+
+                lastCrawlDateTime.setDate(new Date().getDate() - 1);
+
+                _context4.next = 15;
+                return _this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
+
+              case 15:
                 products = _context4.sent;
-                _context4.next = 16;
+                _context4.next = 18;
                 return _bluebird2.default.each(products.toArray(), function (product) {
                   return _this.crawlProductDetails(finalConfig, product, sessionId);
                 });
 
-              case 16:
+              case 18:
                 updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
                   endDateTime: new Date(),
                   additionalInfo: (0, _immutable.Map)({
                     status: 'success'
                   })
                 }));
-                _context4.next = 19;
+                _context4.next = 21;
                 return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
 
-              case 19:
-                _context4.next = 28;
+              case 21:
+                _context4.next = 30;
                 break;
 
-              case 21:
-                _context4.prev = 21;
+              case 23:
+                _context4.prev = 23;
                 _context4.t0 = _context4['catch'](6);
                 errorMessage = _context4.t0 instanceof _microBusinessParseServerCommon.Exception ? _context4.t0.getErrorMessage() : _context4.t0;
                 _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
@@ -687,18 +692,18 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                     error: errorMessage
                   })
                 }));
-                _context4.next = 27;
+                _context4.next = 29;
                 return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
 
-              case 27:
+              case 29:
                 throw _context4.t0;
 
-              case 28:
+              case 30:
               case 'end':
                 return _context4.stop();
             }
           }
-        }, _callee4, _this2, [[6, 21]]);
+        }, _callee4, _this2, [[6, 23]]);
       }));
 
       return function (_x3) {
@@ -826,8 +831,9 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var crawlResult = (0, _immutable.Map)({
                 crawlSessionId: sessionId,
                 resultSet: (0, _immutable.Map)({
-                  product: product.toJS(),
-                  productInfo: productInfo.toJS()
+                  productId: product.get('id'),
+                  store: product.get('storeId'),
+                  productInfo: productInfo
                 })
               });
 

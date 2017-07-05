@@ -340,6 +340,7 @@ var ServiceBase = function ServiceBase(_ref) {
               _context7.next = 6;
               return _smartGroceryParseServerCommon.StoreMasterProductService.create((0, _immutable.Map)({
                 productPageUrl: productInfo.get('productPageUrl'),
+                lastCrawlDateTime: new Date(1970, 1, 1),
                 storeId: storeId
               }));
 
@@ -546,9 +547,9 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
-  this.getProducts = function () {
-    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(config, storeId, withoutMasterProductLinkSet) {
-      var criteria, products, result;
+  this.getStoreProducts = function () {
+    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(config, storeId, withoutMasterProductLinkSet, lastCrawlDateTime) {
+      var criteria;
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
           switch (_context11.prev = _context11.next) {
@@ -556,38 +557,21 @@ var ServiceBase = function ServiceBase(_ref) {
               criteria = (0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   storeId: storeId,
-                  without_masterProduct: withoutMasterProductLinkSet
+                  without_masterProduct: withoutMasterProductLinkSet,
+                  lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime
                 })
               });
-              products = (0, _immutable.List)();
-              result = _smartGroceryParseServerCommon.StoreMasterProductService.searchAll(criteria);
-              _context11.prev = 3;
+              return _context11.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(criteria.set('limit', 1)));
 
-              result.event.subscribe(function (info) {
-                return products = products.push(info);
-              });
-
-              _context11.next = 7;
-              return result.promise;
-
-            case 7:
-              _context11.prev = 7;
-
-              result.event.unsubscribeAll();
-              return _context11.finish(7);
-
-            case 10:
-              return _context11.abrupt('return', products);
-
-            case 11:
+            case 2:
             case 'end':
               return _context11.stop();
           }
         }
-      }, _callee11, _this, [[3,, 7, 10]]);
+      }, _callee11, _this);
     }));
 
-    return function (_x22, _x23, _x24) {
+    return function (_x22, _x23, _x24, _x25) {
       return _ref12.apply(this, arguments);
     };
   }();
