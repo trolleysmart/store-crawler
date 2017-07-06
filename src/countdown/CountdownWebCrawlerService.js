@@ -572,7 +572,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const title = titleContainer.text().trim();
             const size = titleContainer.find('span').text().trim();
             const name = title.substring(0, title.indexOf(size)).trim();
-            const description = productDetailsBasicInfo.find('#product-details-rating p').text().trim();
+            const description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
 
             productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
               const priceContent = $(this).find('.product-price');
@@ -719,9 +719,17 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   };
 
   getBarcodeFromImageUrl = (imageUrl) => {
-    const str = imageUrl.substr(imageUrl.indexOf('large/') + 6);
-    const barcode = str.substr(0, str.indexOf('.jpg'));
+    const largeIndex = imageUrl.indexOf('large/');
 
-    return barcode;
+    if (largeIndex === -1) {
+      const bigIndex = imageUrl.indexOf('big/');
+      const str = imageUrl.substr(bigIndex + 4);
+
+      return str.substr(0, str.indexOf('.jpg'));
+    }
+
+    const str = imageUrl.substr(largeIndex + 6);
+
+    return str.substr(0, str.indexOf('.jpg'));
   };
 }

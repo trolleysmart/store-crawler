@@ -788,7 +788,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var title = titleContainer.text().trim();
               var size = titleContainer.find('span').text().trim();
               var name = title.substring(0, title.indexOf(size)).trim();
-              var description = productDetailsBasicInfo.find('#product-details-rating p').text().trim();
+              var description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
 
               productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
                 var priceContent = $(this).find('.product-price');
@@ -923,10 +923,18 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
       return _this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
     }, _this.getBarcodeFromImageUrl = function (imageUrl) {
-      var str = imageUrl.substr(imageUrl.indexOf('large/') + 6);
-      var barcode = str.substr(0, str.indexOf('.jpg'));
+      var largeIndex = imageUrl.indexOf('large/');
 
-      return barcode;
+      if (largeIndex === -1) {
+        var bigIndex = imageUrl.indexOf('big/');
+        var _str = imageUrl.substr(bigIndex + 4);
+
+        return _str.substr(0, _str.indexOf('.jpg'));
+      }
+
+      var str = imageUrl.substr(largeIndex + 6);
+
+      return str.substr(0, str.indexOf('.jpg'));
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
