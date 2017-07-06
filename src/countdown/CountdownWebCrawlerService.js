@@ -8,6 +8,8 @@ import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-ser
 import { ServiceBase } from '../common';
 
 export default class CountdownWebCrawlerService extends ServiceBase {
+  static urlPrefix = '/Shop/Browse/';
+
   crawlProductCategories = async (config) => {
     const result = await this.createNewCrawlSessionAndGetConfig('Countdown Product Categories', config, 'Countdown');
     const sessionInfo = result.get('sessionInfo');
@@ -80,7 +82,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             $(this).find('.toolbar-slidebox-item').each(function filterProductCategory() {
               const menuItem = $(this).find('.toolbar-slidebox-link');
               const url = menuItem.attr('href');
-              const categoryKey = url.substring(url.indexOf('/Shop/Browse/') + 1);
+              const categoryKey = url.substring(url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length + 1);
 
               if (
                 config.get('categoryKeysToExclude') &&
@@ -151,7 +153,9 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               $(this).each(function filterProductCategory() {
                 const menuItem = $(this).find('.din');
                 const url = menuItem.attr('href');
-                const categoryKey = url.substring(url.indexOf('/Shop/Browse/') + 1);
+                const categoryKey = url.substring(
+                  url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length + 1,
+                );
 
                 if (
                   config.get('categoryKeysToExclude') &&
@@ -234,7 +238,9 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               $(this).each(function filterProductCategory() {
                 const menuItem = $(this).find('.din');
                 const url = menuItem.attr('href');
-                const categoryKey = url.substring(url.indexOf('/Shop/Browse/') + 1);
+                const categoryKey = url.substring(
+                  url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length + 1,
+                );
 
                 if (
                   config.get('categoryKeysToExclude') &&
