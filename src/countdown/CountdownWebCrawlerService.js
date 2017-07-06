@@ -4,7 +4,7 @@ import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Range } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
-import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-server-common';
+import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'smart-grocery-parse-server-common';
 import { ServiceBase } from '../common';
 
 export default class CountdownWebCrawlerService extends ServiceBase {
@@ -153,9 +153,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               $(this).each(function filterProductCategory() {
                 const menuItem = $(this).find('.din');
                 const url = menuItem.attr('href');
-                const categoryKey = url.substring(
-                  url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length,
-                );
+                const categoryKey = url.substring(url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length);
 
                 if (
                   config.get('categoryKeysToExclude') &&
@@ -238,9 +236,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               $(this).each(function filterProductCategory() {
                 const menuItem = $(this).find('.din');
                 const url = menuItem.attr('href');
-                const categoryKey = url.substring(
-                  url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length,
-                );
+                const categoryKey = url.substring(url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length);
 
                 if (
                   config.get('categoryKeysToExclude') &&
@@ -577,14 +573,6 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const name = title.substring(0, title.indexOf(size)).trim();
             const description = productDetailsBasicInfo.find('#product-details-rating p').text().trim();
 
-            productInfo = productInfo.merge({
-              name,
-              description,
-              size,
-              imageUrl,
-              barcode,
-            });
-
             productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
               const priceContent = $(this).find('.product-price');
               const currentPrice = self.getCurrentPrice(priceContent);
@@ -625,10 +613,23 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               }),
             });
 
-            CrawlResultService.create(crawlResult).then(() => done()).catch((crawlResultCreationError) => {
-              done();
-              reject(crawlResultCreationError);
-            });
+            CrawlResultService.create(crawlResult)
+              .then(() =>
+                StoreMasterProductService.update(
+                  productInfo.merge({
+                    name,
+                    description,
+                    barcode,
+                    imageUrl,
+                    size,
+                  }),
+                ),
+              )
+              .then(() => done())
+              .catch((crawlResultCreationError) => {
+                done();
+                reject(crawlResultCreationError);
+              });
 
             return 0;
           });

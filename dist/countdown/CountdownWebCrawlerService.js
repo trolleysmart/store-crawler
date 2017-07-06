@@ -789,14 +789,6 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var name = title.substring(0, title.indexOf(size)).trim();
               var description = productDetailsBasicInfo.find('#product-details-rating p').text().trim();
 
-              productInfo = productInfo.merge({
-                name: name,
-                description: description,
-                size: size,
-                imageUrl: imageUrl,
-                barcode: barcode
-              });
-
               productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
                 var priceContent = $(this).find('.product-price');
                 var currentPrice = self.getCurrentPrice(priceContent);
@@ -838,6 +830,14 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               });
 
               _smartGroceryParseServerCommon.CrawlResultService.create(crawlResult).then(function () {
+                return _smartGroceryParseServerCommon.StoreMasterProductService.update(productInfo.merge({
+                  name: name,
+                  description: description,
+                  barcode: barcode,
+                  imageUrl: imageUrl,
+                  size: size
+                }));
+              }).then(function () {
                 return done();
               }).catch(function (crawlResultCreationError) {
                 done();
