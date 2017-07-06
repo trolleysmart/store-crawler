@@ -179,7 +179,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
             url: menuItem.find('.level-1').attr('href'),
             name: menuItem.find('.level-1').text().trim(),
             weight: 1,
-            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem)
+            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey)
           }));
 
           return 0;
@@ -189,7 +189,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       });
 
       return productCategories;
-    }, _this.crawlLevelTwoProductCategoriesAndSubProductCategories = function (config, $, parentNode) {
+    }, _this.crawlLevelTwoProductCategoriesAndSubProductCategories = function (config, $, parentNode, parentCategoryKey) {
       var self = _this;
       var productCategories = (0, _immutable.Set)();
 
@@ -197,7 +197,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
         $(this).find('.category-column').each(function onEachColumn() {
           $(this).children().each(function onEachMenuItem() {
             var menuItem = $(this).find('.category-level-2');
-            var categoryKey = menuItem.attr('data-gtm-cgid');
+            var categoryKey = parentCategoryKey + '/' + menuItem.attr('data-gtm-cgid');
 
             if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
               return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
@@ -210,7 +210,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               url: menuItem.attr('href'),
               name: menuItem.text().trim(),
               weight: 2,
-              subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this))
+              subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey)
             }));
 
             return 0;
@@ -223,13 +223,13 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       });
 
       return productCategories;
-    }, _this.crawlLevelThreeProductCategoriesAndSubProductCategories = function (config, $, parentNode) {
+    }, _this.crawlLevelThreeProductCategoriesAndSubProductCategories = function (config, $, parentNode, parentCategoryKey) {
       var productCategories = (0, _immutable.Set)();
 
       parentNode.find('.menu-container-level-3').filter(function filterMenuItems() {
         $(this).children().each(function onEachMenuItem() {
           var menuItem = $(this).find('.category-level-3');
-          var categoryKey = menuItem.attr('data-gtm-cgid');
+          var categoryKey = parentCategoryKey + '/' + menuItem.attr('data-gtm-cgid');
 
           if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
             return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
