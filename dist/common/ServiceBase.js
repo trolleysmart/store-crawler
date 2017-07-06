@@ -561,7 +561,7 @@ var ServiceBase = function ServiceBase(_ref) {
                   lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime
                 })
               });
-              return _context11.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(criteria.set('limit', 1)));
+              return _context11.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(criteria));
 
             case 2:
             case 'end':

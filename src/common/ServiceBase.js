@@ -241,7 +241,7 @@ export default class ServiceBase {
       }),
     });
 
-    return StoreMasterProductService.search(criteria.set('limit', 1));
+    return StoreMasterProductService.search(criteria);
   };
 
   removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
