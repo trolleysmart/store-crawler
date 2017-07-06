@@ -158,7 +158,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               $(this).find('.toolbar-slidebox-item').each(function filterProductCategory() {
                 var menuItem = $(this).find('.toolbar-slidebox-link');
                 var url = menuItem.attr('href');
-                var categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+                var categoryKey = url.substring(url.indexOf('/Shop/Browse/') + 1);
 
                 if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
                   return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
@@ -232,7 +232,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               $(this).each(function filterProductCategory() {
                 var menuItem = $(this).find('.din');
                 var url = menuItem.attr('href');
-                var categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+                var categoryKey = url.substring(url.indexOf('/Shop/Browse/') + 1);
 
                 if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
                   return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
@@ -319,7 +319,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               $(this).each(function filterProductCategory() {
                 var menuItem = $(this).find('.din');
                 var url = menuItem.attr('href');
-                var categoryKey = url.substring(url.lastIndexOf('/') + 1, url.length);
+                var categoryKey = url.substring(url.indexOf('/Shop/Browse/') + 1);
 
                 if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
                   return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
