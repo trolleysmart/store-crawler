@@ -82,7 +82,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             $(this).find('.toolbar-slidebox-item').each(function filterProductCategory() {
               const menuItem = $(this).find('.toolbar-slidebox-link');
               const url = menuItem.attr('href');
-              const categoryKey = url.substring(url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length + 1);
+              const categoryKey = url.substring(url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length);
 
               if (
                 config.get('categoryKeysToExclude') &&
@@ -154,7 +154,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
                 const menuItem = $(this).find('.din');
                 const url = menuItem.attr('href');
                 const categoryKey = url.substring(
-                  url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length + 1,
+                  url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length,
                 );
 
                 if (
@@ -239,7 +239,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
                 const menuItem = $(this).find('.din');
                 const url = menuItem.attr('href');
                 const categoryKey = url.substring(
-                  url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length + 1,
+                  url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length,
                 );
 
                 if (
