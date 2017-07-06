@@ -712,6 +712,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
     }(), _this.crawlProductDetails = function (config, product, sessionId) {
       return new Promise(function (resolve, reject) {
         var productInfo = (0, _immutable.Map)();
+
         var crawler = new _crawler2.default({
           rateLimit: config.get('rateLimit'),
           maxConnections: config.get('maxConnections'),
@@ -830,7 +831,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               });
 
               _smartGroceryParseServerCommon.CrawlResultService.create(crawlResult).then(function () {
-                return _smartGroceryParseServerCommon.StoreMasterProductService.update(productInfo.merge({
+                return _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
                   name: name,
                   description: description,
                   barcode: barcode,

@@ -503,6 +503,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   crawlProductDetails = (config, product, sessionId) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
+
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
@@ -616,7 +617,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             CrawlResultService.create(crawlResult)
               .then(() =>
                 StoreMasterProductService.update(
-                  productInfo.merge({
+                  product.merge({
                     name,
                     description,
                     barcode,
