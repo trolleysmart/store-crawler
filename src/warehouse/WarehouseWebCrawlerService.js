@@ -109,7 +109,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             url: menuItem.find('.level-1').attr('href'),
             name: menuItem.find('.level-1').text().trim(),
             weight: 1,
-            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem),
+            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey),
           }),
         );
 
@@ -122,7 +122,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return productCategories;
   };
 
-  crawlLevelTwoProductCategoriesAndSubProductCategories = (config, $, parentNode) => {
+  crawlLevelTwoProductCategoriesAndSubProductCategories = (config, $, parentNode, parentCategoryKey) => {
     const self = this;
     let productCategories = Set();
 
@@ -130,7 +130,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       $(this).find('.category-column').each(function onEachColumn() {
         $(this).children().each(function onEachMenuItem() {
           const menuItem = $(this).find('.category-level-2');
-          const categoryKey = menuItem.attr('data-gtm-cgid');
+          const categoryKey = `${parentCategoryKey}/${menuItem.attr('data-gtm-cgid')}`;
 
           if (
             config.get('categoryKeysToExclude') &&
@@ -145,7 +145,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
               url: menuItem.attr('href'),
               name: menuItem.text().trim(),
               weight: 2,
-              subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this)),
+              subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey),
             }),
           );
 
@@ -161,13 +161,13 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return productCategories;
   };
 
-  crawlLevelThreeProductCategoriesAndSubProductCategories = (config, $, parentNode) => {
+  crawlLevelThreeProductCategoriesAndSubProductCategories = (config, $, parentNode, parentCategoryKey) => {
     let productCategories = Set();
 
     parentNode.find('.menu-container-level-3').filter(function filterMenuItems() {
       $(this).children().each(function onEachMenuItem() {
         const menuItem = $(this).find('.category-level-3');
-        const categoryKey = menuItem.attr('data-gtm-cgid');
+        const categoryKey = `${parentCategoryKey}/${menuItem.attr('data-gtm-cgid')}`;
 
         if (
           config.get('categoryKeysToExclude') &&
