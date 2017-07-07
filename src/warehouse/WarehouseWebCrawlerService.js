@@ -450,7 +450,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
                 const name = $(this).find('.product-name').text().trim();
                 const descriptionContainer = $(this).find('.product-description');
                 const description = descriptionContainer.find('.description-text').text().trim().split('\r\n')[0];
-                const barCode = descriptionContainer.find('.product-number .product-id').text().trim().split('\r\n')[0];
+                const barcode = descriptionContainer.find('.product-number .product-id').text().trim().split('\r\n')[0];
                 const priceContainer = $(this).find('#product-content .upper-product-price .product-price');
 
                 productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
@@ -461,7 +461,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
                 productInfo = productInfo.merge({
                   name,
                   description,
-                  barCode,
+                  barcode,
                 });
 
                 return 0;

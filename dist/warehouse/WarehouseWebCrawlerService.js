@@ -674,7 +674,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   var name = $(this).find('.product-name').text().trim();
                   var descriptionContainer = $(this).find('.product-description');
                   var description = descriptionContainer.find('.description-text').text().trim().split('\r\n')[0];
-                  var barCode = descriptionContainer.find('.product-number .product-id').text().trim().split('\r\n')[0];
+                  var barcode = descriptionContainer.find('.product-number .product-id').text().trim().split('\r\n')[0];
                   var priceContainer = $(this).find('#product-content .upper-product-price .product-price');
 
                   productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
@@ -685,7 +685,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   productInfo = productInfo.merge({
                     name: name,
                     description: description,
-                    barCode: barCode
+                    barcode: barcode
                   });
 
                   return 0;
