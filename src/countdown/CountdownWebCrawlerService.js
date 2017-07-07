@@ -572,7 +572,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const title = titleContainer.text().trim();
             const size = titleContainer.find('span').text().trim();
             const sizeOffset = title.indexOf(size);
-            const name = sizeOffset === -1 ? title : title.substring(0, sizeOffset).trim();
+            const name = sizeOffset === -1 || size.length === 0 ? title : title.substring(0, sizeOffset).trim();
             const description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
 
             productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {

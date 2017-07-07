@@ -788,7 +788,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var title = titleContainer.text().trim();
               var size = titleContainer.find('span').text().trim();
               var sizeOffset = title.indexOf(size);
-              var name = sizeOffset === -1 ? title : title.substring(0, sizeOffset).trim();
+              var name = sizeOffset === -1 || size.length === 0 ? title : title.substring(0, sizeOffset).trim();
               var description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
 
               productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
