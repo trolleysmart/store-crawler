@@ -421,19 +421,19 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
           const $ = res.$;
           const self = this;
-          let tags = List();
+          let tagUrls = List();
 
           $('.breadcrumb').children().filter(function filterTags() {
             const tag = $(this).find('a').attr('href');
 
-            tags = tags.push(tag);
+            tagUrls = tagUrls.push(tag);
 
             return 0;
           });
 
-          tags = tags.skip(1).pop();
+          tagUrls = tagUrls.skip(1).pop();
 
-          productInfo = productInfo.merge({ tags });
+          productInfo = productInfo.merge({ tagUrls });
 
           $('#pdpMain').filter(function filterMainContainer() {
             const mainContainer = $(this);
@@ -476,8 +476,6 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return 0;
           });
 
-          const tagUrls = productInfo.get('tags').map(tag => tag.get('url'));
-
           StoreMasterProductService.update(
             product.merge({
               name: productInfo.get('name'),
@@ -485,7 +483,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
               barcode: productInfo.get('barcode'),
               imageUrl: productInfo.get('imageUrl'),
               storeTagIds: storeTags
-                .filter(storeTag => tagUrls.find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+                .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
                 .map(storeTag => storeTag.get('id')),
             }),
           )

@@ -649,19 +649,19 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
             var $ = res.$;
             var self = _this;
-            var tags = (0, _immutable.List)();
+            var tagUrls = (0, _immutable.List)();
 
             $('.breadcrumb').children().filter(function filterTags() {
               var tag = $(this).find('a').attr('href');
 
-              tags = tags.push(tag);
+              tagUrls = tagUrls.push(tag);
 
               return 0;
             });
 
-            tags = tags.skip(1).pop();
+            tagUrls = tagUrls.skip(1).pop();
 
-            productInfo = productInfo.merge({ tags: tags });
+            productInfo = productInfo.merge({ tagUrls: tagUrls });
 
             $('#pdpMain').filter(function filterMainContainer() {
               var mainContainer = $(this);
@@ -704,17 +704,13 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return 0;
             });
 
-            var tagUrls = productInfo.get('tags').map(function (tag) {
-              return tag.get('url');
-            });
-
             _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
               name: productInfo.get('name'),
               description: productInfo.get('name'),
               barcode: productInfo.get('barcode'),
               imageUrl: productInfo.get('imageUrl'),
               storeTagIds: storeTags.filter(function (storeTag) {
-                return tagUrls.find(function (tagUrl) {
+                return productInfo.get('tagUrls').find(function (tagUrl) {
                   return tagUrl.localeCompare(storeTag.get('url')) === 0;
                 });
               }).map(function (storeTag) {
