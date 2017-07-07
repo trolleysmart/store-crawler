@@ -457,50 +457,19 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   };
 
   crawlProductsDetails = async (config) => {
-    const result = await this.createNewCrawlSessionAndGetConfig('Countdown Products', config, 'Countdown');
-    const sessionInfo = result.get('sessionInfo');
-    const sessionId = sessionInfo.get('id');
-    const finalConfig = result.get('config');
+    const finalConfig = config || (await this.getConfig('Countdown'));
+    const store = await this.getStore('Countdown');
+    const storeId = store.get('id');
+    const lastCrawlDateTime = new Date();
 
-    try {
-      const store = await this.getStore('Countdown');
-      const storeId = store.get('id');
-      const lastCrawlDateTime = new Date();
+    lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-      lastCrawlDateTime.setDate(new Date().getDate() - 1);
+    const products = await this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
 
-      const products = await this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
-
-      await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, sessionId));
-
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'success',
-          }),
-        }),
-      );
-
-      await CrawlSessionService.update(updatedSessionInfo);
-    } catch (ex) {
-      const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'failed',
-            error: errorMessage,
-          }),
-        }),
-      );
-
-      await CrawlSessionService.update(updatedSessionInfo);
-      throw ex;
-    }
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product));
   };
 
-  crawlProductDetails = (config, product, sessionId) =>
+  crawlProductDetails = (config, product) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
 
@@ -606,31 +575,11 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               return 0;
             });
 
-            const crawlResult = Map({
-              crawlSessionId: sessionId,
-              resultSet: Map({
-                productId: product.get('id'),
-                store: product.get('storeId'),
-                productInfo,
-              }),
-            });
-
-            CrawlResultService.create(crawlResult)
-              .then(() =>
-                StoreMasterProductService.update(
-                  product.merge({
-                    name,
-                    description,
-                    barcode,
-                    imageUrl,
-                    size,
-                  }),
-                ),
-              )
+            StoreMasterProductService.update(product.merge({ name, description, barcode, imageUrl, size }))
               .then(() => done())
-              .catch((crawlResultCreationError) => {
+              .catch((internalError) => {
                 done();
-                reject(crawlResultCreationError);
+                reject(internalError);
               });
 
             return 0;
