@@ -569,25 +569,30 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return products;
     }, _this.crawlProductsDetails = function () {
       var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config) {
-        var result, sessionInfo, sessionId, finalConfig, store, storeId, lastCrawlDateTime, products, updatedSessionInfo, errorMessage, _updatedSessionInfo2;
-
+        var finalConfig, store, storeId, lastCrawlDateTime, products;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
-                _context5.next = 2;
-                return _this.createNewCrawlSessionAndGetConfig('Warehouse Products', config, 'Warehouse');
+                _context5.t0 = config;
 
-              case 2:
-                result = _context5.sent;
-                sessionInfo = result.get('sessionInfo');
-                sessionId = sessionInfo.get('id');
-                finalConfig = result.get('config');
-                _context5.prev = 6;
-                _context5.next = 9;
+                if (_context5.t0) {
+                  _context5.next = 5;
+                  break;
+                }
+
+                _context5.next = 4;
+                return _this.getConfig('Countdown');
+
+              case 4:
+                _context5.t0 = _context5.sent;
+
+              case 5:
+                finalConfig = _context5.t0;
+                _context5.next = 8;
                 return _this.getStore('Warehouse');
 
-              case 9:
+              case 8:
                 store = _context5.sent;
                 storeId = store.get('id');
                 lastCrawlDateTime = new Date();
@@ -595,59 +600,28 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
                 lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-                _context5.next = 15;
+                _context5.next = 14;
                 return _this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
 
-              case 15:
+              case 14:
                 products = _context5.sent;
-                _context5.next = 18;
+                _context5.next = 17;
                 return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product, sessionId);
+                  return _this.crawlProductDetails(finalConfig, product);
                 });
 
-              case 18:
-                updatedSessionInfo = sessionInfo.merge((0, _immutable.Map)({
-                  endDateTime: new Date(),
-                  additionalInfo: (0, _immutable.Map)({
-                    status: 'success'
-                  })
-                }));
-                _context5.next = 21;
-                return _smartGroceryParseServerCommon.CrawlSessionService.update(updatedSessionInfo);
-
-              case 21:
-                _context5.next = 30;
-                break;
-
-              case 23:
-                _context5.prev = 23;
-                _context5.t0 = _context5['catch'](6);
-                errorMessage = _context5.t0 instanceof _microBusinessParseServerCommon.Exception ? _context5.t0.getErrorMessage() : _context5.t0;
-                _updatedSessionInfo2 = sessionInfo.merge((0, _immutable.Map)({
-                  endDateTime: new Date(),
-                  additionalInfo: (0, _immutable.Map)({
-                    status: 'failed',
-                    error: errorMessage
-                  })
-                }));
-                _context5.next = 29;
-                return _smartGroceryParseServerCommon.CrawlSessionService.update(_updatedSessionInfo2);
-
-              case 29:
-                throw _context5.t0;
-
-              case 30:
+              case 17:
               case 'end':
                 return _context5.stop();
             }
           }
-        }, _callee5, _this2, [[6, 23]]);
+        }, _callee5, _this2);
       }));
 
       return function (_x5) {
         return _ref6.apply(this, arguments);
       };
-    }(), _this.crawlProductDetails = function (config, product, sessionId) {
+    }(), _this.crawlProductDetails = function (config, product) {
       return new Promise(function (resolve, reject) {
         var productInfo = (0, _immutable.Map)();
         var crawler = new _crawler2.default({
@@ -725,20 +699,16 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return 0;
             });
 
-            var crawlResult = (0, _immutable.Map)({
-              crawlSessionId: sessionId,
-              resultSet: (0, _immutable.Map)({
-                productId: product.get('id'),
-                store: product.get('storeId'),
-                productInfo: productInfo
-              })
-            });
-
-            _smartGroceryParseServerCommon.CrawlResultService.create(crawlResult).then(function () {
+            _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
+              name: productInfo.get('name'),
+              description: productInfo.get('name'),
+              barcode: productInfo.get('barcode'),
+              imageUrl: productInfo.get('imageUrl')
+            })).then(function () {
               return done();
-            }).catch(function (crawlResultCreationError) {
+            }).catch(function (internalError) {
               done();
-              reject(crawlResultCreationError);
+              reject(internalError);
             });
           }
         });

@@ -4,7 +4,7 @@ import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
-import { CrawlResultService, CrawlSessionService } from 'smart-grocery-parse-server-common';
+import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'smart-grocery-parse-server-common';
 import { ServiceBase } from '../common';
 
 export default class WarehouseWebCrawlerService extends ServiceBase {
@@ -475,7 +475,19 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return 0;
           });
 
-          done();
+          StoreMasterProductService.update(
+            product.merge({
+              name: productInfo.get('name'),
+              description: productInfo.get('name'),
+              barcode: productInfo.get('barcode'),
+              imageUrl: productInfo.get('imageUrl'),
+            }),
+          )
+            .then(() => done())
+            .catch((internalError) => {
+              done();
+              reject(internalError);
+            });
         },
       });
 
