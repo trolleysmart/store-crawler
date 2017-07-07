@@ -569,7 +569,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return products;
     }, _this.crawlProductsDetails = function () {
       var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config) {
-        var finalConfig, store, storeId, lastCrawlDateTime, products;
+        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
@@ -595,22 +595,27 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               case 8:
                 store = _context5.sent;
                 storeId = store.get('id');
+                _context5.next = 12;
+                return _this.getStoreTags(storeId);
+
+              case 12:
+                storeTags = _context5.sent;
                 lastCrawlDateTime = new Date();
 
 
                 lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-                _context5.next = 14;
+                _context5.next = 17;
                 return _this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
 
-              case 14:
+              case 17:
                 products = _context5.sent;
-                _context5.next = 17;
+                _context5.next = 20;
                 return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product);
+                  return _this.crawlProductDetails(finalConfig, product, storeTags);
                 });
 
-              case 17:
+              case 20:
               case 'end':
                 return _context5.stop();
             }
@@ -621,7 +626,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return function (_x5) {
         return _ref6.apply(this, arguments);
       };
-    }(), _this.crawlProductDetails = function (config, product) {
+    }(), _this.crawlProductDetails = function (config, product, storeTags) {
       return new Promise(function (resolve, reject) {
         var productInfo = (0, _immutable.Map)();
         var crawler = new _crawler2.default({
@@ -699,11 +704,22 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return 0;
             });
 
+            var tagUrls = productInfo.get('tags').map(function (tag) {
+              return tag.get('url');
+            });
+
             _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
               name: productInfo.get('name'),
               description: productInfo.get('name'),
               barcode: productInfo.get('barcode'),
-              imageUrl: productInfo.get('imageUrl')
+              imageUrl: productInfo.get('imageUrl'),
+              storeTagIds: storeTags.filter(function (storeTag) {
+                return tagUrls.find(function (tagUrl) {
+                  return tagUrl.localeCompare(storeTag.get('url')) === 0;
+                });
+              }).map(function (storeTag) {
+                return storeTag.get('id');
+              })
             })).then(function () {
               return done();
             }).catch(function (internalError) {

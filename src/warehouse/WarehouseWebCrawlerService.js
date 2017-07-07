@@ -392,16 +392,17 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const finalConfig = config || (await this.getConfig('Countdown'));
     const store = await this.getStore('Warehouse');
     const storeId = store.get('id');
+    const storeTags = await this.getStoreTags(storeId);
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
     const products = await this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
 
-    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product));
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
   };
 
-  crawlProductDetails = (config, product) =>
+  crawlProductDetails = (config, product, storeTags) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
       const crawler = new Crawler({
@@ -475,12 +476,17 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return 0;
           });
 
+          const tagUrls = productInfo.get('tags').map(tag => tag.get('url'));
+
           StoreMasterProductService.update(
             product.merge({
               name: productInfo.get('name'),
               description: productInfo.get('name'),
               barcode: productInfo.get('barcode'),
               imageUrl: productInfo.get('imageUrl'),
+              storeTagIds: storeTags
+                .filter(storeTag => tagUrls.find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+                .map(storeTag => storeTag.get('id')),
             }),
           )
             .then(() => done())
