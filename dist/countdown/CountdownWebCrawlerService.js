@@ -787,7 +787,8 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var titleContainer = productDetailsBasicInfo.find('.product-title h1');
               var title = titleContainer.text().trim();
               var size = titleContainer.find('span').text().trim();
-              var name = title.substring(0, title.indexOf(size)).trim();
+              var sizeOffset = title.indexOf(size);
+              var name = sizeOffset === -1 ? title : title.substring(0, sizeOffset).trim();
               var description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
 
               productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
@@ -925,14 +926,22 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
     }, _this.getBarcodeFromImageUrl = function (imageUrl) {
       var largeIndex = imageUrl.indexOf('large/');
 
-      if (largeIndex === -1) {
-        var bigIndex = imageUrl.indexOf('big/');
-        var _str = imageUrl.substr(bigIndex + 4);
+      if (largeIndex !== -1) {
+        var _str = imageUrl.substr(largeIndex + 6);
 
         return _str.substr(0, _str.indexOf('.jpg'));
       }
 
-      var str = imageUrl.substr(largeIndex + 6);
+      var bigIndex = imageUrl.indexOf('big/');
+
+      if (bigIndex !== -1) {
+        var _str2 = imageUrl.substr(bigIndex + 4);
+
+        return _str2.substr(0, _str2.indexOf('.jpg'));
+      }
+
+      var zoomIndex = imageUrl.indexOf('zoom/');
+      var str = imageUrl.substr(zoomIndex + 5);
 
       return str.substr(0, str.indexOf('.jpg'));
     }, _temp), _possibleConstructorReturn(_this, _ret);

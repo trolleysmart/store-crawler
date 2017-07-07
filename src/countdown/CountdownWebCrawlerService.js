@@ -571,7 +571,8 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const titleContainer = productDetailsBasicInfo.find('.product-title h1');
             const title = titleContainer.text().trim();
             const size = titleContainer.find('span').text().trim();
-            const name = title.substring(0, title.indexOf(size)).trim();
+            const sizeOffset = title.indexOf(size);
+            const name = sizeOffset === -1 ? title : title.substring(0, sizeOffset).trim();
             const description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
 
             productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
@@ -721,14 +722,22 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   getBarcodeFromImageUrl = (imageUrl) => {
     const largeIndex = imageUrl.indexOf('large/');
 
-    if (largeIndex === -1) {
-      const bigIndex = imageUrl.indexOf('big/');
+    if (largeIndex !== -1) {
+      const str = imageUrl.substr(largeIndex + 6);
+
+      return str.substr(0, str.indexOf('.jpg'));
+    }
+
+    const bigIndex = imageUrl.indexOf('big/');
+
+    if (bigIndex !== -1) {
       const str = imageUrl.substr(bigIndex + 4);
 
       return str.substr(0, str.indexOf('.jpg'));
     }
 
-    const str = imageUrl.substr(largeIndex + 6);
+    const zoomIndex = imageUrl.indexOf('zoom/');
+    const str = imageUrl.substr(zoomIndex + 5);
 
     return str.substr(0, str.indexOf('.jpg'));
   };
