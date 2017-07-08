@@ -98,8 +98,8 @@ export default class ServiceBase {
     return results;
   };
 
-  getStoreTags = async (storeId) => {
-    const result = StoreTagService.searchAll(Map({ conditions: Map({ storeId }) }));
+  getStoreTags = async (storeId, includeTag) => {
+    const result = StoreTagService.searchAll(Map({ includeTag, conditions: Map({ storeId }) }));
 
     try {
       let storeTags = List();

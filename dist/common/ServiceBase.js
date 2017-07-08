@@ -274,13 +274,13 @@ var ServiceBase = function ServiceBase(_ref) {
   }();
 
   this.getStoreTags = function () {
-    var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(storeId) {
+    var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(storeId, includeTag) {
       var result, storeTags;
       return regeneratorRuntime.wrap(function _callee6$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
             case 0:
-              result = _smartGroceryParseServerCommon.StoreTagService.searchAll((0, _immutable.Map)({ conditions: (0, _immutable.Map)({ storeId: storeId }) }));
+              result = _smartGroceryParseServerCommon.StoreTagService.searchAll((0, _immutable.Map)({ includeTag: includeTag, conditions: (0, _immutable.Map)({ storeId: storeId }) }));
               _context6.prev = 1;
               storeTags = (0, _immutable.List)();
 
@@ -309,7 +309,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee6, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x9) {
+    return function (_x9, _x10) {
       return _ref7.apply(this, arguments);
     };
   }();
@@ -370,7 +370,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee7, _this);
     }));
 
-    return function (_x10, _x11, _x12) {
+    return function (_x11, _x12, _x13) {
       return _ref8.apply(this, arguments);
     };
   }();
@@ -420,7 +420,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee8, _this);
     }));
 
-    return function (_x13, _x14, _x15) {
+    return function (_x14, _x15, _x16) {
       return _ref9.apply(this, arguments);
     };
   }();
@@ -481,7 +481,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee9, _this);
     }));
 
-    return function (_x16, _x17, _x18) {
+    return function (_x17, _x18, _x19) {
       return _ref10.apply(this, arguments);
     };
   }();
@@ -542,7 +542,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee10, _this);
     }));
 
-    return function (_x19, _x20, _x21) {
+    return function (_x20, _x21, _x22) {
       return _ref11.apply(this, arguments);
     };
   }();
@@ -571,7 +571,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee11, _this);
     }));
 
-    return function (_x22, _x23, _x24) {
+    return function (_x23, _x24, _x25) {
       return _ref12.apply(this, arguments);
     };
   }();
