@@ -389,7 +389,17 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
   };
 
   crawlProductsDetails = async (config) => {
-    const finalConfig = config || (await this.getConfig('Countdown'));
+    const finalConfig = config || (await this.getConfig('Warehouse'));
+    const store = await this.getStore('Warehouse');
+    const storeId = store.get('id');
+    const storeTags = await this.getStoreTags(storeId);
+    const products = await this.getAllStoreMasterProductsWithoutMasterProduct(storeId);
+
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
+  };
+
+  crawlProductsPriceDetails = async (config) => {
+    const finalConfig = config || (await this.getConfig('Warehouse'));
     const store = await this.getStore('Warehouse');
     const storeId = store.get('id');
     const storeTags = await this.getStoreTags(storeId);
@@ -397,7 +407,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-    const products = await this.getStoreMasterProducts(storeId, false, lastCrawlDateTime);
+    const products = await this.getAllStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
 
     await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
   };

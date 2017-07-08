@@ -569,7 +569,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return products;
     }, _this.crawlProductsDetails = function () {
       var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config) {
-        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
+        var finalConfig, store, storeId, storeTags, products;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
@@ -582,7 +582,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 }
 
                 _context5.next = 4;
-                return _this.getConfig('Countdown');
+                return _this.getConfig('Warehouse');
 
               case 4:
                 _context5.t0 = _context5.sent;
@@ -600,22 +600,17 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
               case 12:
                 storeTags = _context5.sent;
-                lastCrawlDateTime = new Date();
+                _context5.next = 15;
+                return _this.getAllStoreMasterProductsWithoutMasterProduct(storeId);
 
-
-                lastCrawlDateTime.setDate(new Date().getDate() - 1);
-
-                _context5.next = 17;
-                return _this.getStoreMasterProducts(storeId, false, lastCrawlDateTime);
-
-              case 17:
+              case 15:
                 products = _context5.sent;
-                _context5.next = 20;
+                _context5.next = 18;
                 return _bluebird2.default.each(products.toArray(), function (product) {
                   return _this.crawlProductDetails(finalConfig, product, storeTags);
                 });
 
-              case 20:
+              case 18:
               case 'end':
                 return _context5.stop();
             }
@@ -625,6 +620,65 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
       return function (_x5) {
         return _ref6.apply(this, arguments);
+      };
+    }(), _this.crawlProductsPriceDetails = function () {
+      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(config) {
+        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                _context6.t0 = config;
+
+                if (_context6.t0) {
+                  _context6.next = 5;
+                  break;
+                }
+
+                _context6.next = 4;
+                return _this.getConfig('Warehouse');
+
+              case 4:
+                _context6.t0 = _context6.sent;
+
+              case 5:
+                finalConfig = _context6.t0;
+                _context6.next = 8;
+                return _this.getStore('Warehouse');
+
+              case 8:
+                store = _context6.sent;
+                storeId = store.get('id');
+                _context6.next = 12;
+                return _this.getStoreTags(storeId);
+
+              case 12:
+                storeTags = _context6.sent;
+                lastCrawlDateTime = new Date();
+
+
+                lastCrawlDateTime.setDate(new Date().getDate() - 1);
+
+                _context6.next = 17;
+                return _this.getAllStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
+
+              case 17:
+                products = _context6.sent;
+                _context6.next = 20;
+                return _bluebird2.default.each(products.toArray(), function (product) {
+                  return _this.crawlProductDetails(finalConfig, product, storeTags);
+                });
+
+              case 20:
+              case 'end':
+                return _context6.stop();
+            }
+          }
+        }, _callee6, _this2);
+      }));
+
+      return function (_x6) {
+        return _ref7.apply(this, arguments);
       };
     }(), _this.crawlProductDetails = function (config, product, storeTags) {
       return new Promise(function (resolve, reject) {

@@ -547,9 +547,9 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
-  this.getStoreMasterProducts = function () {
-    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(storeId, withoutMasterProductLinkSet, lastCrawlDateTime) {
-      var criteria;
+  this.getAllStoreMasterProductsWithoutMasterProduct = function () {
+    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(storeId) {
+      var criteria, result, products;
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
           switch (_context11.prev = _context11.next) {
@@ -557,22 +557,69 @@ var ServiceBase = function ServiceBase(_ref) {
               criteria = (0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   storeId: storeId,
-                  without_masterProduct: withoutMasterProductLinkSet,
-                  lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime
+                  without_masterProduct: true
                 })
               });
-              return _context11.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(criteria));
+              result = _smartGroceryParseServerCommon.StoreMasterProductService.searchAll(criteria);
+              _context11.prev = 2;
+              products = (0, _immutable.List)();
 
-            case 2:
+
+              result.event.subscribe(function (info) {
+                return products = products.push(info);
+              });
+
+              _context11.next = 7;
+              return result.promise;
+
+            case 7:
+              return _context11.abrupt('return', products);
+
+            case 8:
+              _context11.prev = 8;
+
+              result.event.unsubscribeAll();
+              return _context11.finish(8);
+
+            case 11:
             case 'end':
               return _context11.stop();
           }
         }
-      }, _callee11, _this);
+      }, _callee11, _this, [[2,, 8, 11]]);
     }));
 
-    return function (_x23, _x24, _x25) {
+    return function (_x23) {
       return _ref12.apply(this, arguments);
+    };
+  }();
+
+  this.getAllStoreMasterProductsWithMasterProduct = function () {
+    var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(storeId, lastCrawlDateTime) {
+      var criteria;
+      return regeneratorRuntime.wrap(function _callee12$(_context12) {
+        while (1) {
+          switch (_context12.prev = _context12.next) {
+            case 0:
+              criteria = (0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  storeId: storeId,
+                  with_masterProduct: true,
+                  lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime
+                })
+              });
+              return _context12.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(criteria));
+
+            case 2:
+            case 'end':
+              return _context12.stop();
+          }
+        }
+      }, _callee12, _this);
+    }));
+
+    return function (_x24, _x25) {
+      return _ref13.apply(this, arguments);
     };
   }();
 

@@ -232,11 +232,34 @@ export default class ServiceBase {
     }
   };
 
-  getStoreMasterProducts = async (storeId, withoutMasterProductLinkSet, lastCrawlDateTime) => {
+  getAllStoreMasterProductsWithoutMasterProduct = async (storeId) => {
     const criteria = Map({
       conditions: Map({
         storeId,
-        without_masterProduct: withoutMasterProductLinkSet,
+        without_masterProduct: true,
+      }),
+    });
+
+    const result = StoreMasterProductService.searchAll(criteria);
+
+    try {
+      let products = List();
+
+      result.event.subscribe(info => (products = products.push(info)));
+
+      await result.promise;
+
+      return products;
+    } finally {
+      result.event.unsubscribeAll();
+    }
+  };
+
+  getAllStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime) => {
+    const criteria = Map({
+      conditions: Map({
+        storeId,
+        with_masterProduct: true,
         lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime,
       }),
     });

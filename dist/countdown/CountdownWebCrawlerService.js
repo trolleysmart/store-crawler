@@ -631,7 +631,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return products;
     }, _this.crawlProductsDetails = function () {
       var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(config) {
-        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
+        var finalConfig, store, storeId, storeTags, products;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
@@ -662,22 +662,17 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
               case 12:
                 storeTags = _context4.sent;
-                lastCrawlDateTime = new Date();
+                _context4.next = 15;
+                return _this.getAllStoreMasterProductsWithoutMasterProduct(storeId);
 
-
-                lastCrawlDateTime.setDate(new Date().getDate() - 1);
-
-                _context4.next = 17;
-                return _this.getStoreMasterProducts(storeId, false, lastCrawlDateTime);
-
-              case 17:
+              case 15:
                 products = _context4.sent;
-                _context4.next = 20;
+                _context4.next = 18;
                 return _bluebird2.default.each(products.toArray(), function (product) {
                   return _this.crawlProductDetails(finalConfig, product, storeTags);
                 });
 
-              case 20:
+              case 18:
               case 'end':
                 return _context4.stop();
             }
@@ -687,6 +682,65 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
       return function (_x3) {
         return _ref5.apply(this, arguments);
+      };
+    }(), _this.crawlProductsPriceDetails = function () {
+      var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config) {
+        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.t0 = config;
+
+                if (_context5.t0) {
+                  _context5.next = 5;
+                  break;
+                }
+
+                _context5.next = 4;
+                return _this.getConfig('Countdown');
+
+              case 4:
+                _context5.t0 = _context5.sent;
+
+              case 5:
+                finalConfig = _context5.t0;
+                _context5.next = 8;
+                return _this.getStore('Countdown');
+
+              case 8:
+                store = _context5.sent;
+                storeId = store.get('id');
+                _context5.next = 12;
+                return _this.getStoreTags(storeId);
+
+              case 12:
+                storeTags = _context5.sent;
+                lastCrawlDateTime = new Date();
+
+
+                lastCrawlDateTime.setDate(new Date().getDate() - 1);
+
+                _context5.next = 17;
+                return _this.getAllStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
+
+              case 17:
+                products = _context5.sent;
+                _context5.next = 20;
+                return _bluebird2.default.each(products.toArray(), function (product) {
+                  return _this.crawlProductDetails(finalConfig, product, storeTags);
+                });
+
+              case 20:
+              case 'end':
+                return _context5.stop();
+            }
+          }
+        }, _callee5, _this2);
+      }));
+
+      return function (_x4) {
+        return _ref6.apply(this, arguments);
       };
     }(), _this.crawlProductDetails = function (config, product, storeTags) {
       return new Promise(function (resolve, reject) {
