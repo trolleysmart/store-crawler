@@ -547,8 +547,8 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
-  this.getStoreProducts = function () {
-    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(config, storeId, withoutMasterProductLinkSet, lastCrawlDateTime) {
+  this.getStoreMasterProducts = function () {
+    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(storeId, withoutMasterProductLinkSet, lastCrawlDateTime) {
       var criteria;
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
@@ -571,7 +571,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee11, _this);
     }));
 
-    return function (_x22, _x23, _x24, _x25) {
+    return function (_x22, _x23, _x24) {
       return _ref12.apply(this, arguments);
     };
   }();

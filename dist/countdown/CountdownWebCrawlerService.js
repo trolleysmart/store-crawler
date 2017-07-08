@@ -668,7 +668,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
                 _context4.next = 17;
-                return _this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
+                return _this.getStoreMasterProducts(storeId, false, lastCrawlDateTime);
 
               case 17:
                 products = _context4.sent;

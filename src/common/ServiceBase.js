@@ -232,7 +232,7 @@ export default class ServiceBase {
     }
   };
 
-  getStoreProducts = async (config, storeId, withoutMasterProductLinkSet, lastCrawlDateTime) => {
+  getStoreMasterProducts = async (storeId, withoutMasterProductLinkSet, lastCrawlDateTime) => {
     const criteria = Map({
       conditions: Map({
         storeId,

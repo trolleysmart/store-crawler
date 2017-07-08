@@ -606,7 +606,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
                 _context5.next = 17;
-                return _this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
+                return _this.getStoreMasterProducts(storeId, false, lastCrawlDateTime);
 
               case 17:
                 products = _context5.sent;

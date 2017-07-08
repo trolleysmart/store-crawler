@@ -397,7 +397,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-    const products = await this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
+    const products = await this.getStoreMasterProducts(storeId, false, lastCrawlDateTime);
 
     await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
   };
