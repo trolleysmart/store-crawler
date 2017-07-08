@@ -3,7 +3,7 @@
 import { Exception } from 'micro-business-parse-server-common';
 import WarehouseWebCrawlerService from './WarehouseWebCrawlerService';
 
-const jobName = 'Sync Warehouse Product Categories to Store Tags';
+const jobName = 'Warehouse - Sync Product Categories to Store Tags';
 
 Parse.Cloud.job(jobName, async (request, status) => {
   // eslint-disable-line no-undef

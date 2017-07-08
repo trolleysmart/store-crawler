@@ -3,7 +3,7 @@
 import { Exception } from 'micro-business-parse-server-common';
 import CountdownWebCrawlerService from './CountdownWebCrawlerService';
 
-const jobName = 'Crawl Countdown Products Details';
+const jobName = 'Countdown - Crawl Products Details';
 
 Parse.Cloud.job(jobName, async (request, status) => {
   // eslint-disable-line no-undef
