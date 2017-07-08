@@ -718,7 +718,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var tagUrl = $(this).attr('href');
 
               if (tagUrl) {
-                tagUrls = tagUrls.add(tagUrl);
+                tagUrls = tagUrls.add(config.get('baseUrl') + tagUrl);
               }
 
               return 0;

@@ -496,7 +496,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const tagUrl = $(this).attr('href');
 
             if (tagUrl) {
-              tagUrls = tagUrls.add(tagUrl);
+              tagUrls = tagUrls.add(config.get('baseUrl') + tagUrl);
             }
 
             return 0;
