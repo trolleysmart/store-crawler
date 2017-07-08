@@ -631,7 +631,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return products;
     }, _this.crawlProductsDetails = function () {
       var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(config) {
-        var finalConfig, store, storeId, lastCrawlDateTime, products;
+        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
@@ -657,22 +657,27 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               case 8:
                 store = _context4.sent;
                 storeId = store.get('id');
+                _context4.next = 12;
+                return _this.getStoreTags(storeId);
+
+              case 12:
+                storeTags = _context4.sent;
                 lastCrawlDateTime = new Date();
 
 
                 lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-                _context4.next = 14;
+                _context4.next = 17;
                 return _this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
 
-              case 14:
+              case 17:
                 products = _context4.sent;
-                _context4.next = 17;
+                _context4.next = 20;
                 return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product);
+                  return _this.crawlProductDetails(finalConfig, product, storeTags);
                 });
 
-              case 17:
+              case 20:
               case 'end':
                 return _context4.stop();
             }
@@ -683,7 +688,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return function (_x3) {
         return _ref5.apply(this, arguments);
       };
-    }(), _this.crawlProductDetails = function (config, product) {
+    }(), _this.crawlProductDetails = function (config, product, storeTags) {
       return new Promise(function (resolve, reject) {
         var productInfo = (0, _immutable.Map)();
 
@@ -707,18 +712,19 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             var $ = res.$;
             var self = _this;
+            var tagUrls = (0, _immutable.Set)();
 
-            $('#breadcrumb-panel .breadcrumbs').children().last().filter(function filterProductTags() {
-              var tags = _immutable2.default.fromJS($(this).attr('href').split('/')).map(function (_) {
-                return _.trim();
-              }).filterNot(function (_) {
-                return _.length === 0;
-              }).skip(2);
+            $('#breadcrumb-panel .breadcrumbs').children().filter(function filterProductTags() {
+              var tagUrl = $(this).attr('href');
 
-              productInfo = productInfo.merge({ tags: tags });
+              if (tagUrl) {
+                tagUrls = tagUrls.add(tagUrl);
+              }
 
               return 0;
             });
+
+            productInfo = productInfo.merge({ tagUrls: tagUrls });
 
             $('#content-container #content-panel #product-details').filter(function filterProductDetails() {
               var productTagWrapperContainer = $(this).find('.product-tag-wrapper');
@@ -796,7 +802,20 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 return 0;
               });
 
-              _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({ name: name, description: description, barcode: barcode, imageUrl: imageUrl, size: size })).then(function () {
+              _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
+                name: name,
+                description: description,
+                barcode: barcode,
+                imageUrl: imageUrl,
+                size: size,
+                storeTagIds: storeTags.filter(function (storeTag) {
+                  return productInfo.get('tagUrls').find(function (tagUrl) {
+                    return tagUrl.localeCompare(storeTag.get('url')) === 0;
+                  });
+                }).map(function (storeTag) {
+                  return storeTag.get('id');
+                })
+              })).then(function () {
                 return done();
               }).catch(function (internalError) {
                 done();

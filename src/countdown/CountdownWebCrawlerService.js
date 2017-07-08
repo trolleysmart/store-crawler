@@ -2,7 +2,7 @@
 
 import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
-import Immutable, { List, Map, Range } from 'immutable';
+import Immutable, { List, Map, Range, Set } from 'immutable';
 import { Exception } from 'micro-business-parse-server-common';
 import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'smart-grocery-parse-server-common';
 import { ServiceBase } from '../common';
@@ -460,16 +460,17 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const finalConfig = config || (await this.getConfig('Countdown'));
     const store = await this.getStore('Countdown');
     const storeId = store.get('id');
+    const storeTags = await this.getStoreTags(storeId);
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
     const products = await this.getStoreProducts(finalConfig, storeId, false, lastCrawlDateTime);
 
-    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product));
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
   };
 
-  crawlProductDetails = (config, product) =>
+  crawlProductDetails = (config, product, storeTags) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
 
@@ -489,14 +490,19 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
           const $ = res.$;
           const self = this;
+          let tagUrls = Set();
 
-          $('#breadcrumb-panel .breadcrumbs').children().last().filter(function filterProductTags() {
-            const tags = Immutable.fromJS($(this).attr('href').split('/')).map(_ => _.trim()).filterNot(_ => _.length === 0).skip(2);
+          $('#breadcrumb-panel .breadcrumbs').children().filter(function filterProductTags() {
+            const tagUrl = $(this).attr('href');
 
-            productInfo = productInfo.merge({ tags });
+            if (tagUrl) {
+              tagUrls = tagUrls.add(tagUrl);
+            }
 
             return 0;
           });
+
+          productInfo = productInfo.merge({ tagUrls });
 
           $('#content-container #content-panel #product-details').filter(function filterProductDetails() {
             const productTagWrapperContainer = $(this).find('.product-tag-wrapper');
@@ -575,7 +581,18 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               return 0;
             });
 
-            StoreMasterProductService.update(product.merge({ name, description, barcode, imageUrl, size }))
+            StoreMasterProductService.update(
+              product.merge({
+                name,
+                description,
+                barcode,
+                imageUrl,
+                size,
+                storeTagIds: storeTags
+                  .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+                  .map(storeTag => storeTag.get('id')),
+              }),
+            )
               .then(() => done())
               .catch((internalError) => {
                 done();
