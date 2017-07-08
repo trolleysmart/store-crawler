@@ -595,7 +595,9 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             var productInfos = _this.crawlProductInfo(config, res.$);
 
-            Promise.all(productInfos.map(function (productInfo) {
+            Promise.all(productInfos.filter(function (productInfo) {
+              return productInfo.get('productPageUrl');
+            }).map(function (productInfo) {
               return _this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId);
             })).then(function () {
               return done();

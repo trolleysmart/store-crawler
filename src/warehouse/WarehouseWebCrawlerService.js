@@ -360,7 +360,11 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
           const productInfos = this.crawlProductInfo(config, res.$);
 
-          Promise.all(productInfos.map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId)))
+          Promise.all(
+            productInfos
+              .filter(productInfo => productInfo.get('productPageUrl'))
+              .map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId)),
+          )
             .then(() => done())
             .catch((storeProductUpdateError) => {
               done();
