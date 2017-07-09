@@ -736,7 +736,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
           specialType: 'onecard',
         });
 
-        priceToDisplay = productInfo.get('wasPrice');
+        priceToDisplay = productInfo.get('currentPrice');
       } else if (productInfo.has('multiBuyInfo') && productInfo.get('multiBuyInfo')) {
         priceDetails = Map({
           specialType: 'multiBuy',
@@ -748,7 +748,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
           specialType: 'special',
         });
 
-        priceToDisplay = productInfo.get('wasPrice');
+        priceToDisplay = productInfo.get('currentPrice');
       } else {
         priceDetails = Map({
           specialType: 'none',

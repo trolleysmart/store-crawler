@@ -1001,7 +1001,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                     specialType: 'onecard'
                   });
 
-                  priceToDisplay = productInfo.get('wasPrice');
+                  priceToDisplay = productInfo.get('currentPrice');
                 } else if (productInfo.has('multiBuyInfo') && productInfo.get('multiBuyInfo')) {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'multiBuy'
@@ -1013,7 +1013,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                     specialType: 'special'
                   });
 
-                  priceToDisplay = productInfo.get('wasPrice');
+                  priceToDisplay = productInfo.get('currentPrice');
                 } else {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'none'

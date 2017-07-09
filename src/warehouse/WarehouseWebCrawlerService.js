@@ -593,7 +593,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           specialType: 'special',
         });
 
-        priceToDisplay = productInfo.get('wasPrice');
+        priceToDisplay = productInfo.get('currentPrice');
       } else {
         priceDetails = Map({
           specialType: 'none',

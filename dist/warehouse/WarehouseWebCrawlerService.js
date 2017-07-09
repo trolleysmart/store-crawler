@@ -867,7 +867,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                     specialType: 'special'
                   });
 
-                  priceToDisplay = productInfo.get('wasPrice');
+                  priceToDisplay = productInfo.get('currentPrice');
                 } else {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'none'
