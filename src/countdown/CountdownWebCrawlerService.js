@@ -731,19 +731,19 @@ export default class CountdownWebCrawlerService extends ServiceBase {
       let priceDetails;
       let priceToDisplay;
 
-      if (productInfo.has('noneClubPrice')) {
+      if (productInfo.has('onecard') && productInfo.get('onecard')) {
         priceDetails = Map({
-          specialType: 'club',
+          specialType: 'onecard',
         });
 
         priceToDisplay = productInfo.get('wasPrice');
-      } else if (productInfo.has('multiBuyInfo')) {
+      } else if (productInfo.has('multiBuyInfo') && productInfo.get('multiBuyInfo')) {
         priceDetails = Map({
           specialType: 'multiBuy',
         });
 
         priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']) / productInfo.getIn(['multiBuyInfo', 'awardQuantity']);
-      } else if (productInfo.has('wasPrice')) {
+      } else if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
         priceDetails = Map({
           specialType: 'special',
         });

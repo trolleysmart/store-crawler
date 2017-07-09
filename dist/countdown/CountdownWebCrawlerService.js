@@ -996,19 +996,19 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 priceToDisplay = void 0;
 
 
-                if (productInfo.has('noneClubPrice')) {
+                if (productInfo.has('onecard') && productInfo.get('onecard')) {
                   priceDetails = (0, _immutable.Map)({
-                    specialType: 'club'
+                    specialType: 'onecard'
                   });
 
                   priceToDisplay = productInfo.get('wasPrice');
-                } else if (productInfo.has('multiBuyInfo')) {
+                } else if (productInfo.has('multiBuyInfo') && productInfo.get('multiBuyInfo')) {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'multiBuy'
                   });
 
                   priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']) / productInfo.getIn(['multiBuyInfo', 'awardQuantity']);
-                } else if (productInfo.has('wasPrice')) {
+                } else if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'special'
                   });

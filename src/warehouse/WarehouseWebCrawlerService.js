@@ -588,7 +588,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       let priceDetails;
       let priceToDisplay;
 
-      if (productInfo.has('wasPrice')) {
+      if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
         priceDetails = Map({
           specialType: 'special',
         });

@@ -862,7 +862,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 priceToDisplay = void 0;
 
 
-                if (productInfo.has('wasPrice')) {
+                if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'special'
                   });
