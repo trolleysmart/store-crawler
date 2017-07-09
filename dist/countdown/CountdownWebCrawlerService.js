@@ -843,7 +843,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
                 productInfo = productInfo.merge({
                   currentPrice: currentPrice,
-                  wasPrice: wasPrice,
+                  wasPrice: wasPrice || undefined,
                   unitPrice: unitPrice
                 });
 
@@ -859,7 +859,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
                 productInfo = productInfo.merge({
                   currentPrice: currentPrice,
-                  wasPrice: wasPrice,
+                  wasPrice: wasPrice || undefined,
                   unitPrice: unitPrice
                 });
 

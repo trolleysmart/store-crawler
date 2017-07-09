@@ -580,7 +580,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
               productInfo = productInfo.merge({
                 currentPrice,
-                wasPrice,
+                wasPrice: wasPrice || undefined,
                 unitPrice,
               });
 
@@ -596,7 +596,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
               productInfo = productInfo.merge({
                 currentPrice,
-                wasPrice,
+                wasPrice: wasPrice || undefined,
                 unitPrice,
               });
 
