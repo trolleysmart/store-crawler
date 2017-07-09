@@ -606,6 +606,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         Map({
           currentPrice: productInfo.get('currentPrice'),
           wasPrice: productInfo.get('wasPrice'),
+          offerEndDate: productInfo.get('offerEndDate'),
         }),
       );
 
