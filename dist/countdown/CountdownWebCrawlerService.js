@@ -1002,7 +1002,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   });
 
                   priceToDisplay = productInfo.get('wasPrice');
-                } else if (productInfo.has('multiBuy')) {
+                } else if (productInfo.has('multiBuyInfo')) {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'multiBuy'
                   });

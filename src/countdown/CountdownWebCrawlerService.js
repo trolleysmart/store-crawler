@@ -737,7 +737,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         });
 
         priceToDisplay = productInfo.get('wasPrice');
-      } else if (productInfo.has('multiBuy')) {
+      } else if (productInfo.has('multiBuyInfo')) {
         priceDetails = Map({
           specialType: 'multiBuy',
         });
