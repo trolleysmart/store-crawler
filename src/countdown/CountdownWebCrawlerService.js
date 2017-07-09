@@ -537,8 +537,8 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
                   if (multiBuyLinkContainer) {
                     const awardQuantityFullText = multiBuyLinkContainer.find('.multi-buy-award-quantity').text().trim();
-                    const awardQuantity = awardQuantityFullText.substring(0, awardQuantityFullText.indexOf(' '));
-                    const awardValue = multiBuyLinkContainer.find('.multi-buy-award-value').text().trim();
+                    const awardQuantity = parseFloat(awardQuantityFullText.substring(0, awardQuantityFullText.indexOf(' ')));
+                    const awardValue = parseFloat(multiBuyLinkContainer.find('.multi-buy-award-value').text().trim());
 
                     productInfo = productInfo.merge({
                       multiBuyInfo: Map({
@@ -628,15 +628,21 @@ export default class CountdownWebCrawlerService extends ServiceBase {
   getWasPrice = (productPriceContent) => {
     const wasPriceContent = productPriceContent.find('.was-price').text().trim();
 
-    return wasPriceContent.substring(wasPriceContent.indexOf('$') + 1);
+    return parseFloat(wasPriceContent.substring(wasPriceContent.indexOf('$') + 1));
   };
 
   getUnitPrice = (priceContainer) => {
     const unitPriceContent = priceContainer.find('.cup-price').text().trim();
+    const price = this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/')));
+    const size = unitPriceContent.substring(unitPriceContent.indexOf('/') + 1);
+
+    if (!price && !size) {
+      return undefined;
+    }
 
     return Map({
-      price: this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/'))),
-      size: unitPriceContent.substring(unitPriceContent.indexOf('/') + 1),
+      price: price || undefined,
+      size: size || undefined,
     });
   };
 

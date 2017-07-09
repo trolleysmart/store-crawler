@@ -801,8 +801,8 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
                     if (multiBuyLinkContainer) {
                       var awardQuantityFullText = multiBuyLinkContainer.find('.multi-buy-award-quantity').text().trim();
-                      var awardQuantity = awardQuantityFullText.substring(0, awardQuantityFullText.indexOf(' '));
-                      var awardValue = multiBuyLinkContainer.find('.multi-buy-award-value').text().trim();
+                      var awardQuantity = parseFloat(awardQuantityFullText.substring(0, awardQuantityFullText.indexOf(' ')));
+                      var awardValue = parseFloat(multiBuyLinkContainer.find('.multi-buy-award-value').text().trim());
 
                       productInfo = productInfo.merge({
                         multiBuyInfo: (0, _immutable.Map)({
@@ -892,13 +892,19 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
     }, _this.getWasPrice = function (productPriceContent) {
       var wasPriceContent = productPriceContent.find('.was-price').text().trim();
 
-      return wasPriceContent.substring(wasPriceContent.indexOf('$') + 1);
+      return parseFloat(wasPriceContent.substring(wasPriceContent.indexOf('$') + 1));
     }, _this.getUnitPrice = function (priceContainer) {
       var unitPriceContent = priceContainer.find('.cup-price').text().trim();
+      var price = _this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/')));
+      var size = unitPriceContent.substring(unitPriceContent.indexOf('/') + 1);
+
+      if (!price && !size) {
+        return undefined;
+      }
 
       return (0, _immutable.Map)({
-        price: _this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/'))),
-        size: unitPriceContent.substring(unitPriceContent.indexOf('/') + 1)
+        price: price || undefined,
+        size: size || undefined
       });
     }, _this.translateBadge = function (url) {
       var lowerCaseUrl = url.toLowerCase();
