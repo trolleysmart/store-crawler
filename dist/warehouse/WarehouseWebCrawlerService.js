@@ -609,7 +609,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 products = _context5.sent;
                 _context5.next = 18;
                 return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product, storeTags);
+                  return _this.crawlProductDetails(finalConfig, product, storeTags, false);
                 });
 
               case 18:
@@ -668,7 +668,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 products = _context6.sent;
                 _context6.next = 20;
                 return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product, storeTags);
+                  return _this.crawlProductDetails(finalConfig, product, storeTags, true);
                 });
 
               case 20:
@@ -682,7 +682,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return function (_x6) {
         return _ref7.apply(this, arguments);
       };
-    }(), _this.crawlProductDetails = function (config, product, storeTags) {
+    }(), _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails) {
       return new Promise(function (resolve, reject) {
         var productInfo = (0, _immutable.Map)();
         var crawler = new _crawler2.default({
@@ -760,19 +760,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return 0;
             });
 
-            _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
-              name: productInfo.get('name'),
-              description: productInfo.get('name'),
-              barcode: productInfo.get('barcode'),
-              imageUrl: productInfo.get('imageUrl'),
-              storeTagIds: storeTags.filter(function (storeTag) {
-                return productInfo.get('tagUrls').find(function (tagUrl) {
-                  return tagUrl.localeCompare(storeTag.get('url')) === 0;
-                });
-              }).map(function (storeTag) {
-                return storeTag.get('id');
-              })
-            })).then(function () {
+            _this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails).then(function () {
               return done();
             }).catch(function (internalError) {
               done();
@@ -855,7 +843,85 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       });
 
       return (0, _immutable.Map)({ benefitsAndFeatures: benefitsAndFeatures });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
+    }, _this.updateProductDetails = function () {
+      var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(product, storeTags, productInfo, updatePriceDetails) {
+        var masterProductId, storeId, priceDetails, priceToDisplay, masterProductPrice;
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                masterProductId = product.get('masterProductId');
+                storeId = product.get('storeId');
+
+                if (!updatePriceDetails) {
+                  _context7.next = 10;
+                  break;
+                }
+
+                priceDetails = void 0;
+                priceToDisplay = void 0;
+
+
+                if (productInfo.has('wasPrice')) {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'special'
+                  });
+
+                  priceToDisplay = productInfo.get('wasPrice');
+                } else {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'none'
+                  });
+
+                  priceToDisplay = productInfo.get('currentPrice');
+                }
+
+                priceDetails = priceDetails.merge((0, _immutable.Map)({
+                  currentPrice: productInfo.get('currentPrice'),
+                  wasPrice: productInfo.get('wasPrice')
+                }));
+
+                masterProductPrice = (0, _immutable.Map)({
+                  masterProductId: masterProductId,
+                  storeId: storeId,
+                  name: product.get('name'),
+                  storeName: 'Warehouse',
+                  status: 'A',
+                  priceDetails: priceDetails,
+                  priceToDisplay: priceToDisplay
+                });
+                _context7.next = 10;
+                return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails);
+
+              case 10:
+
+                _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
+                  name: productInfo.get('name'),
+                  description: productInfo.get('name'),
+                  barcode: productInfo.get('barcode'),
+                  imageUrl: productInfo.get('imageUrl'),
+                  lastCrawlDateTime: updatePriceDetails ? new Date() : productInfo.get('lastCrawlDateTime'),
+                  storeTagIds: storeTags.filter(function (storeTag) {
+                    return productInfo.get('tagUrls').find(function (tagUrl) {
+                      return tagUrl.localeCompare(storeTag.get('url')) === 0;
+                    });
+                  }).map(function (storeTag) {
+                    return storeTag.get('id');
+                  })
+                }));
+
+              case 11:
+              case 'end':
+                return _context7.stop();
+            }
+          }
+        }, _callee7, _this2);
+      }));
+
+      return function (_x7, _x8, _x9, _x10) {
+        return _ref8.apply(this, arguments);
+      };
+    }(), _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   return WarehouseWebCrawlerService;

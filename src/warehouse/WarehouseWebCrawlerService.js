@@ -399,7 +399,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const storeTags = await this.getStoreTags(storeId);
     const products = await this.getAllStoreMasterProductsWithoutMasterProduct(storeId);
 
-    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false));
   };
 
   crawlProductsPriceDetails = async (config) => {
@@ -413,10 +413,10 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
     const products = await this.getAllStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
 
-    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, true));
   };
 
-  crawlProductDetails = (config, product, storeTags) =>
+  crawlProductDetails = (config, product, storeTags, updatePriceDetails) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
       const crawler = new Crawler({
@@ -490,22 +490,10 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return 0;
           });
 
-          StoreMasterProductService.update(
-            product.merge({
-              name: productInfo.get('name'),
-              description: productInfo.get('name'),
-              barcode: productInfo.get('barcode'),
-              imageUrl: productInfo.get('imageUrl'),
-              storeTagIds: storeTags
-                .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-                .map(storeTag => storeTag.get('id')),
-            }),
-          )
-            .then(() => done())
-            .catch((internalError) => {
-              done();
-              reject(internalError);
-            });
+          this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails).then(() => done()).catch((internalError) => {
+            done();
+            reject(internalError);
+          });
         },
       });
 
@@ -590,5 +578,61 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     });
 
     return Map({ benefitsAndFeatures });
+  };
+
+  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails) => {
+    const masterProductId = product.get('masterProductId');
+    const storeId = product.get('storeId');
+
+    if (updatePriceDetails) {
+      let priceDetails;
+      let priceToDisplay;
+
+      if (productInfo.has('wasPrice')) {
+        priceDetails = Map({
+          specialType: 'special',
+        });
+
+        priceToDisplay = productInfo.get('wasPrice');
+      } else {
+        priceDetails = Map({
+          specialType: 'none',
+        });
+
+        priceToDisplay = productInfo.get('currentPrice');
+      }
+
+      priceDetails = priceDetails.merge(
+        Map({
+          currentPrice: productInfo.get('currentPrice'),
+          wasPrice: productInfo.get('wasPrice'),
+        }),
+      );
+
+      const masterProductPrice = Map({
+        masterProductId,
+        storeId,
+        name: product.get('name'),
+        storeName: 'Warehouse',
+        status: 'A',
+        priceDetails,
+        priceToDisplay,
+      });
+
+      await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails);
+    }
+
+    StoreMasterProductService.update(
+      product.merge({
+        name: productInfo.get('name'),
+        description: productInfo.get('name'),
+        barcode: productInfo.get('barcode'),
+        imageUrl: productInfo.get('imageUrl'),
+        lastCrawlDateTime: updatePriceDetails ? new Date() : productInfo.get('lastCrawlDateTime'),
+        storeTagIds: storeTags
+          .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+          .map(storeTag => storeTag.get('id')),
+      }),
+    );
   };
 }

@@ -671,7 +671,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 products = _context4.sent;
                 _context4.next = 18;
                 return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product, storeTags);
+                  return _this.crawlProductDetails(finalConfig, product, storeTags, false);
                 });
 
               case 18:
@@ -730,7 +730,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 products = _context5.sent;
                 _context5.next = 20;
                 return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product, storeTags);
+                  return _this.crawlProductDetails(finalConfig, product, storeTags, true);
                 });
 
               case 20:
@@ -744,7 +744,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return function (_x4) {
         return _ref6.apply(this, arguments);
       };
-    }(), _this.crawlProductDetails = function (config, product, storeTags) {
+    }(), _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails) {
       return new Promise(function (resolve, reject) {
         var productInfo = (0, _immutable.Map)();
 
@@ -827,6 +827,14 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               var name = sizeOffset === -1 || size.length === 0 ? title : title.substring(0, sizeOffset).trim();
               var description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
 
+              productInfo = productInfo.merge({
+                name: name,
+                description: description,
+                barcode: barcode,
+                imageUrl: imageUrl,
+                size: size
+              });
+
               productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
                 var priceContent = $(this).find('.product-price');
                 var currentPrice = self.getCurrentPrice(priceContent);
@@ -846,32 +854,19 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 var clubPriceContent = $(this).find('.drop-down-club-price-wrapper');
                 var currentPrice = self.getClubPrice(clubPriceContent);
                 var nonClubPriceContent = $(this).find('.grid-non-club-price').text().trim();
-                var noneClubPrice = self.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
+                var wasPrice = self.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
                 var unitPrice = self.getUnitPrice($(this));
 
                 productInfo = productInfo.merge({
                   currentPrice: currentPrice,
-                  noneClubPrice: noneClubPrice,
+                  wasPrice: wasPrice,
                   unitPrice: unitPrice
                 });
 
                 return 0;
               });
 
-              _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
-                name: name,
-                description: description,
-                barcode: barcode,
-                imageUrl: imageUrl,
-                size: size,
-                storeTagIds: storeTags.filter(function (storeTag) {
-                  return productInfo.get('tagUrls').find(function (tagUrl) {
-                    return tagUrl.localeCompare(storeTag.get('url')) === 0;
-                  });
-                }).map(function (storeTag) {
-                  return storeTag.get('id');
-                })
-              })).then(function () {
+              self.updateProductDetails(product, storeTags, productInfo, updatePriceDetails).then(function () {
                 return done();
               }).catch(function (internalError) {
                 done();
@@ -902,8 +897,8 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       var unitPriceContent = priceContainer.find('.cup-price').text().trim();
 
       return (0, _immutable.Map)({
-        unitPrice: _this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/'))),
-        unitSize: unitPriceContent.substring(unitPriceContent.indexOf('/') + 1)
+        price: _this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/'))),
+        size: unitPriceContent.substring(unitPriceContent.indexOf('/') + 1)
       });
     }, _this.translateBadge = function (url) {
       var lowerCaseUrl = url.toLowerCase();
@@ -976,7 +971,100 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       var str = imageUrl.substr(zoomIndex + 5);
 
       return str.substr(0, str.indexOf('.jpg'));
-    }, _temp), _possibleConstructorReturn(_this, _ret);
+    }, _this.updateProductDetails = function () {
+      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(product, storeTags, productInfo, updatePriceDetails) {
+        var masterProductId, storeId, priceDetails, priceToDisplay, masterProductPrice;
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                masterProductId = product.get('masterProductId');
+                storeId = product.get('storeId');
+
+                if (!updatePriceDetails) {
+                  _context6.next = 10;
+                  break;
+                }
+
+                priceDetails = void 0;
+                priceToDisplay = void 0;
+
+
+                if (productInfo.has('noneClubPrice')) {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'club'
+                  });
+
+                  priceToDisplay = productInfo.get('wasPrice');
+                } else if (productInfo.has('multiBuy')) {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'multiBuy'
+                  });
+
+                  priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']) / productInfo.getIn(['multiBuyInfo', 'awardQuantity']);
+                } else if (productInfo.has('wasPrice')) {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'special'
+                  });
+
+                  priceToDisplay = productInfo.get('wasPrice');
+                } else {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'none'
+                  });
+
+                  priceToDisplay = productInfo.get('currentPrice');
+                }
+
+                priceDetails = priceDetails.merge((0, _immutable.Map)({
+                  currentPrice: productInfo.get('currentPrice'),
+                  wasPrice: productInfo.get('wasPrice'),
+                  multiBuyInfo: productInfo.get('multiBuyInfo'),
+                  unitPrice: productInfo.get('unitPrice')
+                }));
+
+                masterProductPrice = (0, _immutable.Map)({
+                  masterProductId: masterProductId,
+                  storeId: storeId,
+                  name: product.get('name'),
+                  storeName: 'Countdown',
+                  status: 'A',
+                  priceDetails: priceDetails,
+                  priceToDisplay: priceToDisplay
+                });
+                _context6.next = 10;
+                return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails);
+
+              case 10:
+                _context6.next = 12;
+                return _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
+                  name: productInfo.get('name'),
+                  description: productInfo.get('description'),
+                  barcode: productInfo.get('barcode'),
+                  imageUrl: productInfo.get('imageUrl'),
+                  size: productInfo.get('size'),
+                  lastCrawlDateTime: updatePriceDetails ? new Date() : productInfo.get('lastCrawlDateTime'),
+                  storeTagIds: storeTags.filter(function (storeTag) {
+                    return productInfo.get('tagUrls').find(function (tagUrl) {
+                      return tagUrl.localeCompare(storeTag.get('url')) === 0;
+                    });
+                  }).map(function (storeTag) {
+                    return storeTag.get('id');
+                  })
+                }));
+
+              case 12:
+              case 'end':
+                return _context6.stop();
+            }
+          }
+        }, _callee6, _this2);
+      }));
+
+      return function (_x5, _x6, _x7, _x8) {
+        return _ref7.apply(this, arguments);
+      };
+    }(), _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   return CountdownWebCrawlerService;

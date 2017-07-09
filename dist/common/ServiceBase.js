@@ -627,6 +627,116 @@ var ServiceBase = function ServiceBase(_ref) {
     return parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
   };
 
+  this.getActiveMasterProductPrices = function () {
+    var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(masterProductId, storeId) {
+      var criteria;
+      return regeneratorRuntime.wrap(function _callee13$(_context13) {
+        while (1) {
+          switch (_context13.prev = _context13.next) {
+            case 0:
+              criteria = (0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  masterProductId: masterProductId,
+                  storeId: storeId,
+                  status: 'A'
+                })
+              });
+              return _context13.abrupt('return', _smartGroceryParseServerCommon.MasterProductPriceService.search(criteria));
+
+            case 2:
+            case 'end':
+              return _context13.stop();
+          }
+        }
+      }, _callee13, _this);
+    }));
+
+    return function (_x26, _x27) {
+      return _ref14.apply(this, arguments);
+    };
+  }();
+
+  this.createOrUpdateMasterProductPrice = function () {
+    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(masterProductId, storeId, masterProductPrice, priceDetails) {
+      var masterProductPrices, notMatchedMasterProductPrices, matchedMasterProductPrices;
+      return regeneratorRuntime.wrap(function _callee14$(_context14) {
+        while (1) {
+          switch (_context14.prev = _context14.next) {
+            case 0:
+              _context14.next = 2;
+              return _this.getActiveMasterProductPrices(masterProductId, storeId);
+
+            case 2:
+              masterProductPrices = _context14.sent;
+
+              if (!masterProductPrices.isEmpty()) {
+                _context14.next = 8;
+                break;
+              }
+
+              _context14.next = 6;
+              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
+
+            case 6:
+              _context14.next = 21;
+              break;
+
+            case 8:
+              notMatchedMasterProductPrices = masterProductPrices.filterNot(function (_) {
+                return _.get('priceDetails').equals(priceDetails);
+              });
+
+              if (notMatchedMasterProductPrices.isEmpty()) {
+                _context14.next = 12;
+                break;
+              }
+
+              _context14.next = 12;
+              return Promise.all(notMatchedMasterProductPrices.map(function (_) {
+                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
+              }).toArray());
+
+            case 12:
+              matchedMasterProductPrices = masterProductPrices.filter(function (_) {
+                return _.get('priceDetails').equals(priceDetails);
+              });
+
+              if (matchedMasterProductPrices.isEmpty()) {
+                _context14.next = 19;
+                break;
+              }
+
+              if (!(matchedMasterProductPrices.count() > 1)) {
+                _context14.next = 17;
+                break;
+              }
+
+              _context14.next = 17;
+              return Promise.all(matchedMasterProductPrices.skip(1).map(function (_) {
+                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
+              }).toArray());
+
+            case 17:
+              _context14.next = 21;
+              break;
+
+            case 19:
+              _context14.next = 21;
+              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
+
+            case 21:
+            case 'end':
+              return _context14.stop();
+          }
+        }
+      }, _callee14, _this);
+    }));
+
+    return function (_x28, _x29, _x30, _x31) {
+      return _ref15.apply(this, arguments);
+    };
+  }();
+
   this.logVerbose = function (config, messageFunc) {
     if (_this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       _this.logVerboseFunc(messageFunc());

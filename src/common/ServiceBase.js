@@ -2,7 +2,14 @@
 
 import Immutable, { List, Map, Range } from 'immutable';
 import { Exception, ParseWrapperService } from 'micro-business-parse-server-common';
-import { CrawlResultService, CrawlSessionService, StoreService, StoreMasterProductService, StoreTagService } from 'smart-grocery-parse-server-common';
+import {
+  CrawlResultService,
+  CrawlSessionService,
+  MasterProductPriceService,
+  StoreService,
+  StoreMasterProductService,
+  StoreTagService,
+} from 'smart-grocery-parse-server-common';
 
 export default class ServiceBase {
   constructor({ logVerboseFunc, logInfoFunc, logErrorFunc }) {
@@ -59,6 +66,7 @@ export default class ServiceBase {
     } else if (results.count() === 1) {
       return results.first();
     }
+
     throw new Exception(`Multiple store found called ${name}.`);
   };
 
@@ -268,6 +276,42 @@ export default class ServiceBase {
   };
 
   removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
+
+  getActiveMasterProductPrices = async (masterProductId, storeId) => {
+    const criteria = Map({
+      conditions: Map({
+        masterProductId,
+        storeId,
+        status: 'A',
+      }),
+    });
+
+    return MasterProductPriceService.search(criteria);
+  };
+
+  createOrUpdateMasterProductPrice = async (masterProductId, storeId, masterProductPrice, priceDetails) => {
+    const masterProductPrices = await this.getActiveMasterProductPrices(masterProductId, storeId);
+
+    if (masterProductPrices.isEmpty()) {
+      await MasterProductPriceService.create(masterProductPrice);
+    } else {
+      const notMatchedMasterProductPrices = masterProductPrices.filterNot(_ => _.get('priceDetails').equals(priceDetails));
+
+      if (!notMatchedMasterProductPrices.isEmpty()) {
+        await Promise.all(notMatchedMasterProductPrices.map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
+      }
+
+      const matchedMasterProductPrices = masterProductPrices.filter(_ => _.get('priceDetails').equals(priceDetails));
+
+      if (!matchedMasterProductPrices.isEmpty()) {
+        if (matchedMasterProductPrices.count() > 1) {
+          await Promise.all(matchedMasterProductPrices.skip(1).map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
+        }
+      } else {
+        await MasterProductPriceService.create(masterProductPrice);
+      }
+    }
+  };
 
   logVerbose = (config, messageFunc) => {
     if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {

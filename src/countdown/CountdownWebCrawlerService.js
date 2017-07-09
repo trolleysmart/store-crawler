@@ -467,7 +467,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const storeTags = await this.getStoreTags(storeId);
     const products = await this.getAllStoreMasterProductsWithoutMasterProduct(storeId);
 
-    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false));
   };
 
   crawlProductsPriceDetails = async (config) => {
@@ -481,10 +481,10 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
     const products = await this.getAllStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
 
-    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags));
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, true));
   };
 
-  crawlProductDetails = (config, product, storeTags) =>
+  crawlProductDetails = (config, product, storeTags, updatePriceDetails) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
 
@@ -564,6 +564,14 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const name = sizeOffset === -1 || size.length === 0 ? title : title.substring(0, sizeOffset).trim();
             const description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
 
+            productInfo = productInfo.merge({
+              name,
+              description,
+              barcode,
+              imageUrl,
+              size,
+            });
+
             productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
               const priceContent = $(this).find('.product-price');
               const currentPrice = self.getCurrentPrice(priceContent);
@@ -583,35 +591,22 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               const clubPriceContent = $(this).find('.drop-down-club-price-wrapper');
               const currentPrice = self.getClubPrice(clubPriceContent);
               const nonClubPriceContent = $(this).find('.grid-non-club-price').text().trim();
-              const noneClubPrice = self.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
+              const wasPrice = self.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
               const unitPrice = self.getUnitPrice($(this));
 
               productInfo = productInfo.merge({
                 currentPrice,
-                noneClubPrice,
+                wasPrice,
                 unitPrice,
               });
 
               return 0;
             });
 
-            StoreMasterProductService.update(
-              product.merge({
-                name,
-                description,
-                barcode,
-                imageUrl,
-                size,
-                storeTagIds: storeTags
-                  .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-                  .map(storeTag => storeTag.get('id')),
-              }),
-            )
-              .then(() => done())
-              .catch((internalError) => {
-                done();
-                reject(internalError);
-              });
+            self.updateProductDetails(product, storeTags, productInfo, updatePriceDetails).then(() => done()).catch((internalError) => {
+              done();
+              reject(internalError);
+            });
 
             return 0;
           });
@@ -640,8 +635,8 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const unitPriceContent = priceContainer.find('.cup-price').text().trim();
 
     return Map({
-      unitPrice: this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/'))),
-      unitSize: unitPriceContent.substring(unitPriceContent.indexOf('/') + 1),
+      price: this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/'))),
+      size: unitPriceContent.substring(unitPriceContent.indexOf('/') + 1),
     });
   };
 
@@ -720,5 +715,76 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const str = imageUrl.substr(zoomIndex + 5);
 
     return str.substr(0, str.indexOf('.jpg'));
+  };
+
+  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails) => {
+    const masterProductId = product.get('masterProductId');
+    const storeId = product.get('storeId');
+
+    if (updatePriceDetails) {
+      let priceDetails;
+      let priceToDisplay;
+
+      if (productInfo.has('noneClubPrice')) {
+        priceDetails = Map({
+          specialType: 'club',
+        });
+
+        priceToDisplay = productInfo.get('wasPrice');
+      } else if (productInfo.has('multiBuy')) {
+        priceDetails = Map({
+          specialType: 'multiBuy',
+        });
+
+        priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']) / productInfo.getIn(['multiBuyInfo', 'awardQuantity']);
+      } else if (productInfo.has('wasPrice')) {
+        priceDetails = Map({
+          specialType: 'special',
+        });
+
+        priceToDisplay = productInfo.get('wasPrice');
+      } else {
+        priceDetails = Map({
+          specialType: 'none',
+        });
+
+        priceToDisplay = productInfo.get('currentPrice');
+      }
+
+      priceDetails = priceDetails.merge(
+        Map({
+          currentPrice: productInfo.get('currentPrice'),
+          wasPrice: productInfo.get('wasPrice'),
+          multiBuyInfo: productInfo.get('multiBuyInfo'),
+          unitPrice: productInfo.get('unitPrice'),
+        }),
+      );
+
+      const masterProductPrice = Map({
+        masterProductId,
+        storeId,
+        name: product.get('name'),
+        storeName: 'Countdown',
+        status: 'A',
+        priceDetails,
+        priceToDisplay,
+      });
+
+      await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails);
+    }
+
+    await StoreMasterProductService.update(
+      product.merge({
+        name: productInfo.get('name'),
+        description: productInfo.get('description'),
+        barcode: productInfo.get('barcode'),
+        imageUrl: productInfo.get('imageUrl'),
+        size: productInfo.get('size'),
+        lastCrawlDateTime: updatePriceDetails ? new Date() : productInfo.get('lastCrawlDateTime'),
+        storeTagIds: storeTags
+          .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+          .map(storeTag => storeTag.get('id')),
+      }),
+    );
   };
 }
