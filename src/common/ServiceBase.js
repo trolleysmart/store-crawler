@@ -263,8 +263,8 @@ export default class ServiceBase {
     }
   };
 
-  getAllStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime) => {
-    const criteria = Map({
+  getStoreMasterProductsWithMasterProductCriteria = (storeId, lastCrawlDateTime) =>
+    Map({
       conditions: Map({
         storeId,
         with_masterProduct: true,
@@ -272,7 +272,23 @@ export default class ServiceBase {
       }),
     });
 
-    return StoreMasterProductService.search(criteria);
+  getStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime) =>
+    StoreMasterProductService.search(this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime));
+
+  getAllStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime) => {
+    const result = StoreMasterProductService.searchAll(this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime));
+
+    try {
+      let products = List();
+
+      result.event.subscribe(info => (products = products.push(info)));
+
+      await result.promise;
+
+      return products;
+    } finally {
+      result.event.unsubscribeAll();
+    }
   };
 
   removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());

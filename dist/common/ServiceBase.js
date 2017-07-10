@@ -594,23 +594,25 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
-  this.getAllStoreMasterProductsWithMasterProduct = function () {
+  this.getStoreMasterProductsWithMasterProductCriteria = function (storeId, lastCrawlDateTime) {
+    return (0, _immutable.Map)({
+      conditions: (0, _immutable.Map)({
+        storeId: storeId,
+        with_masterProduct: true,
+        lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime
+      })
+    });
+  };
+
+  this.getStoreMasterProductsWithMasterProduct = function () {
     var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(storeId, lastCrawlDateTime) {
-      var criteria;
       return regeneratorRuntime.wrap(function _callee12$(_context12) {
         while (1) {
           switch (_context12.prev = _context12.next) {
             case 0:
-              criteria = (0, _immutable.Map)({
-                conditions: (0, _immutable.Map)({
-                  storeId: storeId,
-                  with_masterProduct: true,
-                  lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime
-                })
-              });
-              return _context12.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(criteria));
+              return _context12.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(_this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime)));
 
-            case 2:
+            case 1:
             case 'end':
               return _context12.stop();
           }
@@ -623,16 +625,57 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
+  this.getAllStoreMasterProductsWithMasterProduct = function () {
+    var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(storeId, lastCrawlDateTime) {
+      var result, products;
+      return regeneratorRuntime.wrap(function _callee13$(_context13) {
+        while (1) {
+          switch (_context13.prev = _context13.next) {
+            case 0:
+              result = _smartGroceryParseServerCommon.StoreMasterProductService.searchAll(_this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime));
+              _context13.prev = 1;
+              products = (0, _immutable.List)();
+
+
+              result.event.subscribe(function (info) {
+                return products = products.push(info);
+              });
+
+              _context13.next = 6;
+              return result.promise;
+
+            case 6:
+              return _context13.abrupt('return', products);
+
+            case 7:
+              _context13.prev = 7;
+
+              result.event.unsubscribeAll();
+              return _context13.finish(7);
+
+            case 10:
+            case 'end':
+              return _context13.stop();
+          }
+        }
+      }, _callee13, _this, [[1,, 7, 10]]);
+    }));
+
+    return function (_x26, _x27) {
+      return _ref14.apply(this, arguments);
+    };
+  }();
+
   this.removeDollarSignFromPrice = function (priceWithDollarSign) {
     return parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
   };
 
   this.getActiveMasterProductPrices = function () {
-    var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(masterProductId, storeId) {
+    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(masterProductId, storeId) {
       var criteria;
-      return regeneratorRuntime.wrap(function _callee13$(_context13) {
+      return regeneratorRuntime.wrap(function _callee14$(_context14) {
         while (1) {
-          switch (_context13.prev = _context13.next) {
+          switch (_context14.prev = _context14.next) {
             case 0:
               criteria = (0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
@@ -641,44 +684,44 @@ var ServiceBase = function ServiceBase(_ref) {
                   status: 'A'
                 })
               });
-              return _context13.abrupt('return', _smartGroceryParseServerCommon.MasterProductPriceService.search(criteria));
+              return _context14.abrupt('return', _smartGroceryParseServerCommon.MasterProductPriceService.search(criteria));
 
             case 2:
             case 'end':
-              return _context13.stop();
+              return _context14.stop();
           }
         }
-      }, _callee13, _this);
+      }, _callee14, _this);
     }));
 
-    return function (_x26, _x27) {
-      return _ref14.apply(this, arguments);
+    return function (_x28, _x29) {
+      return _ref15.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateMasterProductPrice = function () {
-    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(masterProductId, storeId, masterProductPrice, priceDetails) {
+    var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(masterProductId, storeId, masterProductPrice, priceDetails) {
       var masterProductPrices, notMatchedMasterProductPrices, matchedMasterProductPrices;
-      return regeneratorRuntime.wrap(function _callee14$(_context14) {
+      return regeneratorRuntime.wrap(function _callee15$(_context15) {
         while (1) {
-          switch (_context14.prev = _context14.next) {
+          switch (_context15.prev = _context15.next) {
             case 0:
-              _context14.next = 2;
+              _context15.next = 2;
               return _this.getActiveMasterProductPrices(masterProductId, storeId);
 
             case 2:
-              masterProductPrices = _context14.sent;
+              masterProductPrices = _context15.sent;
 
               if (!masterProductPrices.isEmpty()) {
-                _context14.next = 8;
+                _context15.next = 8;
                 break;
               }
 
-              _context14.next = 6;
+              _context15.next = 6;
               return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
 
             case 6:
-              _context14.next = 21;
+              _context15.next = 21;
               break;
 
             case 8:
@@ -687,11 +730,11 @@ var ServiceBase = function ServiceBase(_ref) {
               });
 
               if (notMatchedMasterProductPrices.isEmpty()) {
-                _context14.next = 12;
+                _context15.next = 12;
                 break;
               }
 
-              _context14.next = 12;
+              _context15.next = 12;
               return Promise.all(notMatchedMasterProductPrices.map(function (_) {
                 return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
               }).toArray());
@@ -702,38 +745,38 @@ var ServiceBase = function ServiceBase(_ref) {
               });
 
               if (matchedMasterProductPrices.isEmpty()) {
-                _context14.next = 19;
+                _context15.next = 19;
                 break;
               }
 
               if (!(matchedMasterProductPrices.count() > 1)) {
-                _context14.next = 17;
+                _context15.next = 17;
                 break;
               }
 
-              _context14.next = 17;
+              _context15.next = 17;
               return Promise.all(matchedMasterProductPrices.skip(1).map(function (_) {
                 return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
               }).toArray());
 
             case 17:
-              _context14.next = 21;
+              _context15.next = 21;
               break;
 
             case 19:
-              _context14.next = 21;
+              _context15.next = 21;
               return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
 
             case 21:
             case 'end':
-              return _context14.stop();
+              return _context15.stop();
           }
         }
-      }, _callee14, _this);
+      }, _callee15, _this);
     }));
 
-    return function (_x28, _x29, _x30, _x31) {
-      return _ref15.apply(this, arguments);
+    return function (_x30, _x31, _x32, _x33) {
+      return _ref16.apply(this, arguments);
     };
   }();
 
