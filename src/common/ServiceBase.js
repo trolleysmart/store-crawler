@@ -323,8 +323,6 @@ export default class ServiceBase {
         await Promise.all(matchedMasterProductPrices.skip(1).map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
       } else if (matchedMasterProductPrices.count() === 0) {
         await MasterProductPriceService.create(masterProductPrice);
-      } else {
-        console.log('Found a match, no need to update');
       }
     }
   };

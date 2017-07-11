@@ -759,10 +759,10 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
       priceDetails = priceDetails.merge(
         Map({
-          currentPrice: productInfo.get('currentPrice'),
-          wasPrice: productInfo.get('wasPrice'),
-          multiBuyInfo: productInfo.get('multiBuyInfo'),
-          unitPrice: productInfo.get('unitPrice'),
+          currentPrice: productInfo.get('currentPrice') || undefined,
+          wasPrice: productInfo.get('wasPrice') || undefined,
+          multiBuyInfo: productInfo.get('multiBuyInfo') || undefined,
+          unitPrice: productInfo.get('unitPrice') || undefined,
         }),
       );
 

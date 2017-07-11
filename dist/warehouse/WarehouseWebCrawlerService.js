@@ -877,9 +877,9 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 }
 
                 priceDetails = priceDetails.merge((0, _immutable.Map)({
-                  currentPrice: productInfo.get('currentPrice'),
-                  wasPrice: productInfo.get('wasPrice'),
-                  offerEndDate: productInfo.get('offerEndDate')
+                  currentPrice: productInfo.get('currentPrice') || undefined,
+                  wasPrice: productInfo.get('wasPrice') || undefined,
+                  offerEndDate: productInfo.get('offerEndDate') || undefined
                 }));
 
                 masterProductPrice = (0, _immutable.Map)({

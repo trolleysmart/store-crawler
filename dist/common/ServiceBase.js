@@ -721,7 +721,7 @@ var ServiceBase = function ServiceBase(_ref) {
               return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
 
             case 6:
-              _context15.next = 24;
+              _context15.next = 21;
               break;
 
             case 8:
@@ -755,12 +755,12 @@ var ServiceBase = function ServiceBase(_ref) {
               }).toArray());
 
             case 16:
-              _context15.next = 24;
+              _context15.next = 21;
               break;
 
             case 18:
               if (!(matchedMasterProductPrices.count() === 0)) {
-                _context15.next = 23;
+                _context15.next = 21;
                 break;
               }
 
@@ -768,13 +768,6 @@ var ServiceBase = function ServiceBase(_ref) {
               return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
 
             case 21:
-              _context15.next = 24;
-              break;
-
-            case 23:
-              console.log('Found a match, no need to update');
-
-            case 24:
             case 'end':
               return _context15.stop();
           }

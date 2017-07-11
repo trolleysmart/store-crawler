@@ -1023,10 +1023,10 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 }
 
                 priceDetails = priceDetails.merge((0, _immutable.Map)({
-                  currentPrice: productInfo.get('currentPrice'),
-                  wasPrice: productInfo.get('wasPrice'),
-                  multiBuyInfo: productInfo.get('multiBuyInfo'),
-                  unitPrice: productInfo.get('unitPrice')
+                  currentPrice: productInfo.get('currentPrice') || undefined,
+                  wasPrice: productInfo.get('wasPrice') || undefined,
+                  multiBuyInfo: productInfo.get('multiBuyInfo') || undefined,
+                  unitPrice: productInfo.get('unitPrice') || undefined
                 }));
 
                 masterProductPrice = (0, _immutable.Map)({
