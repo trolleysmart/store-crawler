@@ -319,12 +319,12 @@ export default class ServiceBase {
 
       const matchedMasterProductPrices = masterProductPrices.filter(_ => _.get('priceDetails').equals(priceDetails));
 
-      if (!matchedMasterProductPrices.isEmpty()) {
-        if (matchedMasterProductPrices.count() > 1) {
-          await Promise.all(matchedMasterProductPrices.skip(1).map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
-        }
-      } else {
+      if (matchedMasterProductPrices.count() > 1) {
+        await Promise.all(matchedMasterProductPrices.skip(1).map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
+      } else if (matchedMasterProductPrices.count() === 0) {
         await MasterProductPriceService.create(masterProductPrice);
+      } else {
+        console.log('Found a match, no need to update');
       }
     }
   };

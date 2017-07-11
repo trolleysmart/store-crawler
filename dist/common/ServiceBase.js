@@ -721,7 +721,7 @@ var ServiceBase = function ServiceBase(_ref) {
               return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
 
             case 6:
-              _context15.next = 21;
+              _context15.next = 24;
               break;
 
             case 8:
@@ -744,30 +744,37 @@ var ServiceBase = function ServiceBase(_ref) {
                 return _.get('priceDetails').equals(priceDetails);
               });
 
-              if (matchedMasterProductPrices.isEmpty()) {
-                _context15.next = 19;
-                break;
-              }
-
               if (!(matchedMasterProductPrices.count() > 1)) {
-                _context15.next = 17;
+                _context15.next = 18;
                 break;
               }
 
-              _context15.next = 17;
+              _context15.next = 16;
               return Promise.all(matchedMasterProductPrices.skip(1).map(function (_) {
                 return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
               }).toArray());
 
-            case 17:
-              _context15.next = 21;
+            case 16:
+              _context15.next = 24;
               break;
 
-            case 19:
+            case 18:
+              if (!(matchedMasterProductPrices.count() === 0)) {
+                _context15.next = 23;
+                break;
+              }
+
               _context15.next = 21;
               return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
 
             case 21:
+              _context15.next = 24;
+              break;
+
+            case 23:
+              console.log('Found a match, no need to update');
+
+            case 24:
             case 'end':
               return _context15.stop();
           }
