@@ -757,14 +757,16 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         priceToDisplay = productInfo.get('currentPrice');
       }
 
-      priceDetails = priceDetails.merge(
-        Map({
-          currentPrice: productInfo.get('currentPrice') || undefined,
-          wasPrice: productInfo.get('wasPrice') || undefined,
-          multiBuyInfo: productInfo.get('multiBuyInfo') || undefined,
-          unitPrice: productInfo.get('unitPrice') || undefined,
-        }),
-      );
+      const currentPrice = productInfo.get('currentPrice');
+      const wasPrice = productInfo.get('wasPrice');
+      const multiBuyInfo = productInfo.get('multiBuyInfo');
+      const unitPrice = productInfo.get('unitPrice');
+
+      priceDetails = priceDetails
+        .merge(currentPrice ? Map({ currentPrice }) : Map())
+        .merge(wasPrice ? Map({ wasPrice }) : Map())
+        .merge(multiBuyInfo ? Map({ multiBuyInfo }) : Map())
+        .merge(unitPrice ? Map({ unitPrice }) : Map());
 
       const masterProductPrice = Map({
         masterProductId,

@@ -979,7 +979,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return str.substr(0, str.indexOf('.jpg'));
     }, _this.updateProductDetails = function () {
       var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(product, storeTags, productInfo, updatePriceDetails) {
-        var masterProductId, storeId, priceDetails, priceToDisplay, masterProductPrice;
+        var masterProductId, storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, masterProductPrice;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
@@ -988,7 +988,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 storeId = product.get('storeId');
 
                 if (!updatePriceDetails) {
-                  _context6.next = 10;
+                  _context6.next = 14;
                   break;
                 }
 
@@ -1022,12 +1022,13 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   priceToDisplay = productInfo.get('currentPrice');
                 }
 
-                priceDetails = priceDetails.merge((0, _immutable.Map)({
-                  currentPrice: productInfo.get('currentPrice') || undefined,
-                  wasPrice: productInfo.get('wasPrice') || undefined,
-                  multiBuyInfo: productInfo.get('multiBuyInfo') || undefined,
-                  unitPrice: productInfo.get('unitPrice') || undefined
-                }));
+                currentPrice = productInfo.get('currentPrice');
+                wasPrice = productInfo.get('wasPrice');
+                multiBuyInfo = productInfo.get('multiBuyInfo');
+                unitPrice = productInfo.get('unitPrice');
+
+
+                priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(multiBuyInfo ? (0, _immutable.Map)({ multiBuyInfo: multiBuyInfo }) : (0, _immutable.Map)()).merge(unitPrice ? (0, _immutable.Map)({ unitPrice: unitPrice }) : (0, _immutable.Map)());
 
                 masterProductPrice = (0, _immutable.Map)({
                   masterProductId: masterProductId,
@@ -1038,11 +1039,11 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay
                 });
-                _context6.next = 10;
+                _context6.next = 14;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails);
 
-              case 10:
-                _context6.next = 12;
+              case 14:
+                _context6.next = 16;
                 return _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
@@ -1059,7 +1060,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   })
                 }));
 
-              case 12:
+              case 16:
               case 'end':
                 return _context6.stop();
             }

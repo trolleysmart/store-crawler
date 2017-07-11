@@ -845,7 +845,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return (0, _immutable.Map)({ benefitsAndFeatures: benefitsAndFeatures });
     }, _this.updateProductDetails = function () {
       var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(product, storeTags, productInfo, updatePriceDetails) {
-        var masterProductId, storeId, priceDetails, priceToDisplay, masterProductPrice;
+        var masterProductId, storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, offerEndDate, masterProductPrice;
         return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
             switch (_context7.prev = _context7.next) {
@@ -854,7 +854,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 storeId = product.get('storeId');
 
                 if (!updatePriceDetails) {
-                  _context7.next = 10;
+                  _context7.next = 13;
                   break;
                 }
 
@@ -876,11 +876,12 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   priceToDisplay = productInfo.get('currentPrice');
                 }
 
-                priceDetails = priceDetails.merge((0, _immutable.Map)({
-                  currentPrice: productInfo.get('currentPrice') || undefined,
-                  wasPrice: productInfo.get('wasPrice') || undefined,
-                  offerEndDate: productInfo.get('offerEndDate') || undefined
-                }));
+                currentPrice = productInfo.get('currentPrice');
+                wasPrice = productInfo.get('wasPrice');
+                offerEndDate = productInfo.get('offerEndDate');
+
+
+                priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
 
                 masterProductPrice = (0, _immutable.Map)({
                   masterProductId: masterProductId,
@@ -891,10 +892,10 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay
                 });
-                _context7.next = 10;
+                _context7.next = 13;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails);
 
-              case 10:
+              case 13:
 
                 _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
                   name: productInfo.get('name'),
@@ -911,7 +912,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   })
                 }));
 
-              case 11:
+              case 14:
               case 'end':
                 return _context7.stop();
             }

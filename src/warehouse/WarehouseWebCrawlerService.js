@@ -602,13 +602,14 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         priceToDisplay = productInfo.get('currentPrice');
       }
 
-      priceDetails = priceDetails.merge(
-        Map({
-          currentPrice: productInfo.get('currentPrice') || undefined,
-          wasPrice: productInfo.get('wasPrice') || undefined,
-          offerEndDate: productInfo.get('offerEndDate') || undefined,
-        }),
-      );
+      const currentPrice = productInfo.get('currentPrice');
+      const wasPrice = productInfo.get('wasPrice');
+      const offerEndDate = productInfo.get('offerEndDate');
+
+      priceDetails = priceDetails
+        .merge(currentPrice ? Map({ currentPrice }) : Map())
+        .merge(wasPrice ? Map({ wasPrice }) : Map())
+        .merge(offerEndDate ? Map({ offerEndDate }) : Map());
 
       const masterProductPrice = Map({
         masterProductId,
