@@ -544,7 +544,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
       result = Map({
         saving,
-        wasPrice: Math.round((productInfo.get('currentPrice') + saving) * 100) / 100,
+        wasPrice: saving ? Math.round((productInfo.get('currentPrice') + saving) * 100) / 100 : undefined,
       });
 
       return 0;
@@ -588,7 +588,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       let priceDetails;
       let priceToDisplay;
 
-      if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
+      if ((productInfo.has('wasPrice') && productInfo.get('wasPrice')) || (productInfo.has('offerEndDate') && productInfo.get('offerEndDate'))) {
         priceDetails = Map({
           specialType: 'special',
         });

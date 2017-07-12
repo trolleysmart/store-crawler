@@ -813,7 +813,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
         result = (0, _immutable.Map)({
           saving: saving,
-          wasPrice: Math.round((productInfo.get('currentPrice') + saving) * 100) / 100
+          wasPrice: saving ? Math.round((productInfo.get('currentPrice') + saving) * 100) / 100 : undefined
         });
 
         return 0;
@@ -862,7 +862,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 priceToDisplay = void 0;
 
 
-                if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
+                if (productInfo.has('wasPrice') && productInfo.get('wasPrice') || productInfo.has('offerEndDate') && productInfo.get('offerEndDate')) {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'special'
                   });
