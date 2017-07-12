@@ -3,6 +3,7 @@
 import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
+import moment from 'moment';
 import { Exception } from 'micro-business-parse-server-common';
 import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'smart-grocery-parse-server-common';
 import { ServiceBase } from '../common';
@@ -560,7 +561,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       const offerEndDateText = $(this).text().trim();
       const offerEndDate = offerEndDateText.substring(offerEndDateText.lastIndexOf(' ')).trim();
 
-      result = Map({ offerEndDate: new Date(offerEndDate) });
+      result = Map({ offerEndDate: moment(offerEndDate, 'DD/MM/YYYY').toDate() });
 
       return 0;
     });
