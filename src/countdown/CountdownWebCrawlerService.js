@@ -66,12 +66,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -124,21 +124,26 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
-          const levelOneProductCategoryIdx = productCategories.findIndex(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
+          const levelOneProductCategoryIdx = productCategories.findIndex(
+            _ => _.get('url').localeCompare(this.safeGetUri(res.request.uri.href)) === 0,
+          );
 
           if (levelOneProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(config, () => `Failed to match retrieved URL ${res.request.uri.href} against provided level one category.`);
+            this.logError(
+              config,
+              () => `Failed to match retrieved URL ${this.safeGetUri(res.request.uri.href)} against provided level one category.`,
+            );
 
             return;
           }
@@ -194,21 +199,26 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
-          const levelOneProductCategoryIdx = updatedProductCategories.findIndex(_ => res.request.uri.href.indexOf(_.get('url')) !== -1);
+          const levelOneProductCategoryIdx = updatedProductCategories.findIndex(
+            _ => this.safeGetUri(res.request.uri.href).indexOf(_.get('url')) !== -1,
+          );
 
           if (levelOneProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(config, () => `Failed to match retrieved URL ${res.request.uri.href} against provided level one category.`);
+            this.logError(
+              config,
+              () => `Failed to match retrieved URL ${this.safeGetUri(res.request.uri.href)} against provided level one category.`,
+            );
 
             return;
           }
@@ -216,12 +226,15 @@ export default class CountdownWebCrawlerService extends ServiceBase {
           const levelOneProductCategory = updatedProductCategories.get(levelOneProductCategoryIdx);
           const levelOneProductSubCategoriesCategory = levelOneProductCategory.get('subCategories');
           const levelTwoProductCategoryIdx = levelOneProductSubCategoriesCategory.findIndex(
-            _ => _.get('url').localeCompare(res.request.uri.href) === 0,
+            _ => _.get('url').localeCompare(this.safeGetUri(res.request.uri.href)) === 0,
           );
 
           if (levelTwoProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(config, () => `Failed to match retrieved URL ${res.request.uri.href} against provided level two category.`);
+            this.logError(
+              config,
+              () => `Failed to match retrieved URL ${this.safeGetUri(res.request.uri.href)} against provided level two category.`,
+            );
 
             return;
           }
@@ -348,17 +361,19 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product category page info for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+            reject(
+              `Failed to receive product category page info for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`,
+            );
 
             return;
           }
 
-          const productCategory = productCategories.find(_ => _.get('url').localeCompare(res.request.uri.href) === 0);
+          const productCategory = productCategories.find(_ => _.get('url').localeCompare(this.safeGetUri(res.request.uri.href)) === 0);
 
           if (!productCategory) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
@@ -400,18 +415,20 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product category page info for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+            reject(
+              `Failed to receive product category page info for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`,
+            );
 
             return;
           }
 
-          const urlOffset = res.request.uri.href.indexOf('?');
-          const baseUrl = res.request.uri.href.substring(0, urlOffset);
+          const urlOffset = this.safeGetUri(res.request.uri.href).indexOf('?');
+          const baseUrl = this.safeGetUri(res.request.uri.href).substring(0, urlOffset);
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(baseUrl) === 0);
 
           if (!productCategory) {
@@ -477,7 +494,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const storeTags = await this.getStoreTags(storeId);
     const lastCrawlDateTime = new Date();
 
-    lastCrawlDateTime.setHours(new Date().getHours() - 12);
+    lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
     const products = await this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
 
@@ -492,12 +509,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${res.request.uri.href}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${res.request.uri.href} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }

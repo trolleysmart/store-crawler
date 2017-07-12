@@ -327,6 +327,8 @@ export default class ServiceBase {
     }
   };
 
+  safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
+
   logVerbose = (config, messageFunc) => {
     if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       this.logVerboseFunc(messageFunc());

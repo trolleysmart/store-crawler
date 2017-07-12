@@ -116,7 +116,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -124,7 +124,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }
@@ -435,7 +435,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                     maxConnections: config.get('maxConnections'),
                     callback: function callback(error, res, done) {
                       _this.logInfo(config, function () {
-                        return 'Received response for: ' + res.request.uri.href;
+                        return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
                       });
                       _this.logVerbose(config, function () {
                         return 'Received response for: ' + JSON.stringify(res);
@@ -443,13 +443,13 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
                       if (error) {
                         done();
-                        reject('Failed to receive product category page info for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+                        reject('Failed to receive product category page info for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
                         return;
                       }
 
                       var productCategory = productCategories.find(function (_) {
-                        return _.get('url').localeCompare(res.request.uri.href) === 0;
+                        return _.get('url').localeCompare(_this.safeGetUri(res.request.uri.href)) === 0;
                       });
 
                       if (!productCategory) {
@@ -508,7 +508,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -516,13 +516,13 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product category page info for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product category page info for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }
 
-            var urlOffset = res.request.uri.href.indexOf('?');
-            var baseUrl = res.request.uri.href.substring(0, urlOffset);
+            var urlOffset = _this.safeGetUri(res.request.uri.href).indexOf('?');
+            var baseUrl = _this.safeGetUri(res.request.uri.href).substring(0, urlOffset);
             var productCategory = productCategories.find(function (_) {
               return _.get('url').localeCompare(baseUrl) === 0;
             });
@@ -659,7 +659,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 lastCrawlDateTime = new Date();
 
 
-                lastCrawlDateTime.setHours(new Date().getHours() - 12);
+                lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
                 _context6.next = 17;
                 return _this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
@@ -690,7 +690,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -698,7 +698,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }

@@ -780,6 +780,10 @@ var ServiceBase = function ServiceBase(_ref) {
     };
   }();
 
+  this.safeGetUri = function (res) {
+    return res && res.request && res.request.uri ? res.request.uri.href : '';
+  };
+
   this.logVerbose = function (config, messageFunc) {
     if (_this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       _this.logVerboseFunc(messageFunc());

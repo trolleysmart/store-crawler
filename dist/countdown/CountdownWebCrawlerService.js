@@ -139,7 +139,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -147,7 +147,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }
@@ -198,7 +198,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -206,19 +206,19 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }
 
             var levelOneProductCategoryIdx = productCategories.findIndex(function (_) {
-              return _.get('url').localeCompare(res.request.uri.href) === 0;
+              return _.get('url').localeCompare(_this.safeGetUri(res.request.uri.href)) === 0;
             });
 
             if (levelOneProductCategoryIdx === -1) {
               // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
               _this.logError(config, function () {
-                return 'Failed to match retrieved URL ' + res.request.uri.href + ' against provided level one category.';
+                return 'Failed to match retrieved URL ' + _this.safeGetUri(res.request.uri.href) + ' against provided level one category.';
               });
 
               return;
@@ -270,7 +270,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -278,19 +278,19 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }
 
             var levelOneProductCategoryIdx = updatedProductCategories.findIndex(function (_) {
-              return res.request.uri.href.indexOf(_.get('url')) !== -1;
+              return _this.safeGetUri(res.request.uri.href).indexOf(_.get('url')) !== -1;
             });
 
             if (levelOneProductCategoryIdx === -1) {
               // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
               _this.logError(config, function () {
-                return 'Failed to match retrieved URL ' + res.request.uri.href + ' against provided level one category.';
+                return 'Failed to match retrieved URL ' + _this.safeGetUri(res.request.uri.href) + ' against provided level one category.';
               });
 
               return;
@@ -299,13 +299,13 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
             var levelOneProductCategory = updatedProductCategories.get(levelOneProductCategoryIdx);
             var levelOneProductSubCategoriesCategory = levelOneProductCategory.get('subCategories');
             var levelTwoProductCategoryIdx = levelOneProductSubCategoriesCategory.findIndex(function (_) {
-              return _.get('url').localeCompare(res.request.uri.href) === 0;
+              return _.get('url').localeCompare(_this.safeGetUri(res.request.uri.href)) === 0;
             });
 
             if (levelTwoProductCategoryIdx === -1) {
               // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
               _this.logError(config, function () {
-                return 'Failed to match retrieved URL ' + res.request.uri.href + ' against provided level two category.';
+                return 'Failed to match retrieved URL ' + _this.safeGetUri(res.request.uri.href) + ' against provided level two category.';
               });
 
               return;
@@ -511,7 +511,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -519,13 +519,13 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product category page info for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product category page info for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }
 
             var productCategory = productCategories.find(function (_) {
-              return _.get('url').localeCompare(res.request.uri.href) === 0;
+              return _.get('url').localeCompare(_this.safeGetUri(res.request.uri.href)) === 0;
             });
 
             if (!productCategory) {
@@ -567,7 +567,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -575,13 +575,13 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product category page info for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product category page info for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }
 
-            var urlOffset = res.request.uri.href.indexOf('?');
-            var baseUrl = res.request.uri.href.substring(0, urlOffset);
+            var urlOffset = _this.safeGetUri(res.request.uri.href).indexOf('?');
+            var baseUrl = _this.safeGetUri(res.request.uri.href).substring(0, urlOffset);
             var productCategory = productCategories.find(function (_) {
               return _.get('url').localeCompare(baseUrl) === 0;
             });
@@ -721,7 +721,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 lastCrawlDateTime = new Date();
 
 
-                lastCrawlDateTime.setHours(new Date().getHours() - 12);
+                lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
                 _context5.next = 17;
                 return _this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
@@ -753,7 +753,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(config, function () {
-              return 'Received response for: ' + res.request.uri.href;
+              return 'Received response for: ' + _this.safeGetUri(res.request.uri.href);
             });
             _this.logVerbose(config, function () {
               return 'Received response for: ' + JSON.stringify(res);
@@ -761,7 +761,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
             if (error) {
               done();
-              reject('Failed to receive product categories for Url: ' + res.request.uri.href + ' - Error: ' + JSON.stringify(error));
+              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res.request.uri.href) + ' - Error: ' + JSON.stringify(error));
 
               return;
             }
