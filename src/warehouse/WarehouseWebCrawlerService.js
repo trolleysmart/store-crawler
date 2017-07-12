@@ -50,12 +50,12 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -280,19 +280,17 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(
-              `Failed to receive product category page info for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`,
-            );
+            reject(`Failed to receive product category page info for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
-          const productCategory = productCategories.find(_ => _.get('url').localeCompare(this.safeGetUri(res.request.uri.href)) === 0);
+          const productCategory = productCategories.find(_ => _.get('url').localeCompare(this.safeGetUri(res)) === 0);
 
           if (!productCategory) {
             // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
@@ -339,20 +337,18 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(
-              `Failed to receive product category page info for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`,
-            );
+            reject(`Failed to receive product category page info for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
-          const urlOffset = this.safeGetUri(res.request.uri.href).indexOf('?');
-          const baseUrl = this.safeGetUri(res.request.uri.href).substring(0, urlOffset);
+          const urlOffset = this.safeGetUri(res).indexOf('?');
+          const baseUrl = this.safeGetUri(res).substring(0, urlOffset);
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(baseUrl) === 0);
 
           if (!productCategory) {
@@ -427,12 +423,12 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res.request.uri.href)}`);
+          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
           this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res.request.uri.href)} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
