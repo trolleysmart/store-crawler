@@ -16,6 +16,10 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
+var _moment = require('moment');
+
+var _moment2 = _interopRequireDefault(_moment);
+
 var _microBusinessParseServerCommon = require('micro-business-parse-server-common');
 
 var _smartGroceryParseServerCommon = require('smart-grocery-parse-server-common');
@@ -827,7 +831,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
         var offerEndDateText = $(this).text().trim();
         var offerEndDate = offerEndDateText.substring(offerEndDateText.lastIndexOf(' ')).trim();
 
-        result = (0, _immutable.Map)({ offerEndDate: new Date(offerEndDate) });
+        result = (0, _immutable.Map)({ offerEndDate: (0, _moment2.default)(offerEndDate, 'DD/MM/YYYY').toDate() });
 
         return 0;
       });
