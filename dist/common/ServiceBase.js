@@ -712,62 +712,81 @@ var ServiceBase = function ServiceBase(_ref) {
             case 2:
               masterProductPrices = _context15.sent;
 
-              if (!masterProductPrices.isEmpty()) {
+              if (!(!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice'))) {
                 _context15.next = 8;
                 break;
               }
 
-              _context15.next = 6;
-              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
+              if (masterProductPrices.isEmpty()) {
+                _context15.next = 7;
+                break;
+              }
 
-            case 6:
-              _context15.next = 21;
-              break;
+              _context15.next = 7;
+              return Promise.all(masterProductPrices.map(function (_) {
+                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
+              }).toArray());
+
+            case 7:
+              return _context15.abrupt('return');
 
             case 8:
+              if (!masterProductPrices.isEmpty()) {
+                _context15.next = 13;
+                break;
+              }
+
+              _context15.next = 11;
+              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
+
+            case 11:
+              _context15.next = 26;
+              break;
+
+            case 13:
               notMatchedMasterProductPrices = masterProductPrices.filterNot(function (_) {
                 return _.get('priceDetails').equals(priceDetails);
               });
 
               if (notMatchedMasterProductPrices.isEmpty()) {
-                _context15.next = 12;
+                _context15.next = 17;
                 break;
               }
 
-              _context15.next = 12;
+              _context15.next = 17;
               return Promise.all(notMatchedMasterProductPrices.map(function (_) {
                 return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
               }).toArray());
 
-            case 12:
+            case 17:
               matchedMasterProductPrices = masterProductPrices.filter(function (_) {
                 return _.get('priceDetails').equals(priceDetails);
               });
 
               if (!(matchedMasterProductPrices.count() > 1)) {
-                _context15.next = 18;
+                _context15.next = 23;
                 break;
               }
 
-              _context15.next = 16;
+              _context15.next = 21;
               return Promise.all(matchedMasterProductPrices.skip(1).map(function (_) {
                 return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
               }).toArray());
 
-            case 16:
-              _context15.next = 21;
+            case 21:
+              _context15.next = 26;
               break;
 
-            case 18:
+            case 23:
               if (!(matchedMasterProductPrices.count() === 0)) {
-                _context15.next = 21;
+                _context15.next = 26;
                 break;
               }
 
-              _context15.next = 21;
+              _context15.next = 26;
               return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
 
-            case 21:
+            case 26:
             case 'end':
               return _context15.stop();
           }

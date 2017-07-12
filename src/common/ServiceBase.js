@@ -308,6 +308,14 @@ export default class ServiceBase {
   createOrUpdateMasterProductPrice = async (masterProductId, storeId, masterProductPrice, priceDetails) => {
     const masterProductPrices = await this.getActiveMasterProductPrices(masterProductId, storeId);
 
+    if (!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice')) {
+      if (!masterProductPrices.isEmpty()) {
+        await Promise.all(masterProductPrices.map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
+      }
+
+      return;
+    }
+
     if (masterProductPrices.isEmpty()) {
       await MasterProductPriceService.create(masterProductPrice);
     } else {
