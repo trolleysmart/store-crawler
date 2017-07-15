@@ -407,7 +407,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const finalConfig = config || (await this.getConfig('Warehouse'));
     const store = await this.getStore('Warehouse');
     const storeId = store.get('id');
-    const storeTags = await this.getStoreTags(storeId, sessionToken);
+    const storeTags = await this.getStoreTags(storeId, false, sessionToken);
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);

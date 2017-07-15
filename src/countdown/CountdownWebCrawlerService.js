@@ -474,7 +474,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const finalConfig = config || (await this.getConfig('Countdown'));
     const store = await this.getStore('Countdown');
     const storeId = store.get('id');
-    const storeTags = await this.getStoreTags(storeId, sessionToken);
+    const storeTags = await this.getStoreTags(storeId, false, sessionToken);
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);

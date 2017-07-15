@@ -656,7 +656,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 store = _context6.sent;
                 storeId = store.get('id');
                 _context6.next = 12;
-                return _this.getStoreTags(storeId, sessionToken);
+                return _this.getStoreTags(storeId, false, sessionToken);
 
               case 12:
                 storeTags = _context6.sent;

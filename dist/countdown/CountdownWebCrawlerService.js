@@ -714,7 +714,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 store = _context5.sent;
                 storeId = store.get('id');
                 _context5.next = 12;
-                return _this.getStoreTags(storeId, sessionToken);
+                return _this.getStoreTags(storeId, false, sessionToken);
 
               case 12:
                 storeTags = _context5.sent;
