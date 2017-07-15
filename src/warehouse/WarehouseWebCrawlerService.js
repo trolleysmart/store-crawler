@@ -403,11 +403,11 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false));
   };
 
-  crawlProductsPriceDetails = async (config) => {
+  crawlProductsPriceDetails = async (config, sessionToken) => {
     const finalConfig = config || (await this.getConfig('Warehouse'));
     const store = await this.getStore('Warehouse');
     const storeId = store.get('id');
-    const storeTags = await this.getStoreTags(storeId);
+    const storeTags = await this.getStoreTags(storeId, sessionToken);
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);

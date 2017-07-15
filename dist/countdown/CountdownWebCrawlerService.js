@@ -686,7 +686,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
         return _ref5.apply(this, arguments);
       };
     }(), _this.crawlProductsPriceDetails = function () {
-      var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config) {
+      var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config, sessionToken) {
         var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
@@ -714,7 +714,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 store = _context5.sent;
                 storeId = store.get('id');
                 _context5.next = 12;
-                return _this.getStoreTags(storeId);
+                return _this.getStoreTags(storeId, sessionToken);
 
               case 12:
                 storeTags = _context5.sent;
@@ -741,7 +741,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
         }, _callee5, _this2);
       }));
 
-      return function (_x4) {
+      return function (_x4, _x5) {
         return _ref6.apply(this, arguments);
       };
     }(), _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails) {
@@ -1068,7 +1068,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
         }, _callee6, _this2);
       }));
 
-      return function (_x5, _x6, _x7, _x8) {
+      return function (_x6, _x7, _x8, _x9) {
         return _ref7.apply(this, arguments);
       };
     }(), _temp), _possibleConstructorReturn(_this, _ret);

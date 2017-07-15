@@ -470,11 +470,11 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false));
   };
 
-  crawlProductsPriceDetails = async (config) => {
+  crawlProductsPriceDetails = async (config, sessionToken) => {
     const finalConfig = config || (await this.getConfig('Countdown'));
     const store = await this.getStore('Countdown');
     const storeId = store.get('id');
-    const storeTags = await this.getStoreTags(storeId);
+    const storeTags = await this.getStoreTags(storeId, sessionToken);
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);

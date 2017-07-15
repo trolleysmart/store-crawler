@@ -274,13 +274,13 @@ var ServiceBase = function ServiceBase(_ref) {
   }();
 
   this.getStoreTags = function () {
-    var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(storeId, includeTag) {
+    var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(storeId, includeTag, sessionToken) {
       var result, storeTags;
       return regeneratorRuntime.wrap(function _callee6$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
             case 0:
-              result = _smartGroceryParseServerCommon.StoreTagService.searchAll((0, _immutable.Map)({ includeTag: includeTag, conditions: (0, _immutable.Map)({ storeId: storeId }) }));
+              result = _smartGroceryParseServerCommon.StoreTagService.searchAll((0, _immutable.Map)({ includeTag: includeTag, conditions: (0, _immutable.Map)({ storeId: storeId }) }), sessionToken);
               _context6.prev = 1;
               storeTags = (0, _immutable.List)();
 
@@ -309,7 +309,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee6, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x9, _x10) {
+    return function (_x9, _x10, _x11) {
       return _ref7.apply(this, arguments);
     };
   }();
@@ -370,7 +370,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee7, _this);
     }));
 
-    return function (_x11, _x12, _x13) {
+    return function (_x12, _x13, _x14) {
       return _ref8.apply(this, arguments);
     };
   }();
@@ -420,7 +420,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee8, _this);
     }));
 
-    return function (_x14, _x15, _x16) {
+    return function (_x15, _x16, _x17) {
       return _ref9.apply(this, arguments);
     };
   }();
@@ -481,7 +481,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee9, _this);
     }));
 
-    return function (_x17, _x18, _x19) {
+    return function (_x18, _x19, _x20) {
       return _ref10.apply(this, arguments);
     };
   }();
@@ -542,7 +542,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee10, _this);
     }));
 
-    return function (_x20, _x21, _x22) {
+    return function (_x21, _x22, _x23) {
       return _ref11.apply(this, arguments);
     };
   }();
@@ -589,7 +589,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee11, _this, [[2,, 8, 11]]);
     }));
 
-    return function (_x23) {
+    return function (_x24) {
       return _ref12.apply(this, arguments);
     };
   }();
@@ -620,7 +620,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee12, _this);
     }));
 
-    return function (_x24, _x25) {
+    return function (_x25, _x26) {
       return _ref13.apply(this, arguments);
     };
   }();
@@ -661,7 +661,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee13, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x26, _x27) {
+    return function (_x27, _x28) {
       return _ref14.apply(this, arguments);
     };
   }();
@@ -694,7 +694,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee14, _this);
     }));
 
-    return function (_x28, _x29) {
+    return function (_x29, _x30) {
       return _ref15.apply(this, arguments);
     };
   }();
@@ -794,7 +794,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee15, _this);
     }));
 
-    return function (_x30, _x31, _x32, _x33) {
+    return function (_x31, _x32, _x33, _x34) {
       return _ref16.apply(this, arguments);
     };
   }();

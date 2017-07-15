@@ -628,7 +628,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
         return _ref6.apply(this, arguments);
       };
     }(), _this.crawlProductsPriceDetails = function () {
-      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(config) {
+      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(config, sessionToken) {
         var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
@@ -656,7 +656,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 store = _context6.sent;
                 storeId = store.get('id');
                 _context6.next = 12;
-                return _this.getStoreTags(storeId);
+                return _this.getStoreTags(storeId, sessionToken);
 
               case 12:
                 storeTags = _context6.sent;
@@ -683,7 +683,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
         }, _callee6, _this2);
       }));
 
-      return function (_x6) {
+      return function (_x6, _x7) {
         return _ref7.apply(this, arguments);
       };
     }(), _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails) {
@@ -924,7 +924,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
         }, _callee7, _this2);
       }));
 
-      return function (_x7, _x8, _x9, _x10) {
+      return function (_x8, _x9, _x10, _x11) {
         return _ref8.apply(this, arguments);
       };
     }(), _temp), _possibleConstructorReturn(_this, _ret);
