@@ -10,8 +10,8 @@ import { ServiceBase } from '../common';
 export default class CountdownWebCrawlerService extends ServiceBase {
   static urlPrefix = '/Shop/Browse/';
 
-  crawlProductCategories = async (config) => {
-    const result = await this.createNewCrawlSessionAndGetConfig('Countdown Product Categories', config, 'Countdown');
+  crawlProductCategories = async (config, sessionToken) => {
+    const result = await this.createNewCrawlSessionAndGetConfig('Countdown Product Categories', config, 'Countdown', sessionToken);
     const sessionInfo = result.get('sessionInfo');
     const sessionId = sessionInfo.get('id');
     const finalConfig = result.get('config');
@@ -29,7 +29,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         }),
       });
 
-      await CrawlResultService.create(crawlResult);
+      await CrawlResultService.create(crawlResult, null, sessionToken);
 
       const updatedSessionInfo = sessionInfo.merge(
         Map({
@@ -40,7 +40,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         }),
       );
 
-      await CrawlSessionService.update(updatedSessionInfo);
+      await CrawlSessionService.update(updatedSessionInfo, sessionToken);
     } catch (ex) {
       const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
       const updatedSessionInfo = sessionInfo.merge(
@@ -53,7 +53,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         }),
       );
 
-      await CrawlSessionService.update(updatedSessionInfo);
+      await CrawlSessionService.update(updatedSessionInfo, sessionToken);
       throw ex;
     }
   };
@@ -273,20 +273,26 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     });
   };
 
-  syncProductCategoriesToStoreTags = async () => {
-    const store = await this.getStore('Countdown');
+  syncProductCategoriesToStoreTags = async (sessionToken) => {
+    const store = await this.getStore('Countdown', sessionToken);
     const storeId = store.get('id');
     const productCategories = Immutable.fromJS(
-      (await this.getMostRecentCrawlResults('Countdown Product Categories', info => info.getIn(['resultSet', 'productCategories']))).first(),
+      (await this.getMostRecentCrawlResults(
+        'Countdown Product Categories',
+        info => info.getIn(['resultSet', 'productCategories']),
+        sessionToken,
+      )).first(),
     );
-    const storeTags = await this.getStoreTags(storeId);
+    const storeTags = await this.getStoreTags(storeId, false, sessionToken);
     const splittedLevelOneProductCategories = this.splitIntoChunks(productCategories, 100);
 
     await BluebirdPromise.each(splittedLevelOneProductCategories.toArray(), productCategoryChunks =>
-      Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags, storeId))),
+      Promise.all(
+        productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags, storeId, sessionToken)),
+      ),
     );
 
-    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(storeId);
+    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(storeId, false, sessionToken);
     const levelTwoProductCategories = productCategories
       .map(productCategory =>
         productCategory.update('subCategories', subCategories =>
@@ -300,12 +306,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     await BluebirdPromise.each(splittedLevelTwoProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
         productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories, storeId),
+          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories, storeId, sessionToken),
         ),
       ),
     );
 
-    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags(storeId);
+    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags(storeId, false, sessionToken);
     const levelThreeProductCategories = productCategories
       .flatMap(productCategory => productCategory.get('subCategories'))
       .map(productCategory =>
@@ -322,22 +328,26 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     await BluebirdPromise.each(splittedLevelThreeProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
         productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories, storeId),
+          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories, storeId, sessionToken),
         ),
       ),
     );
   };
 
-  crawlProducts = async (config) => {
+  crawlProducts = async (config, sessionToken) => {
     const finalConfig = config || (await this.getConfig('Countdown'));
-    const store = await this.getStore('Countdown');
+    const store = await this.getStore('Countdown', sessionToken);
     const storeId = store.get('id');
     const productCategoriesToCrawl = Immutable.fromJS(
-      (await this.getMostRecentCrawlResults('Countdown Product Categories', info => info.getIn(['resultSet', 'productCategories']))).first(),
+      (await this.getMostRecentCrawlResults(
+        'Countdown Product Categories',
+        info => info.getIn(['resultSet', 'productCategories']),
+        sessionToken,
+      )).first(),
     );
     const productCategoriesToCrawlWithTotalItemsInfo = await this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
 
-    await this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId);
+    await this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, sessionToken);
   };
 
   crawlProductCategoriesTotalItemsInfo = (config, productCategories) => {
@@ -394,7 +404,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     return total;
   };
 
-  crawlProductsForEachProductCategories = (config, productCategories, storeId) =>
+  crawlProductsForEachProductCategories = (config, productCategories, storeId, sessionToken) =>
     new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
@@ -426,7 +436,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
           Promise.all(
             productInfos
               .filter(productInfo => productInfo.get('productPageUrl'))
-              .map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId)),
+              .map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId, sessionToken)),
           )
             .then(() => done())
             .catch((storeProductUpdateError) => {
@@ -460,31 +470,31 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     return products;
   };
 
-  crawlProductsDetails = async (config) => {
+  crawlProductsDetails = async (config, sessionToken) => {
     const finalConfig = config || (await this.getConfig('Countdown'));
-    const store = await this.getStore('Countdown');
+    const store = await this.getStore('Countdown', sessionToken);
     const storeId = store.get('id');
-    const storeTags = await this.getStoreTags(storeId);
-    const products = await this.getAllStoreMasterProductsWithoutMasterProduct(storeId);
+    const storeTags = await this.getStoreTags(storeId, false, sessionToken);
+    const products = await this.getAllStoreMasterProductsWithoutMasterProduct(storeId, sessionToken);
 
-    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false));
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken));
   };
 
   crawlProductsPriceDetails = async (config, sessionToken) => {
     const finalConfig = config || (await this.getConfig('Countdown'));
-    const store = await this.getStore('Countdown');
+    const store = await this.getStore('Countdown', sessionToken);
     const storeId = store.get('id');
     const storeTags = await this.getStoreTags(storeId, false, sessionToken);
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-    const products = await this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
+    const products = await this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime, sessionToken);
 
     await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, true));
   };
 
-  crawlProductDetails = (config, product, storeTags, updatePriceDetails) =>
+  crawlProductDetails = (config, product, storeTags, updatePriceDetails, sessionToken) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
 
@@ -603,7 +613,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               return 0;
             });
 
-            self.updateProductDetails(product, storeTags, productInfo, updatePriceDetails).then(() => done()).catch((internalError) => {
+            self.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(() => done()).catch((internalError) => {
               done();
               reject(internalError);
             });
@@ -723,7 +733,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     return str.substr(0, str.indexOf('.jpg'));
   };
 
-  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails) => {
+  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails, sessionToken) => {
     const masterProductId = product.get('masterProductId');
     const storeId = product.get('storeId');
 
@@ -778,7 +788,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         priceToDisplay,
       });
 
-      await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails);
+      await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
     }
 
     await StoreMasterProductService.update(
@@ -793,6 +803,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
           .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
           .map(storeTag => storeTag.get('id')),
       }),
+      sessionToken,
     );
   };
 }

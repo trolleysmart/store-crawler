@@ -31,12 +31,12 @@ export default class ServiceBase {
     throw new Exception(`No config found called ${key}.`);
   };
 
-  createNewCrawlSessionAndGetConfig = async (sessionKey, config, storeName) => {
+  createNewCrawlSessionAndGetConfig = async (sessionKey, config, storeName, sessionToken) => {
     const sessionInfo = Map({
       sessionKey,
       startDateTime: new Date(),
     });
-    const sessionId = await CrawlSessionService.create(sessionInfo);
+    const sessionId = await CrawlSessionService.create(sessionInfo, null, sessionToken);
     const finalConfig = config || (await this.getConfig(storeName));
 
     if (!finalConfig) {
@@ -52,17 +52,17 @@ export default class ServiceBase {
     });
   };
 
-  getStore = async (name) => {
+  getStore = async (name, sessionToken) => {
     const criteria = Map({
       conditions: Map({
         name,
       }),
     });
 
-    const results = await StoreService.search(criteria);
+    const results = await StoreService.search(criteria, sessionToken);
 
     if (results.isEmpty()) {
-      return StoreService.read(await StoreService.create(Map({ name })));
+      return StoreService.read(await StoreService.create(Map({ name }, null, sessionToken), null, sessionToken));
     } else if (results.count() === 1) {
       return results.first();
     }
@@ -70,7 +70,7 @@ export default class ServiceBase {
     throw new Exception(`Multiple store found called ${name}.`);
   };
 
-  getMostRecentCrawlSessionInfo = async (sessionKey) => {
+  getMostRecentCrawlSessionInfo = async (sessionKey, sessionToken) => {
     const crawlSessionInfos = await CrawlSessionService.search(
       Map({
         conditions: Map({
@@ -78,13 +78,14 @@ export default class ServiceBase {
         }),
         topMost: true,
       }),
+      sessionToken,
     );
 
     return crawlSessionInfos.first();
   };
 
-  getMostRecentCrawlResults = async (sessionKey, mapFunc) => {
-    const crawlSessionInfo = await this.getMostRecentCrawlSessionInfo(sessionKey);
+  getMostRecentCrawlResults = async (sessionKey, mapFunc, sessionToken) => {
+    const crawlSessionInfo = await this.getMostRecentCrawlSessionInfo(sessionKey, sessionToken);
     const crawlSessionId = crawlSessionInfo.get('id');
     let results = List();
     const result = CrawlResultService.searchAll(
@@ -93,6 +94,7 @@ export default class ServiceBase {
           crawlSessionId,
         }),
       }),
+      sessionToken,
     );
 
     try {
@@ -122,7 +124,7 @@ export default class ServiceBase {
     }
   };
 
-  createOrUpdateStoreMasterProduct = async (productCategory, productInfo, storeId) => {
+  createOrUpdateStoreMasterProduct = async (productCategory, productInfo, storeId, sessionToken) => {
     const storeMasterProducts = await StoreMasterProductService.search(
       Map({
         conditions: Map({
@@ -130,6 +132,7 @@ export default class ServiceBase {
           storeId,
         }),
       }),
+      sessionToken,
     );
 
     if (storeMasterProducts.isEmpty()) {
@@ -139,6 +142,8 @@ export default class ServiceBase {
           lastCrawlDateTime: new Date(1970, 1, 1),
           storeId,
         }),
+        null,
+        sessionToken,
       );
     } else if (storeMasterProducts.count() > 1) {
       throw new Exception(`Multiple store master product found for store Id: ${storeId} and productPageUrl: ${productInfo.get('productPageUrl')}`);
@@ -146,11 +151,11 @@ export default class ServiceBase {
       const storeMasterProduct = storeMasterProducts.first();
       const updatedStoreMasterProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl'));
 
-      await StoreMasterProductService.update(updatedStoreMasterProduct);
+      await StoreMasterProductService.update(updatedStoreMasterProduct, sessionToken);
     }
   };
 
-  createOrUpdateLevelOneProductCategory = async (productCategory, storeTags, storeId) => {
+  createOrUpdateLevelOneProductCategory = async (productCategory, storeTags, storeId, sessionToken) => {
     const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0);
 
     if (foundStoreTag) {
@@ -162,6 +167,7 @@ export default class ServiceBase {
             url: productCategory.get('url'),
           }),
         ),
+        sessionToken,
       );
     } else {
       await StoreTagService.create(
@@ -172,11 +178,13 @@ export default class ServiceBase {
           weight: 1,
           url: productCategory.get('url'),
         }),
+        null,
+        sessionToken,
       );
     }
   };
 
-  createOrUpdateLevelTwoProductCategory = async (productCategory, storeTags, storeId) => {
+  createOrUpdateLevelTwoProductCategory = async (productCategory, storeTags, storeId, sessionToken) => {
     const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0);
     const parentStoreTagIds = productCategory
       .map(_ => _.get('parent'))
@@ -193,6 +201,7 @@ export default class ServiceBase {
             url: productCategory.first().get('url'),
           }),
         ),
+        sessionToken,
       );
     } else {
       await StoreTagService.create(
@@ -204,11 +213,13 @@ export default class ServiceBase {
           weight: 2,
           url: productCategory.first().get('url'),
         }),
+        null,
+        sessionToken,
       );
     }
   };
 
-  createOrUpdateLevelThreeProductCategory = async (productCategory, storeTags, storeId) => {
+  createOrUpdateLevelThreeProductCategory = async (productCategory, storeTags, storeId, sessionToken) => {
     const foundStoreTag = storeTags.find(storeTag => storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0);
     const parentStoreTagIds = productCategory
       .map(_ => _.get('parent'))
@@ -225,6 +236,7 @@ export default class ServiceBase {
             url: productCategory.first().get('url'),
           }),
         ),
+        sessionToken,
       );
     } else {
       await StoreTagService.create(
@@ -236,11 +248,13 @@ export default class ServiceBase {
           weight: 3,
           url: productCategory.first().get('url'),
         }),
+        null,
+        sessionToken,
       );
     }
   };
 
-  getAllStoreMasterProductsWithoutMasterProduct = async (storeId) => {
+  getAllStoreMasterProductsWithoutMasterProduct = async (storeId, sessionToken) => {
     const criteria = Map({
       conditions: Map({
         storeId,
@@ -248,7 +262,7 @@ export default class ServiceBase {
       }),
     });
 
-    const result = StoreMasterProductService.searchAll(criteria);
+    const result = StoreMasterProductService.searchAll(criteria, sessionToken);
 
     try {
       let products = List();
@@ -272,11 +286,14 @@ export default class ServiceBase {
       }),
     });
 
-  getStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime) =>
-    StoreMasterProductService.search(this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime));
+  getStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime, sessionToken) =>
+    StoreMasterProductService.search(this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime), sessionToken);
 
-  getAllStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime) => {
-    const result = StoreMasterProductService.searchAll(this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime));
+  getAllStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime, sessionToken) => {
+    const result = StoreMasterProductService.searchAll(
+      this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime),
+      sessionToken,
+    );
 
     try {
       let products = List();
@@ -293,7 +310,7 @@ export default class ServiceBase {
 
   removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
 
-  getActiveMasterProductPrices = async (masterProductId, storeId) => {
+  getActiveMasterProductPrices = async (masterProductId, storeId, sessionToken) => {
     const criteria = Map({
       conditions: Map({
         masterProductId,
@@ -302,35 +319,37 @@ export default class ServiceBase {
       }),
     });
 
-    return MasterProductPriceService.search(criteria);
+    return MasterProductPriceService.search(criteria, sessionToken);
   };
 
-  createOrUpdateMasterProductPrice = async (masterProductId, storeId, masterProductPrice, priceDetails) => {
-    const masterProductPrices = await this.getActiveMasterProductPrices(masterProductId, storeId);
+  createOrUpdateMasterProductPrice = async (masterProductId, storeId, masterProductPrice, priceDetails, sessionToken) => {
+    const masterProductPrices = await this.getActiveMasterProductPrices(masterProductId, storeId, sessionToken);
 
     if (!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice')) {
       if (!masterProductPrices.isEmpty()) {
-        await Promise.all(masterProductPrices.map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
+        await Promise.all(masterProductPrices.map(_ => MasterProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray());
       }
 
       return;
     }
 
     if (masterProductPrices.isEmpty()) {
-      await MasterProductPriceService.create(masterProductPrice);
+      await MasterProductPriceService.create(masterProductPrice, null, sessionToken);
     } else {
       const notMatchedMasterProductPrices = masterProductPrices.filterNot(_ => _.get('priceDetails').equals(priceDetails));
 
       if (!notMatchedMasterProductPrices.isEmpty()) {
-        await Promise.all(notMatchedMasterProductPrices.map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
+        await Promise.all(notMatchedMasterProductPrices.map(_ => MasterProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray());
       }
 
       const matchedMasterProductPrices = masterProductPrices.filter(_ => _.get('priceDetails').equals(priceDetails));
 
       if (matchedMasterProductPrices.count() > 1) {
-        await Promise.all(matchedMasterProductPrices.skip(1).map(_ => MasterProductPriceService.update(_.set('status', 'I'))).toArray());
+        await Promise.all(
+          matchedMasterProductPrices.skip(1).map(_ => MasterProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray(),
+        );
       } else if (matchedMasterProductPrices.count() === 0) {
-        await MasterProductPriceService.create(masterProductPrice);
+        await MasterProductPriceService.create(masterProductPrice, null, sessionToken);
       }
     }
   };

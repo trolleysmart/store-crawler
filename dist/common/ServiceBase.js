@@ -71,7 +71,7 @@ var ServiceBase = function ServiceBase(_ref) {
   }();
 
   this.createNewCrawlSessionAndGetConfig = function () {
-    var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(sessionKey, config, storeName) {
+    var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(sessionKey, config, storeName, sessionToken) {
       var sessionInfo, sessionId, finalConfig;
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
@@ -82,7 +82,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 startDateTime: new Date()
               });
               _context2.next = 3;
-              return _smartGroceryParseServerCommon.CrawlSessionService.create(sessionInfo);
+              return _smartGroceryParseServerCommon.CrawlSessionService.create(sessionInfo, null, sessionToken);
 
             case 3:
               sessionId = _context2.sent;
@@ -131,13 +131,13 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee2, _this);
     }));
 
-    return function (_x2, _x3, _x4) {
+    return function (_x2, _x3, _x4, _x5) {
       return _ref3.apply(this, arguments);
     };
   }();
 
   this.getStore = function () {
-    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(name) {
+    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(name, sessionToken) {
       var criteria, results;
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
@@ -149,7 +149,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 })
               });
               _context3.next = 3;
-              return _smartGroceryParseServerCommon.StoreService.search(criteria);
+              return _smartGroceryParseServerCommon.StoreService.search(criteria, sessionToken);
 
             case 3:
               results = _context3.sent;
@@ -161,7 +161,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
               _context3.t0 = _smartGroceryParseServerCommon.StoreService;
               _context3.next = 8;
-              return _smartGroceryParseServerCommon.StoreService.create((0, _immutable.Map)({ name: name }));
+              return _smartGroceryParseServerCommon.StoreService.create((0, _immutable.Map)({ name: name }, null, sessionToken), null, sessionToken);
 
             case 8:
               _context3.t1 = _context3.sent;
@@ -186,13 +186,13 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee3, _this);
     }));
 
-    return function (_x5) {
+    return function (_x6, _x7) {
       return _ref4.apply(this, arguments);
     };
   }();
 
   this.getMostRecentCrawlSessionInfo = function () {
-    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(sessionKey) {
+    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(sessionKey, sessionToken) {
       var crawlSessionInfos;
       return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
@@ -204,7 +204,7 @@ var ServiceBase = function ServiceBase(_ref) {
                   sessionKey: sessionKey
                 }),
                 topMost: true
-              }));
+              }), sessionToken);
 
             case 2:
               crawlSessionInfos = _context4.sent;
@@ -218,20 +218,20 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee4, _this);
     }));
 
-    return function (_x6) {
+    return function (_x8, _x9) {
       return _ref5.apply(this, arguments);
     };
   }();
 
   this.getMostRecentCrawlResults = function () {
-    var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(sessionKey, mapFunc) {
+    var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(sessionKey, mapFunc, sessionToken) {
       var crawlSessionInfo, crawlSessionId, results, result;
       return regeneratorRuntime.wrap(function _callee5$(_context5) {
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
               _context5.next = 2;
-              return _this.getMostRecentCrawlSessionInfo(sessionKey);
+              return _this.getMostRecentCrawlSessionInfo(sessionKey, sessionToken);
 
             case 2:
               crawlSessionInfo = _context5.sent;
@@ -241,7 +241,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 conditions: (0, _immutable.Map)({
                   crawlSessionId: crawlSessionId
                 })
-              }));
+              }), sessionToken);
               _context5.prev = 6;
 
               result.event.subscribe(function (info) {
@@ -268,7 +268,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee5, _this, [[6,, 10, 13]]);
     }));
 
-    return function (_x7, _x8) {
+    return function (_x10, _x11, _x12) {
       return _ref6.apply(this, arguments);
     };
   }();
@@ -309,13 +309,13 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee6, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x9, _x10, _x11) {
+    return function (_x13, _x14, _x15) {
       return _ref7.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateStoreMasterProduct = function () {
-    var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(productCategory, productInfo, storeId) {
+    var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(productCategory, productInfo, storeId, sessionToken) {
       var storeMasterProducts, storeMasterProduct, updatedStoreMasterProduct;
       return regeneratorRuntime.wrap(function _callee7$(_context7) {
         while (1) {
@@ -327,7 +327,7 @@ var ServiceBase = function ServiceBase(_ref) {
                   productPageUrl: productInfo.get('productPageUrl'),
                   storeId: storeId
                 })
-              }));
+              }), sessionToken);
 
             case 2:
               storeMasterProducts = _context7.sent;
@@ -342,7 +342,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 productPageUrl: productInfo.get('productPageUrl'),
                 lastCrawlDateTime: new Date(1970, 1, 1),
                 storeId: storeId
-              }));
+              }), null, sessionToken);
 
             case 6:
               _context7.next = 16;
@@ -360,7 +360,7 @@ var ServiceBase = function ServiceBase(_ref) {
               storeMasterProduct = storeMasterProducts.first();
               updatedStoreMasterProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl'));
               _context7.next = 16;
-              return _smartGroceryParseServerCommon.StoreMasterProductService.update(updatedStoreMasterProduct);
+              return _smartGroceryParseServerCommon.StoreMasterProductService.update(updatedStoreMasterProduct, sessionToken);
 
             case 16:
             case 'end':
@@ -370,13 +370,13 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee7, _this);
     }));
 
-    return function (_x12, _x13, _x14) {
+    return function (_x16, _x17, _x18, _x19) {
       return _ref8.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateLevelOneProductCategory = function () {
-    var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(productCategory, storeTags, storeId) {
+    var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(productCategory, storeTags, storeId, sessionToken) {
       var foundStoreTag;
       return regeneratorRuntime.wrap(function _callee8$(_context8) {
         while (1) {
@@ -396,7 +396,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 name: productCategory.get('name'),
                 weight: productCategory.get('weigth'),
                 url: productCategory.get('url')
-              })));
+              })), sessionToken);
 
             case 4:
               _context8.next = 8;
@@ -410,7 +410,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 name: productCategory.get('name'),
                 weight: 1,
                 url: productCategory.get('url')
-              }));
+              }), null, sessionToken);
 
             case 8:
             case 'end':
@@ -420,13 +420,13 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee8, _this);
     }));
 
-    return function (_x15, _x16, _x17) {
+    return function (_x20, _x21, _x22, _x23) {
       return _ref9.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateLevelTwoProductCategory = function () {
-    var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(productCategory, storeTags, storeId) {
+    var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(productCategory, storeTags, storeId, sessionToken) {
       var foundStoreTag, parentStoreTagIds;
       return regeneratorRuntime.wrap(function _callee9$(_context9) {
         while (1) {
@@ -456,7 +456,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 name: productCategory.first().get('name'),
                 weight: productCategory.first().get('weigth'),
                 url: productCategory.first().get('url')
-              })));
+              })), sessionToken);
 
             case 5:
               _context9.next = 9;
@@ -471,7 +471,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 name: productCategory.first().get('name'),
                 weight: 2,
                 url: productCategory.first().get('url')
-              }));
+              }), null, sessionToken);
 
             case 9:
             case 'end':
@@ -481,13 +481,13 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee9, _this);
     }));
 
-    return function (_x18, _x19, _x20) {
+    return function (_x24, _x25, _x26, _x27) {
       return _ref10.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateLevelThreeProductCategory = function () {
-    var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(productCategory, storeTags, storeId) {
+    var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(productCategory, storeTags, storeId, sessionToken) {
       var foundStoreTag, parentStoreTagIds;
       return regeneratorRuntime.wrap(function _callee10$(_context10) {
         while (1) {
@@ -517,7 +517,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 name: productCategory.first().get('name'),
                 weight: productCategory.first().get('weigth'),
                 url: productCategory.first().get('url')
-              })));
+              })), sessionToken);
 
             case 5:
               _context10.next = 9;
@@ -532,7 +532,7 @@ var ServiceBase = function ServiceBase(_ref) {
                 name: productCategory.first().get('name'),
                 weight: 3,
                 url: productCategory.first().get('url')
-              }));
+              }), null, sessionToken);
 
             case 9:
             case 'end':
@@ -542,13 +542,13 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee10, _this);
     }));
 
-    return function (_x21, _x22, _x23) {
+    return function (_x28, _x29, _x30, _x31) {
       return _ref11.apply(this, arguments);
     };
   }();
 
   this.getAllStoreMasterProductsWithoutMasterProduct = function () {
-    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(storeId) {
+    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(storeId, sessionToken) {
       var criteria, result, products;
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
@@ -560,7 +560,7 @@ var ServiceBase = function ServiceBase(_ref) {
                   without_masterProduct: true
                 })
               });
-              result = _smartGroceryParseServerCommon.StoreMasterProductService.searchAll(criteria);
+              result = _smartGroceryParseServerCommon.StoreMasterProductService.searchAll(criteria, sessionToken);
               _context11.prev = 2;
               products = (0, _immutable.List)();
 
@@ -589,7 +589,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee11, _this, [[2,, 8, 11]]);
     }));
 
-    return function (_x24) {
+    return function (_x32, _x33) {
       return _ref12.apply(this, arguments);
     };
   }();
@@ -605,12 +605,12 @@ var ServiceBase = function ServiceBase(_ref) {
   };
 
   this.getStoreMasterProductsWithMasterProduct = function () {
-    var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(storeId, lastCrawlDateTime) {
+    var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(storeId, lastCrawlDateTime, sessionToken) {
       return regeneratorRuntime.wrap(function _callee12$(_context12) {
         while (1) {
           switch (_context12.prev = _context12.next) {
             case 0:
-              return _context12.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(_this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime)));
+              return _context12.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(_this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime), sessionToken));
 
             case 1:
             case 'end':
@@ -620,19 +620,19 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee12, _this);
     }));
 
-    return function (_x25, _x26) {
+    return function (_x34, _x35, _x36) {
       return _ref13.apply(this, arguments);
     };
   }();
 
   this.getAllStoreMasterProductsWithMasterProduct = function () {
-    var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(storeId, lastCrawlDateTime) {
+    var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(storeId, lastCrawlDateTime, sessionToken) {
       var result, products;
       return regeneratorRuntime.wrap(function _callee13$(_context13) {
         while (1) {
           switch (_context13.prev = _context13.next) {
             case 0:
-              result = _smartGroceryParseServerCommon.StoreMasterProductService.searchAll(_this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime));
+              result = _smartGroceryParseServerCommon.StoreMasterProductService.searchAll(_this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime), sessionToken);
               _context13.prev = 1;
               products = (0, _immutable.List)();
 
@@ -661,7 +661,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee13, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x27, _x28) {
+    return function (_x37, _x38, _x39) {
       return _ref14.apply(this, arguments);
     };
   }();
@@ -671,7 +671,7 @@ var ServiceBase = function ServiceBase(_ref) {
   };
 
   this.getActiveMasterProductPrices = function () {
-    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(masterProductId, storeId) {
+    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(masterProductId, storeId, sessionToken) {
       var criteria;
       return regeneratorRuntime.wrap(function _callee14$(_context14) {
         while (1) {
@@ -684,7 +684,7 @@ var ServiceBase = function ServiceBase(_ref) {
                   status: 'A'
                 })
               });
-              return _context14.abrupt('return', _smartGroceryParseServerCommon.MasterProductPriceService.search(criteria));
+              return _context14.abrupt('return', _smartGroceryParseServerCommon.MasterProductPriceService.search(criteria, sessionToken));
 
             case 2:
             case 'end':
@@ -694,20 +694,20 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee14, _this);
     }));
 
-    return function (_x29, _x30) {
+    return function (_x40, _x41, _x42) {
       return _ref15.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateMasterProductPrice = function () {
-    var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(masterProductId, storeId, masterProductPrice, priceDetails) {
+    var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken) {
       var masterProductPrices, notMatchedMasterProductPrices, matchedMasterProductPrices;
       return regeneratorRuntime.wrap(function _callee15$(_context15) {
         while (1) {
           switch (_context15.prev = _context15.next) {
             case 0:
               _context15.next = 2;
-              return _this.getActiveMasterProductPrices(masterProductId, storeId);
+              return _this.getActiveMasterProductPrices(masterProductId, storeId, sessionToken);
 
             case 2:
               masterProductPrices = _context15.sent;
@@ -724,7 +724,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
               _context15.next = 7;
               return Promise.all(masterProductPrices.map(function (_) {
-                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
+                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'), sessionToken);
               }).toArray());
 
             case 7:
@@ -737,7 +737,7 @@ var ServiceBase = function ServiceBase(_ref) {
               }
 
               _context15.next = 11;
-              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
+              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice, null, sessionToken);
 
             case 11:
               _context15.next = 26;
@@ -755,7 +755,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
               _context15.next = 17;
               return Promise.all(notMatchedMasterProductPrices.map(function (_) {
-                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
+                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'), sessionToken);
               }).toArray());
 
             case 17:
@@ -770,7 +770,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
               _context15.next = 21;
               return Promise.all(matchedMasterProductPrices.skip(1).map(function (_) {
-                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'));
+                return _smartGroceryParseServerCommon.MasterProductPriceService.update(_.set('status', 'I'), sessionToken);
               }).toArray());
 
             case 21:
@@ -784,7 +784,7 @@ var ServiceBase = function ServiceBase(_ref) {
               }
 
               _context15.next = 26;
-              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice);
+              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice, null, sessionToken);
 
             case 26:
             case 'end':
@@ -794,7 +794,7 @@ var ServiceBase = function ServiceBase(_ref) {
       }, _callee15, _this);
     }));
 
-    return function (_x31, _x32, _x33, _x34) {
+    return function (_x43, _x44, _x45, _x46, _x47) {
       return _ref16.apply(this, arguments);
     };
   }();

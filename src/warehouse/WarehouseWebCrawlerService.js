@@ -9,14 +9,14 @@ import { CrawlResultService, CrawlSessionService, StoreMasterProductService } fr
 import { ServiceBase } from '../common';
 
 export default class WarehouseWebCrawlerService extends ServiceBase {
-  crawlProductCategories = async (config) => {
-    const result = await this.createNewCrawlSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse');
+  crawlProductCategories = async (config, sessionToken) => {
+    const result = await this.createNewCrawlSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse', sessionToken);
     const sessionInfo = result.get('sessionInfo');
     const sessionId = sessionInfo.get('id');
     const finalConfig = result.get('config');
 
     try {
-      await this.crawlAllProductCategories(sessionId, finalConfig);
+      await this.crawlAllProductCategories(sessionId, finalConfig, sessionToken);
 
       const updatedSessionInfo = sessionInfo.merge(
         Map({
@@ -27,7 +27,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         }),
       );
 
-      await CrawlSessionService.update(updatedSessionInfo);
+      await CrawlSessionService.update(updatedSessionInfo, sessionToken);
     } catch (ex) {
       const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
       const updatedSessionInfo = sessionInfo.merge(
@@ -40,12 +40,12 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         }),
       );
 
-      await CrawlSessionService.update(updatedSessionInfo);
+      await CrawlSessionService.update(updatedSessionInfo, sessionToken);
       throw ex;
     }
   };
 
-  crawlAllProductCategories = (sessionId, config) =>
+  crawlAllProductCategories = (sessionId, config, sessionToken) =>
     new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
@@ -69,7 +69,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             }),
           });
 
-          CrawlResultService.create(crawlResult)
+          CrawlResultService.create(crawlResult, null, sessionToken)
             .then(() => {
               this.logInfo(config, () => `Successfully added products for: ${productCategories}.`);
 
@@ -195,17 +195,23 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return productCategories;
   };
 
-  syncProductCategoriesToStoreTags = async () => {
-    const store = await this.getStore('Warehouse');
+  syncProductCategoriesToStoreTags = async (sessionToken) => {
+    const store = await this.getStore('Warehouse', sessionToken);
     const storeId = store.get('id');
     const productCategories = Immutable.fromJS(
-      (await this.getMostRecentCrawlResults('Warehouse Product Categories', info => info.getIn(['resultSet', 'productCategories']))).first(),
+      (await this.getMostRecentCrawlResults(
+        'Warehouse Product Categories',
+        info => info.getIn(['resultSet', 'productCategories']),
+        sessionToken,
+      )).first(),
     );
-    const storeTags = await this.getStoreTags(storeId);
+    const storeTags = await this.getStoreTags(storeId, false, sessionToken);
     const splittedLevelOneProductCategories = this.splitIntoChunks(productCategories, 100);
 
     await BluebirdPromise.each(splittedLevelOneProductCategories.toArray(), productCategoryChunks =>
-      Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags, storeId))),
+      Promise.all(
+        productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags, storeId, sessionToken)),
+      ),
     );
 
     const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(storeId);
@@ -222,12 +228,12 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     await BluebirdPromise.each(splittedLevelTwoProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
         productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories, storeId),
+          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories, storeId, sessionToken),
         ),
       ),
     );
 
-    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags(storeId);
+    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags(storeId, false, sessionToken);
     const levelThreeProductCategories = productCategories
       .flatMap(productCategory => productCategory.get('subCategories'))
       .map(productCategory =>
@@ -244,18 +250,22 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     await BluebirdPromise.each(splittedLevelThreeProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
         productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories, storeId),
+          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories, storeId, sessionToken),
         ),
       ),
     );
   };
 
-  crawlProducts = async (config) => {
+  crawlProducts = async (config, sessionToken) => {
     const finalConfig = config || (await this.getConfig('Warehouse'));
-    const store = await this.getStore('Warehouse');
+    const store = await this.getStore('Warehouse', sessionToken);
     const storeId = store.get('id');
     const productCategories = Immutable.fromJS(
-      (await this.getMostRecentCrawlResults('Warehouse Product Categories', info => info.getIn(['resultSet', 'productCategories']))).first(),
+      (await this.getMostRecentCrawlResults(
+        'Warehouse Product Categories',
+        info => info.getIn(['resultSet', 'productCategories']),
+        sessionToken,
+      )).first(),
     );
     const productCategoriesLevelOne = productCategories.filter(_ => _.get('subCategories').isEmpty());
     const productCategoriesLevelTwo = productCategories
@@ -270,7 +280,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const productCategoriesToCrawl = productCategoriesLevelOne.concat(productCategoriesLevelTwo).concat(productCategoriesLevelThree);
     const productCategoriesToCrawlWithTotalItemsInfo = await this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
 
-    await this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId);
+    await this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, sessionToken);
   };
 
   crawlProductCategoriesTotalItemsInfo = async (config, productCategories) => {
@@ -332,7 +342,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return total;
   };
 
-  crawlProductsForEachProductCategories = (config, productCategories, storeId) =>
+  crawlProductsForEachProductCategories = (config, productCategories, storeId, sessionToken) =>
     new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
@@ -364,7 +374,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           Promise.all(
             productInfos
               .filter(productInfo => productInfo.get('productPageUrl'))
-              .map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId)),
+              .map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId, sessionToken)),
           )
             .then(() => done())
             .catch((storeProductUpdateError) => {
@@ -393,31 +403,31 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return products;
   };
 
-  crawlProductsDetails = async (config) => {
+  crawlProductsDetails = async (config, sessionToken) => {
     const finalConfig = config || (await this.getConfig('Warehouse'));
-    const store = await this.getStore('Warehouse');
+    const store = await this.getStore('Warehouse', sessionToken);
     const storeId = store.get('id');
-    const storeTags = await this.getStoreTags(storeId);
-    const products = await this.getAllStoreMasterProductsWithoutMasterProduct(storeId);
+    const storeTags = await this.getStoreTags(storeId, false, sessionToken);
+    const products = await this.getAllStoreMasterProductsWithoutMasterProduct(storeId, sessionToken);
 
-    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false));
+    await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken));
   };
 
   crawlProductsPriceDetails = async (config, sessionToken) => {
     const finalConfig = config || (await this.getConfig('Warehouse'));
-    const store = await this.getStore('Warehouse');
+    const store = await this.getStore('Warehouse', sessionToken);
     const storeId = store.get('id');
     const storeTags = await this.getStoreTags(storeId, false, sessionToken);
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-    const products = await this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime);
+    const products = await this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime, sessionToken);
 
     await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, true));
   };
 
-  crawlProductDetails = (config, product, storeTags, updatePriceDetails) =>
+  crawlProductDetails = (config, product, storeTags, updatePriceDetails, sessionToken) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
       const crawler = new Crawler({
@@ -491,7 +501,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return 0;
           });
 
-          this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails).then(() => done()).catch((internalError) => {
+          this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(() => done()).catch((internalError) => {
             done();
             reject(internalError);
           });
@@ -581,7 +591,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return Map({ benefitsAndFeatures });
   };
 
-  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails) => {
+  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails, sessionToken) => {
     const masterProductId = product.get('masterProductId');
     const storeId = product.get('storeId');
 
@@ -622,7 +632,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         priceToDisplay,
       });
 
-      await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails);
+      await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
     }
 
     StoreMasterProductService.update(
@@ -636,6 +646,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
           .map(storeTag => storeTag.get('id')),
       }),
+      sessionToken,
     );
   };
 }
