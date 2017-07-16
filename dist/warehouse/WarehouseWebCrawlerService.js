@@ -679,7 +679,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 products = _context6.sent;
                 _context6.next = 20;
                 return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product, storeTags, true);
+                  return _this.crawlProductDetails(finalConfig, product, storeTags, true, sessionToken);
                 });
 
               case 20:
