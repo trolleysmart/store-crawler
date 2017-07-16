@@ -470,6 +470,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                       }
 
                       productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(productCategory.set('totalItems', _this.crawlTotalItemsInfo(config, res.$)));
+
                       done();
                     }
                   });

@@ -313,6 +313,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(
             productCategory.set('totalItems', this.crawlTotalItemsInfo(config, res.$)),
           );
+
           done();
         },
       });

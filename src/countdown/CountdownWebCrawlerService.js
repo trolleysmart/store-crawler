@@ -613,12 +613,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               return 0;
             });
 
-            self.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(() => done()).catch((internalError) => {
-              done();
-              reject(internalError);
-            });
-
             return 0;
+          });
+
+          this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(() => done()).catch((internalError) => {
+            done();
+            reject(internalError);
           });
         },
       });

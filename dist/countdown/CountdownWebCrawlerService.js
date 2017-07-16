@@ -872,14 +872,14 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 return 0;
               });
 
-              self.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(function () {
-                return done();
-              }).catch(function (internalError) {
-                done();
-                reject(internalError);
-              });
-
               return 0;
+            });
+
+            _this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(function () {
+              return done();
+            }).catch(function (internalError) {
+              done();
+              reject(internalError);
             });
           }
         });
