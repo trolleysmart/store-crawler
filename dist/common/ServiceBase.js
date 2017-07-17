@@ -137,7 +137,7 @@ var ServiceBase = function ServiceBase(_ref) {
   }();
 
   this.getStore = function () {
-    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(name, sessionToken) {
+    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(key, sessionToken) {
       var criteria, results;
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
@@ -145,7 +145,7 @@ var ServiceBase = function ServiceBase(_ref) {
             case 0:
               criteria = (0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
-                  name: name
+                  key: key
                 })
               });
               _context3.next = 3;
@@ -161,7 +161,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
               _context3.t0 = _smartGroceryParseServerCommon.StoreService;
               _context3.next = 8;
-              return _smartGroceryParseServerCommon.StoreService.create((0, _immutable.Map)({ name: name }, null, sessionToken), null, sessionToken);
+              return _smartGroceryParseServerCommon.StoreService.create((0, _immutable.Map)({ key: key }, null, sessionToken), null, sessionToken);
 
             case 8:
               _context3.t1 = _context3.sent;
@@ -176,7 +176,7 @@ var ServiceBase = function ServiceBase(_ref) {
               return _context3.abrupt('return', results.first());
 
             case 14:
-              throw new _microBusinessParseServerCommon.Exception('Multiple store found called ' + name + '.');
+              throw new _microBusinessParseServerCommon.Exception('Multiple store found with provided key: ' + key + '.');
 
             case 15:
             case 'end':

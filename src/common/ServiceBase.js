@@ -52,22 +52,22 @@ export default class ServiceBase {
     });
   };
 
-  getStore = async (name, sessionToken) => {
+  getStore = async (key, sessionToken) => {
     const criteria = Map({
       conditions: Map({
-        name,
+        key,
       }),
     });
 
     const results = await StoreService.search(criteria, sessionToken);
 
     if (results.isEmpty()) {
-      return StoreService.read(await StoreService.create(Map({ name }, null, sessionToken), null, sessionToken));
+      return StoreService.read(await StoreService.create(Map({ key }, null, sessionToken), null, sessionToken));
     } else if (results.count() === 1) {
       return results.first();
     }
 
-    throw new Exception(`Multiple store found called ${name}.`);
+    throw new Exception(`Multiple store found with provided key: ${key}.`);
   };
 
   getMostRecentCrawlSessionInfo = async (sessionKey, sessionToken) => {
