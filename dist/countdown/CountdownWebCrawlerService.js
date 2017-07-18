@@ -946,11 +946,17 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
       if (multiBuyIconUrl) {
         var multiBuyFullText = lowerCaseUrl.substring(lowerCaseUrl.lastIndexOf('/') + 1).trim().match(/\d+/g);
+        var awardQuantity = parseInt(multiBuyFullText[0], 10);
+        var awardValue = parseFloat(multiBuyFullText[1]);
+
+        if (awardValue >= 100) {
+          awardValue /= 100;
+        }
 
         return (0, _immutable.Map)({
           multiBuyInfo: (0, _immutable.Map)({
-            awardQuantity: multiBuyFullText[0],
-            awardValue: multiBuyFullText[1]
+            awardQuantity: awardQuantity,
+            awardValue: awardValue
           })
         });
       }

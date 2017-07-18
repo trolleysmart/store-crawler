@@ -690,11 +690,17 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
     if (multiBuyIconUrl) {
       const multiBuyFullText = lowerCaseUrl.substring(lowerCaseUrl.lastIndexOf('/') + 1).trim().match(/\d+/g);
+      const awardQuantity = parseInt(multiBuyFullText[0], 10);
+      let awardValue = parseFloat(multiBuyFullText[1]);
+
+      if (awardValue >= 100) {
+        awardValue /= 100;
+      }
 
       return Map({
         multiBuyInfo: Map({
-          awardQuantity: multiBuyFullText[0],
-          awardValue: multiBuyFullText[1],
+          awardQuantity,
+          awardValue,
         }),
       });
     }
