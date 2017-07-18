@@ -856,7 +856,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return (0, _immutable.Map)({ benefitsAndFeatures: benefitsAndFeatures });
     }, _this.updateProductDetails = function () {
       var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(product, storeTags, productInfo, updatePriceDetails, sessionToken) {
-        var masterProductId, storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, offerEndDate, masterProductPrice;
+        var masterProductId, storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, offerEndDate, saving, savingPercentage, temp, masterProductPrice;
         return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
             switch (_context7.prev = _context7.next) {
@@ -865,7 +865,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 storeId = product.get('storeId');
 
                 if (!updatePriceDetails) {
-                  _context7.next = 13;
+                  _context7.next = 16;
                   break;
                 }
 
@@ -890,7 +890,18 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 currentPrice = productInfo.get('currentPrice');
                 wasPrice = productInfo.get('wasPrice');
                 offerEndDate = productInfo.get('offerEndDate');
+                saving = 0;
+                savingPercentage = 0;
 
+
+                if (wasPrice && currentPrice) {
+                  saving = wasPrice - currentPrice;
+
+                  temp = saving * 100;
+
+
+                  savingPercentage = temp / wasPrice;
+                }
 
                 priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
 
@@ -901,12 +912,14 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   storeName: 'Warehouse',
                   status: 'A',
                   priceDetails: priceDetails,
-                  priceToDisplay: priceToDisplay
+                  priceToDisplay: priceToDisplay,
+                  saving: saving,
+                  savingPercentage: savingPercentage
                 });
-                _context7.next = 13;
+                _context7.next = 16;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
 
-              case 13:
+              case 16:
 
                 _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
                   name: productInfo.get('name'),
@@ -923,7 +936,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   })
                 }), sessionToken);
 
-              case 14:
+              case 17:
               case 'end':
                 return _context7.stop();
             }

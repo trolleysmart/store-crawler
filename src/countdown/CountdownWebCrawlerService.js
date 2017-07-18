@@ -689,12 +689,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const multiBuyIconUrl = lowerCaseUrl.match(/\dfor\d/);
 
     if (multiBuyIconUrl) {
-      const multiBuyFullText = lowerCaseUrl.substring(lowerCaseUrl.lastIndexOf('/') + 1, lowerCaseUrl.indexOf('.')).trim();
+      const multiBuyFullText = lowerCaseUrl.substring(lowerCaseUrl.lastIndexOf('/') + 1).trim().match(/\d+/g);
 
       return Map({
         multiBuyInfo: Map({
-          awardQuantity: multiBuyFullText.substring(0, multiBuyFullText.indexOf('for')),
-          awardValue: multiBuyFullText.substring(multiBuyFullText.indexOf('for') + 'for'.length),
+          awardQuantity: multiBuyFullText[0],
+          awardValue: multiBuyFullText[1],
         }),
       });
     }
@@ -771,6 +771,16 @@ export default class CountdownWebCrawlerService extends ServiceBase {
       const wasPrice = productInfo.get('wasPrice');
       const multiBuyInfo = productInfo.get('multiBuyInfo');
       const unitPrice = productInfo.get('unitPrice');
+      let saving = 0;
+      let savingPercentage = 0;
+
+      if (wasPrice && currentPrice) {
+        saving = wasPrice - currentPrice;
+
+        const temp = saving * 100;
+
+        savingPercentage = temp / wasPrice;
+      }
 
       priceDetails = priceDetails
         .merge(currentPrice ? Map({ currentPrice }) : Map())
@@ -786,6 +796,8 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         status: 'A',
         priceDetails,
         priceToDisplay,
+        saving,
+        savingPercentage,
       });
 
       await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);

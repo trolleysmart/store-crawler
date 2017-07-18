@@ -5,16 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.WarehouseWebCrawlerService = undefined;
 
-require('./CrawlProductCategories');
-
-require('./SyncProductCategoriesToStoreTags');
-
-require('./CrawlProducts');
-
-require('./CrawlProductsDetails');
-
-require('./CrawlProductsPriceDetails');
-
 var _WarehouseWebCrawlerService2 = require('./WarehouseWebCrawlerService');
 
 var _WarehouseWebCrawlerService3 = _interopRequireDefault(_WarehouseWebCrawlerService2);

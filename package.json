@@ -1,6 +1,6 @@
 {
   "name": "store-crawler",
-  "version": "0.1.209",
+  "version": "0.1.210",
   "description": "Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "immutable": "^3.8.1",
     "micro-business-parse-server-common": "^0.1.92",
     "moment": "^2.18.1",
-    "smart-grocery-parse-server-common": "^0.1.190"
+    "smart-grocery-parse-server-common": "^0.1.191"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -32,10 +32,10 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-stage-0": "^6.24.1",
-    "eslint": "^3.19.0",
+    "eslint": "^4.2.0",
     "eslint-config-airbnb": "^15.0.2",
-    "eslint-plugin-import": "^2.6.0",
-    "eslint-plugin-jsx-a11y": "5.0.3",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "6.0.2",
     "eslint-plugin-react": "^7.1.0",
     "flow-bin": "^0.50.0",
     "jest": "^20.0.4",

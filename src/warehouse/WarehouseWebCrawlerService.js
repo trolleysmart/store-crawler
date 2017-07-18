@@ -617,6 +617,16 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       const currentPrice = productInfo.get('currentPrice');
       const wasPrice = productInfo.get('wasPrice');
       const offerEndDate = productInfo.get('offerEndDate');
+      let saving = 0;
+      let savingPercentage = 0;
+
+      if (wasPrice && currentPrice) {
+        saving = wasPrice - currentPrice;
+
+        const temp = saving * 100;
+
+        savingPercentage = temp / wasPrice;
+      }
 
       priceDetails = priceDetails
         .merge(currentPrice ? Map({ currentPrice }) : Map())
@@ -631,6 +641,8 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
         status: 'A',
         priceDetails,
         priceToDisplay,
+        saving,
+        savingPercentage,
       });
 
       await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);

@@ -5,16 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.CountdownWebCrawlerService = undefined;
 
-require('./CrawlProductCategories');
-
-require('./SyncProductCategoriesToStoreTags');
-
-require('./CrawlProducts');
-
-require('./CrawlProductsDetails');
-
-require('./CrawlProductsPriceDetails');
-
 var _CountdownWebCrawlerService2 = require('./CountdownWebCrawlerService');
 
 var _CountdownWebCrawlerService3 = _interopRequireDefault(_CountdownWebCrawlerService2);

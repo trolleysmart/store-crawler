@@ -945,12 +945,12 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       var multiBuyIconUrl = lowerCaseUrl.match(/\dfor\d/);
 
       if (multiBuyIconUrl) {
-        var multiBuyFullText = lowerCaseUrl.substring(lowerCaseUrl.lastIndexOf('/') + 1, lowerCaseUrl.indexOf('.')).trim();
+        var multiBuyFullText = lowerCaseUrl.substring(lowerCaseUrl.lastIndexOf('/') + 1).trim().match(/\d+/g);
 
         return (0, _immutable.Map)({
           multiBuyInfo: (0, _immutable.Map)({
-            awardQuantity: multiBuyFullText.substring(0, multiBuyFullText.indexOf('for')),
-            awardValue: multiBuyFullText.substring(multiBuyFullText.indexOf('for') + 'for'.length)
+            awardQuantity: multiBuyFullText[0],
+            awardValue: multiBuyFullText[1]
           })
         });
       }
@@ -985,7 +985,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return str.substr(0, str.indexOf('.jpg'));
     }, _this.updateProductDetails = function () {
       var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(product, storeTags, productInfo, updatePriceDetails, sessionToken) {
-        var masterProductId, storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, masterProductPrice;
+        var masterProductId, storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, masterProductPrice;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
@@ -994,7 +994,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 storeId = product.get('storeId');
 
                 if (!updatePriceDetails) {
-                  _context6.next = 14;
+                  _context6.next = 17;
                   break;
                 }
 
@@ -1032,7 +1032,18 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 wasPrice = productInfo.get('wasPrice');
                 multiBuyInfo = productInfo.get('multiBuyInfo');
                 unitPrice = productInfo.get('unitPrice');
+                saving = 0;
+                savingPercentage = 0;
 
+
+                if (wasPrice && currentPrice) {
+                  saving = wasPrice - currentPrice;
+
+                  temp = saving * 100;
+
+
+                  savingPercentage = temp / wasPrice;
+                }
 
                 priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(multiBuyInfo ? (0, _immutable.Map)({ multiBuyInfo: multiBuyInfo }) : (0, _immutable.Map)()).merge(unitPrice ? (0, _immutable.Map)({ unitPrice: unitPrice }) : (0, _immutable.Map)());
 
@@ -1043,13 +1054,15 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   storeName: 'Countdown',
                   status: 'A',
                   priceDetails: priceDetails,
-                  priceToDisplay: priceToDisplay
+                  priceToDisplay: priceToDisplay,
+                  saving: saving,
+                  savingPercentage: savingPercentage
                 });
-                _context6.next = 14;
+                _context6.next = 17;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
 
-              case 14:
-                _context6.next = 16;
+              case 17:
+                _context6.next = 19;
                 return _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
@@ -1066,7 +1079,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   })
                 }), sessionToken);
 
-              case 16:
+              case 19:
               case 'end':
                 return _context6.stop();
             }
