@@ -334,7 +334,7 @@ export default class ServiceBase {
     }
 
     if (masterProductPrices.isEmpty()) {
-      await MasterProductPriceService.create(masterProductPrice, null, sessionToken);
+      await MasterProductPriceService.create(masterProductPrice.set('firstCrawledDate', new Date()), null, sessionToken);
     } else {
       const notMatchedMasterProductPrices = masterProductPrices.filterNot(_ => _.get('priceDetails').equals(priceDetails));
 
@@ -349,7 +349,7 @@ export default class ServiceBase {
           matchedMasterProductPrices.skip(1).map(_ => MasterProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray(),
         );
       } else if (matchedMasterProductPrices.count() === 0) {
-        await MasterProductPriceService.create(masterProductPrice, null, sessionToken);
+        await MasterProductPriceService.create(masterProductPrice.set('firstCrawledDate', new Date()), null, sessionToken);
       }
     }
   };

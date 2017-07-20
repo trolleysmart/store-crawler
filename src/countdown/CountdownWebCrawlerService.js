@@ -804,6 +804,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         priceToDisplay,
         saving,
         savingPercentage,
+        offerEndDate: new Date(3000, 1, 1),
       });
 
       await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);

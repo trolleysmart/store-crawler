@@ -737,7 +737,7 @@ var ServiceBase = function ServiceBase(_ref) {
               }
 
               _context15.next = 11;
-              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice, null, sessionToken);
+              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice.set('firstCrawledDate', new Date()), null, sessionToken);
 
             case 11:
               _context15.next = 26;
@@ -784,7 +784,7 @@ var ServiceBase = function ServiceBase(_ref) {
               }
 
               _context15.next = 26;
-              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice, null, sessionToken);
+              return _smartGroceryParseServerCommon.MasterProductPriceService.create(masterProductPrice.set('firstCrawledDate', new Date()), null, sessionToken);
 
             case 26:
             case 'end':
