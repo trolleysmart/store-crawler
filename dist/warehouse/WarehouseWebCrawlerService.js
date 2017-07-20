@@ -914,9 +914,8 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
                   saving: saving,
-                  savingPercentage: savingPercentage,
-                  offerEndDate: offerEndDate || new Date(3000, 1, 1)
-                });
+                  savingPercentage: savingPercentage
+                }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
                 _context7.next = 16;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
 
