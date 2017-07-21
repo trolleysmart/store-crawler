@@ -630,7 +630,9 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
       priceDetails = priceDetails
         .merge(currentPrice ? Map({ currentPrice }) : Map())
-        .merge(wasPrice ? Map({ wasPrice }) : Map());
+        .merge(wasPrice ? Map({ wasPrice }) : Map())
+        .merge(offerEndDate ? Map({ offerEndDate }) : Map())
+        .merge(Map({ saving, savingPercentage }));
 
       const masterProductPrice = Map({
         masterProductId,

@@ -794,7 +794,8 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         .merge(currentPrice ? Map({ currentPrice }) : Map())
         .merge(wasPrice ? Map({ wasPrice }) : Map())
         .merge(multiBuyInfo ? Map({ multiBuyInfo }) : Map())
-        .merge(unitPrice ? Map({ unitPrice }) : Map());
+        .merge(unitPrice ? Map({ unitPrice }) : Map())
+        .merge(Map({ saving, savingPercentage }));
 
       const masterProductPrice = Map({
         masterProductId,
