@@ -739,9 +739,10 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     return str.substr(0, str.indexOf('.jpg'));
   };
 
-  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails, sessionToken) => {
+  updateProductDetails = async (product, storeTags, originalProductInfo, updatePriceDetails, sessionToken) => {
     const masterProductId = product.get('masterProductId');
     const storeId = product.get('storeId');
+    let productInfo = originalProductInfo;
 
     if (updatePriceDetails) {
       let priceDetails;
@@ -759,6 +760,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         });
 
         priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']) / productInfo.getIn(['multiBuyInfo', 'awardQuantity']);
+        productInfo = productInfo.set('wasPrice', productInfo.get('currentPrice')).set('currentPrice', priceToDisplay);
       } else if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
         priceDetails = Map({
           specialType: 'special',

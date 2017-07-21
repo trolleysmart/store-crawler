@@ -990,17 +990,18 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
       return str.substr(0, str.indexOf('.jpg'));
     }, _this.updateProductDetails = function () {
-      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(product, storeTags, productInfo, updatePriceDetails, sessionToken) {
-        var masterProductId, storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, masterProductPrice;
+      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(product, storeTags, originalProductInfo, updatePriceDetails, sessionToken) {
+        var masterProductId, storeId, productInfo, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, masterProductPrice;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
               case 0:
                 masterProductId = product.get('masterProductId');
                 storeId = product.get('storeId');
+                productInfo = originalProductInfo;
 
                 if (!updatePriceDetails) {
-                  _context6.next = 17;
+                  _context6.next = 18;
                   break;
                 }
 
@@ -1020,6 +1021,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   });
 
                   priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']) / productInfo.getIn(['multiBuyInfo', 'awardQuantity']);
+                  productInfo = productInfo.set('wasPrice', productInfo.get('currentPrice')).set('currentPrice', priceToDisplay);
                 } else if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
                   priceDetails = (0, _immutable.Map)({
                     specialType: 'special'
@@ -1064,11 +1066,11 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   saving: saving,
                   savingPercentage: savingPercentage
                 });
-                _context6.next = 17;
+                _context6.next = 18;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
 
-              case 17:
-                _context6.next = 19;
+              case 18:
+                _context6.next = 20;
                 return _smartGroceryParseServerCommon.StoreMasterProductService.update(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
@@ -1085,7 +1087,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   })
                 }), sessionToken);
 
-              case 19:
+              case 20:
               case 'end':
                 return _context6.stop();
             }
