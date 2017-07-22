@@ -254,6 +254,28 @@ export default class ServiceBase {
     }
   };
 
+  getAllStoreMasterProducts = async (storeId, sessionToken) => {
+    const criteria = Map({
+      conditions: Map({
+        storeId,
+      }),
+    });
+
+    const result = StoreMasterProductService.searchAll(criteria, sessionToken);
+
+    try {
+      let products = List();
+
+      result.event.subscribe(info => (products = products.push(info)));
+
+      await result.promise;
+
+      return products;
+    } finally {
+      result.event.unsubscribeAll();
+    }
+  };
+
   getAllStoreMasterProductsWithoutMasterProduct = async (storeId, sessionToken) => {
     const criteria = Map({
       conditions: Map({

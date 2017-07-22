@@ -614,7 +614,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               case 12:
                 storeTags = _context5.sent;
                 _context5.next = 15;
-                return _this.getAllStoreMasterProductsWithoutMasterProduct(storeId, sessionToken);
+                return _this.getAllStoreMasterProducts(storeId, sessionToken);
 
               case 15:
                 products = _context5.sent;

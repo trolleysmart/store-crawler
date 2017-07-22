@@ -409,7 +409,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const store = await this.getStore('Warehouse', sessionToken);
     const storeId = store.get('id');
     const storeTags = await this.getStoreTags(storeId, false, sessionToken);
-    const products = await this.getAllStoreMasterProductsWithoutMasterProduct(storeId, sessionToken);
+    const products = await this.getAllStoreMasterProducts(storeId, sessionToken);
 
     await BluebirdPromise.each(products.toArray(), product => this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken));
   };
