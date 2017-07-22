@@ -214,7 +214,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       ),
     );
 
-    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(storeId);
+    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(storeId, false, sessionToken);
     const levelTwoProductCategories = productCategories
       .map(productCategory =>
         productCategory.update('subCategories', subCategories =>

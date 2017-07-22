@@ -292,7 +292,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
               case 15:
                 _context2.next = 17;
-                return _this.getStoreTags(storeId);
+                return _this.getStoreTags(storeId, false, sessionToken);
 
               case 17:
                 storeTagsWithUpdatedLevelOneProductCategories = _context2.sent;
