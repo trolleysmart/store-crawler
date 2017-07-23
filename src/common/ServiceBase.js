@@ -309,7 +309,10 @@ export default class ServiceBase {
     });
 
   getStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime, sessionToken) =>
-    StoreMasterProductService.search(this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime), sessionToken);
+    StoreMasterProductService.search(
+      this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime).set('limit', 1000),
+      sessionToken,
+    );
 
   getAllStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime, sessionToken) => {
     const result = StoreMasterProductService.searchAll(

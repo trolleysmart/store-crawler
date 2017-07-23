@@ -675,7 +675,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
               case 15:
                 products = _context4.sent;
-                splittedProducts = _this.splitIntoChunks(products, 10);
+                splittedProducts = _this.splitIntoChunks(products, 20);
                 _context4.next = 19;
                 return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                   return Promise.all(productChunk.map(function (product) {
@@ -737,7 +737,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
               case 17:
                 products = _context5.sent;
-                splittedProducts = _this.splitIntoChunks(products, 10);
+                splittedProducts = _this.splitIntoChunks(products, 20);
                 _context5.next = 21;
                 return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                   return Promise.all(productChunk.map(function (product) {

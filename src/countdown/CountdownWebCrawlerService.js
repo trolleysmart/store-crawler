@@ -476,7 +476,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const storeId = store.get('id');
     const storeTags = await this.getStoreTags(storeId, false, sessionToken);
     const products = await this.getAllStoreMasterProducts(storeId, sessionToken);
-    const splittedProducts = this.splitIntoChunks(products, 10);
+    const splittedProducts = this.splitIntoChunks(products, 20);
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
       Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken))),
@@ -493,7 +493,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
     const products = await this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime, sessionToken);
-    const splittedProducts = this.splitIntoChunks(products, 10);
+    const splittedProducts = this.splitIntoChunks(products, 20);
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
       Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, true, sessionToken))),

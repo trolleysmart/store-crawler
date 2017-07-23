@@ -656,7 +656,7 @@ var ServiceBase = function ServiceBase(_ref) {
         while (1) {
           switch (_context13.prev = _context13.next) {
             case 0:
-              return _context13.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(_this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime), sessionToken));
+              return _context13.abrupt('return', _smartGroceryParseServerCommon.StoreMasterProductService.search(_this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime).set('limit', 1000), sessionToken));
 
             case 1:
             case 'end':
