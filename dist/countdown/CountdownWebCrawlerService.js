@@ -639,7 +639,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return products;
     }, _this.crawlProductsDetails = function () {
       var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(config, sessionToken) {
-        var finalConfig, store, storeId, storeTags, products;
+        var finalConfig, store, storeId, storeTags, products, splittedProducts;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
@@ -675,12 +675,15 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
               case 15:
                 products = _context4.sent;
-                _context4.next = 18;
-                return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken);
+                splittedProducts = _this.splitIntoChunks(products, 10);
+                _context4.next = 19;
+                return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
+                  return Promise.all(productChunk.map(function (product) {
+                    return _this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken);
+                  }));
                 });
 
-              case 18:
+              case 19:
               case 'end':
                 return _context4.stop();
             }
@@ -693,7 +696,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       };
     }(), _this.crawlProductsPriceDetails = function () {
       var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(config, sessionToken) {
-        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products;
+        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products, splittedProducts;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
@@ -734,12 +737,15 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
               case 17:
                 products = _context5.sent;
-                _context5.next = 20;
-                return _bluebird2.default.each(products.toArray(), function (product) {
-                  return _this.crawlProductDetails(finalConfig, product, storeTags, true, sessionToken);
+                splittedProducts = _this.splitIntoChunks(products, 10);
+                _context5.next = 21;
+                return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
+                  return Promise.all(productChunk.map(function (product) {
+                    return _this.crawlProductDetails(finalConfig, product, storeTags, true, sessionToken);
+                  }));
                 });
 
-              case 20:
+              case 21:
               case 'end':
                 return _context5.stop();
             }
