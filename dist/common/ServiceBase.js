@@ -245,7 +245,7 @@ var ServiceBase = function ServiceBase(_ref) {
               _context5.prev = 6;
 
               result.event.subscribe(function (info) {
-                return results = results.push(mapFunc ? mapFunc(info) : info);
+                results = results.push(mapFunc ? mapFunc(info) : info);
               });
 
               _context5.next = 10;
@@ -286,7 +286,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
 
               result.event.subscribe(function (info) {
-                return storeTags = storeTags.push(info);
+                storeTags = storeTags.push(info);
               });
 
               _context6.next = 6;
@@ -565,7 +565,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
 
               result.event.subscribe(function (info) {
-                return products = products.push(info);
+                products = products.push(info);
               });
 
               _context11.next = 7;
@@ -612,7 +612,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
 
               result.event.subscribe(function (info) {
-                return products = products.push(info);
+                products = products.push(info);
               });
 
               _context12.next = 7;
@@ -684,7 +684,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
 
               result.event.subscribe(function (info) {
-                return products = products.push(info);
+                products = products.push(info);
               });
 
               _context14.next = 6;

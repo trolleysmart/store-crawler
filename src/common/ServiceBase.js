@@ -98,7 +98,9 @@ export default class ServiceBase {
     );
 
     try {
-      result.event.subscribe(info => (results = results.push(mapFunc ? mapFunc(info) : info)));
+      result.event.subscribe((info) => {
+        results = results.push(mapFunc ? mapFunc(info) : info);
+      });
 
       await result.promise;
     } finally {
@@ -114,7 +116,9 @@ export default class ServiceBase {
     try {
       let storeTags = List();
 
-      result.event.subscribe(info => (storeTags = storeTags.push(info)));
+      result.event.subscribe((info) => {
+        storeTags = storeTags.push(info);
+      });
 
       await result.promise;
 
@@ -266,7 +270,9 @@ export default class ServiceBase {
     try {
       let products = List();
 
-      result.event.subscribe(info => (products = products.push(info)));
+      result.event.subscribe((info) => {
+        products = products.push(info);
+      });
 
       await result.promise;
 
@@ -289,7 +295,9 @@ export default class ServiceBase {
     try {
       let products = List();
 
-      result.event.subscribe(info => (products = products.push(info)));
+      result.event.subscribe((info) => {
+        products = products.push(info);
+      });
 
       await result.promise;
 
@@ -323,7 +331,9 @@ export default class ServiceBase {
     try {
       let products = List();
 
-      result.event.subscribe(info => (products = products.push(info)));
+      result.event.subscribe((info) => {
+        products = products.push(info);
+      });
 
       await result.promise;
 
