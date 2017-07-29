@@ -5,7 +5,7 @@ import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
 import moment from 'moment';
 import { Exception } from 'micro-business-parse-server-common';
-import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'smart-grocery-parse-server-common';
+import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'trolley-smart-parse-server-common';
 import { ServiceBase } from '../common';
 
 export default class WarehouseWebCrawlerService extends ServiceBase {

@@ -9,7 +9,7 @@ import {
   StoreService,
   StoreMasterProductService,
   StoreTagService,
-} from 'smart-grocery-parse-server-common';
+} from 'trolley-smart-parse-server-common';
 
 export default class ServiceBase {
   constructor({ logVerboseFunc, logInfoFunc, logErrorFunc }) {

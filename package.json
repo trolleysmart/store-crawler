@@ -1,7 +1,7 @@
 {
-  "name": "store-crawler",
-  "version": "0.1.224",
-  "description": "Store Crawler",
+  "name": "trolley-smart-store-crawler",
+  "version": "0.1.225",
+  "description": "Trolley Smart Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
     "start": "babel-node src/index.js",
@@ -17,14 +17,14 @@
     "lint:staged": "lint-staged"
   },
   "author": "Micro Business ltd<micro.business.ltd@gmail.com>",
-  "homepage": "https://bitbucket.org/microbusiness/store-crawler#readme",
+  "homepage": "https://bitbucket.org/microbusiness/trolley-smart-store-crawler#readme",
   "dependencies": {
     "bluebird": "^3.5.0",
     "crawler": "^1.0.5",
     "immutable": "^3.8.1",
     "micro-business-parse-server-common": "^0.1.94",
     "moment": "^2.18.1",
-    "smart-grocery-parse-server-common": "^0.1.196"
+    "trolley-smart-parse-server-common": "^0.1.197"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -50,7 +50,7 @@
   "pre-commit": "lint:staged",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org:microbusiness/store-crawler.git"
+    "url": "git+ssh://git@bitbucket.org:microbusiness/trolley-smart-store-crawler.git"
   },
   "lint-staged": {
     "*.js": [
