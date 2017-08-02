@@ -622,7 +622,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 _context5.next = 19;
                 return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                   return Promise.all(productChunk.map(function (product) {
-                    return _this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken);
+                    return _this.crawlProductDetails(finalConfig, product, storeTags, false, store.get('name'), sessionToken);
                   }));
                 });
 
@@ -684,7 +684,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 _context6.next = 21;
                 return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                   return Promise.all(productChunk.map(function (product) {
-                    return _this.crawlProductDetails(finalConfig, product, storeTags, true, sessionToken);
+                    return _this.crawlProductDetails(finalConfig, product, storeTags, true, store.get('name'), sessionToken);
                   }));
                 });
 
@@ -699,7 +699,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
       return function (_x10, _x11) {
         return _ref7.apply(this, arguments);
       };
-    }(), _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails, sessionToken) {
+    }(), _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails, storeName, sessionToken) {
       return new Promise(function (resolve, reject) {
         var productInfo = (0, _immutable.Map)();
         var crawler = new _crawler2.default({
@@ -777,7 +777,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
               return 0;
             });
 
-            _this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(function () {
+            _this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken).then(function () {
               return done();
             }).catch(function (internalError) {
               done();
@@ -861,7 +861,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
 
       return (0, _immutable.Map)({ benefitsAndFeatures: benefitsAndFeatures });
     }, _this.updateProductDetails = function () {
-      var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(product, storeTags, productInfo, updatePriceDetails, sessionToken) {
+      var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken) {
         var masterProductId, storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, offerEndDate, saving, savingPercentage, temp, masterProductPrice;
         return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
@@ -914,15 +914,15 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                 masterProductPrice = (0, _immutable.Map)({
                   masterProductId: masterProductId,
                   storeId: storeId,
-                  name: product.get('name'),
-                  description: product.get('description'),
-                  storeName: 'Warehouse',
+                  name: product.getIn(['masterProduct', 'name']),
+                  description: product.getIn(['masterProduct', 'description']),
+                  storeName: storeName,
                   status: 'A',
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
                   saving: saving,
                   savingPercentage: savingPercentage,
-                  tagIds: product.get('tagIds')
+                  tagIds: product.getIn(['masterProduct', 'tagIds'])
                 }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
                 _context7.next = 16;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
@@ -952,7 +952,7 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
         }, _callee7, _this2);
       }));
 
-      return function (_x12, _x13, _x14, _x15, _x16) {
+      return function (_x12, _x13, _x14, _x15, _x16, _x17) {
         return _ref8.apply(this, arguments);
       };
     }(), _temp), _possibleConstructorReturn(_this, _ret);

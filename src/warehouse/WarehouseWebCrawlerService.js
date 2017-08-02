@@ -413,7 +413,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const splittedProducts = this.splitIntoChunks(products, 20);
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
-      Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken))),
+      Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, false, store.get('name'), sessionToken))),
     );
   };
 
@@ -430,11 +430,11 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     const splittedProducts = this.splitIntoChunks(products, 20);
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
-      Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, true, sessionToken))),
+      Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, true, store.get('name'), sessionToken))),
     );
   };
 
-  crawlProductDetails = (config, product, storeTags, updatePriceDetails, sessionToken) =>
+  crawlProductDetails = (config, product, storeTags, updatePriceDetails, storeName, sessionToken) =>
     new Promise((resolve, reject) => {
       let productInfo = Map();
       const crawler = new Crawler({
@@ -508,10 +508,12 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             return 0;
           });
 
-          this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(() => done()).catch((internalError) => {
-            done();
-            reject(internalError);
-          });
+          this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken)
+            .then(() => done())
+            .catch((internalError) => {
+              done();
+              reject(internalError);
+            });
         },
       });
 
@@ -598,7 +600,7 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     return Map({ benefitsAndFeatures });
   };
 
-  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails, sessionToken) => {
+  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken) => {
     const masterProductId = product.get('masterProductId');
     const storeId = product.get('storeId');
 
@@ -643,15 +645,15 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
       const masterProductPrice = Map({
         masterProductId,
         storeId,
-        name: product.get('name'),
-        description: product.get('description'),
-        storeName: 'Warehouse',
+        name: product.getIn(['masterProduct', 'name']),
+        description: product.getIn(['masterProduct', 'description']),
+        storeName,
         status: 'A',
         priceDetails,
         priceToDisplay,
         saving,
         savingPercentage,
-        tagIds: product.get('tagIds'),
+        tagIds: product.getIn(['masterProduct', 'tagIds']),
       }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
 
       await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);

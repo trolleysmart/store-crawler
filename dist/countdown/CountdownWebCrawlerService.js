@@ -679,7 +679,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 _context4.next = 19;
                 return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                   return Promise.all(productChunk.map(function (product) {
-                    return _this.crawlProductDetails(finalConfig, product, storeTags, false, sessionToken);
+                    return _this.crawlProductDetails(finalConfig, product, storeTags, false, store.get('name'), sessionToken);
                   }));
                 });
 
@@ -741,7 +741,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 _context5.next = 21;
                 return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                   return Promise.all(productChunk.map(function (product) {
-                    return _this.crawlProductDetails(finalConfig, product, storeTags, true, sessionToken);
+                    return _this.crawlProductDetails(finalConfig, product, storeTags, true, store.get('name'), sessionToken);
                   }));
                 });
 
@@ -756,7 +756,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
       return function (_x8, _x9) {
         return _ref6.apply(this, arguments);
       };
-    }(), _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails, sessionToken) {
+    }(), _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails, storeName, sessionToken) {
       return new Promise(function (resolve, reject) {
         var productInfo = (0, _immutable.Map)();
 
@@ -881,7 +881,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
               return 0;
             });
 
-            _this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, sessionToken).then(function () {
+            _this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken).then(function () {
               return done();
             }).catch(function (internalError) {
               done();
@@ -996,7 +996,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
 
       return str.substr(0, str.indexOf('.jpg'));
     }, _this.updateProductDetails = function () {
-      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(product, storeTags, originalProductInfo, updatePriceDetails, sessionToken) {
+      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(product, storeTags, originalProductInfo, updatePriceDetails, storeName, sessionToken) {
         var masterProductId, storeId, productInfo, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, masterProductPrice;
         return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
@@ -1064,15 +1064,15 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                 masterProductPrice = (0, _immutable.Map)({
                   masterProductId: masterProductId,
                   storeId: storeId,
-                  name: product.get('name'),
-                  description: product.get('description'),
-                  storeName: 'Countdown',
+                  name: product.getIn(['masterProduct', 'name']),
+                  description: product.getIn(['masterProduct', 'description']),
+                  storeName: storeName,
                   status: 'A',
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
                   saving: saving,
                   savingPercentage: savingPercentage,
-                  tagIds: product.get('tagIds')
+                  tagIds: product.getIn(['masterProduct', 'tagIds'])
                 });
                 _context6.next = 18;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
@@ -1103,7 +1103,7 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
         }, _callee6, _this2);
       }));
 
-      return function (_x10, _x11, _x12, _x13, _x14) {
+      return function (_x10, _x11, _x12, _x13, _x14, _x15) {
         return _ref7.apply(this, arguments);
       };
     }(), _temp), _possibleConstructorReturn(_this, _ret);

@@ -260,6 +260,7 @@ export default class ServiceBase {
 
   getAllStoreMasterProducts = async (storeId, sessionToken) => {
     const criteria = Map({
+      includeStore: true,
       conditions: Map({
         storeId,
       }),
@@ -309,6 +310,7 @@ export default class ServiceBase {
 
   getStoreMasterProductsWithMasterProductCriteria = (storeId, lastCrawlDateTime) =>
     Map({
+      includeStore: true,
       conditions: Map({
         storeId,
         with_masterProduct: true,
