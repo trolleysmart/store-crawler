@@ -555,7 +555,7 @@ var ServiceBase = function ServiceBase(_ref) {
           switch (_context11.prev = _context11.next) {
             case 0:
               criteria = (0, _immutable.Map)({
-                includeStore: true,
+                includeMasterProduct: true,
                 conditions: (0, _immutable.Map)({
                   storeId: storeId
                 })
@@ -643,7 +643,7 @@ var ServiceBase = function ServiceBase(_ref) {
 
   this.getStoreMasterProductsWithMasterProductCriteria = function (storeId, lastCrawlDateTime) {
     return (0, _immutable.Map)({
-      includeStore: true,
+      includeMasterProduct: true,
       conditions: (0, _immutable.Map)({
         storeId: storeId,
         with_masterProduct: true,
