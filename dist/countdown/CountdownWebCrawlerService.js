@@ -1065,12 +1065,14 @@ var CountdownWebCrawlerService = function (_ServiceBase) {
                   masterProductId: masterProductId,
                   storeId: storeId,
                   name: product.get('name'),
+                  description: product.get('description'),
                   storeName: 'Countdown',
                   status: 'A',
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
                   saving: saving,
-                  savingPercentage: savingPercentage
+                  savingPercentage: savingPercentage,
+                  tagIds: product.get('tagIds')
                 });
                 _context6.next = 18;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);

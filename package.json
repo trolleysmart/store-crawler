@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-store-crawler",
-  "version": "0.1.226",
+  "version": "0.1.227",
   "description": "Trolley Smart Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "immutable": "^3.8.1",
     "micro-business-parse-server-common": "^0.1.95",
     "moment": "^2.18.1",
-    "trolley-smart-parse-server-common": "^0.1.198"
+    "trolley-smart-parse-server-common": "^0.1.199"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

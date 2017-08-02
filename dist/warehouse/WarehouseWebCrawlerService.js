@@ -915,12 +915,14 @@ var WarehouseWebCrawlerService = function (_ServiceBase) {
                   masterProductId: masterProductId,
                   storeId: storeId,
                   name: product.get('name'),
+                  description: product.get('description'),
                   storeName: 'Warehouse',
                   status: 'A',
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
                   saving: saving,
-                  savingPercentage: savingPercentage
+                  savingPercentage: savingPercentage,
+                  tagIds: product.get('tagIds')
                 }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
                 _context7.next = 16;
                 return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);

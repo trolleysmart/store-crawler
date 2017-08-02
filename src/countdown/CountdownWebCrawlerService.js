@@ -807,12 +807,14 @@ export default class CountdownWebCrawlerService extends ServiceBase {
         masterProductId,
         storeId,
         name: product.get('name'),
+        description: product.get('description'),
         storeName: 'Countdown',
         status: 'A',
         priceDetails,
         priceToDisplay,
         saving,
         savingPercentage,
+        tagIds: product.get('tagIds'),
       });
 
       await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
