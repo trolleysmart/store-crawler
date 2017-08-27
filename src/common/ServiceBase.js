@@ -72,16 +72,24 @@ export default class ServiceBase {
     throw new Exception(`Multiple store found with store key: ${this.storeName}.`);
   };
 
-  getMostRecentCrawlSessionInfo = async (sessionKey, sessionToken) => {
-    const crawlSessionInfos = await CrawlSessionService.search(
+  getMostRecentCrawlSessionInfo = async (sessionKey) => {
+    const crawlSessionService = new CrawlSessionService();
+
+    const crawlSessionInfos = await crawlSessionService.search(
       Map({
         conditions: Map({
           sessionKey,
         }),
         topMost: true,
       }),
-      sessionToken,
+      this.sessionToken,
     );
+
+    if (crawlSessionInfos.isEmpty()) {
+      throw new Exception(`No crawl session found with session key: ${sessionKey}.`);
+    } else if (crawlSessionInfos.count() > 1) {
+      throw new Exception(`Multiple crawl session found with session key: ${sessionKey}.`);
+    }
 
     return crawlSessionInfos.first();
   };

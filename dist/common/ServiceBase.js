@@ -174,25 +174,43 @@ var _initialiseProps = function _initialiseProps() {
   }));
 
   this.getMostRecentCrawlSessionInfo = function () {
-    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(sessionKey, sessionToken) {
-      var crawlSessionInfos;
+    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(sessionKey) {
+      var crawlSessionService, crawlSessionInfos;
       return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              _context4.next = 2;
-              return _trolleySmartParseServerCommon.CrawlSessionService.search((0, _immutable.Map)({
+              crawlSessionService = new _trolleySmartParseServerCommon.CrawlSessionService();
+              _context4.next = 3;
+              return crawlSessionService.search((0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   sessionKey: sessionKey
                 }),
                 topMost: true
-              }), sessionToken);
+              }), _this.sessionToken);
 
-            case 2:
+            case 3:
               crawlSessionInfos = _context4.sent;
+
+              if (!crawlSessionInfos.isEmpty()) {
+                _context4.next = 8;
+                break;
+              }
+
+              throw new _microBusinessCommonJavascript.Exception('No crawl session found with session key: ' + sessionKey + '.');
+
+            case 8:
+              if (!(crawlSessionInfos.count() > 1)) {
+                _context4.next = 10;
+                break;
+              }
+
+              throw new _microBusinessCommonJavascript.Exception('Multiple crawl session found with session key: ' + sessionKey + '.');
+
+            case 10:
               return _context4.abrupt('return', crawlSessionInfos.first());
 
-            case 4:
+            case 11:
             case 'end':
               return _context4.stop();
           }
@@ -200,7 +218,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee4, _this);
     }));
 
-    return function (_x3, _x4) {
+    return function (_x3) {
       return _ref5.apply(this, arguments);
     };
   }();
@@ -250,7 +268,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee5, _this, [[6,, 10, 13]]);
     }));
 
-    return function (_x5, _x6, _x7) {
+    return function (_x4, _x5, _x6) {
       return _ref6.apply(this, arguments);
     };
   }();
@@ -291,7 +309,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee6, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x8, _x9, _x10) {
+    return function (_x7, _x8, _x9) {
       return _ref7.apply(this, arguments);
     };
   }();
@@ -352,7 +370,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee7, _this);
     }));
 
-    return function (_x11, _x12, _x13, _x14) {
+    return function (_x10, _x11, _x12, _x13) {
       return _ref8.apply(this, arguments);
     };
   }();
@@ -402,7 +420,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee8, _this);
     }));
 
-    return function (_x15, _x16, _x17, _x18) {
+    return function (_x14, _x15, _x16, _x17) {
       return _ref9.apply(this, arguments);
     };
   }();
@@ -463,7 +481,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee9, _this);
     }));
 
-    return function (_x19, _x20, _x21, _x22) {
+    return function (_x18, _x19, _x20, _x21) {
       return _ref10.apply(this, arguments);
     };
   }();
@@ -524,7 +542,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee10, _this);
     }));
 
-    return function (_x23, _x24, _x25, _x26) {
+    return function (_x22, _x23, _x24, _x25) {
       return _ref11.apply(this, arguments);
     };
   }();
@@ -571,7 +589,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee11, _this, [[2,, 8, 11]]);
     }));
 
-    return function (_x27, _x28) {
+    return function (_x26, _x27) {
       return _ref12.apply(this, arguments);
     };
   }();
@@ -618,7 +636,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee12, _this, [[2,, 8, 11]]);
     }));
 
-    return function (_x29, _x30) {
+    return function (_x28, _x29) {
       return _ref13.apply(this, arguments);
     };
   }();
@@ -650,7 +668,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee13, _this);
     }));
 
-    return function (_x31, _x32, _x33) {
+    return function (_x30, _x31, _x32) {
       return _ref14.apply(this, arguments);
     };
   }();
@@ -691,7 +709,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee14, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x34, _x35, _x36) {
+    return function (_x33, _x34, _x35) {
       return _ref15.apply(this, arguments);
     };
   }();
@@ -724,7 +742,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee15, _this);
     }));
 
-    return function (_x37, _x38, _x39) {
+    return function (_x36, _x37, _x38) {
       return _ref16.apply(this, arguments);
     };
   }();
@@ -824,7 +842,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee16, _this);
     }));
 
-    return function (_x40, _x41, _x42, _x43, _x44) {
+    return function (_x39, _x40, _x41, _x42, _x43) {
       return _ref17.apply(this, arguments);
     };
   }();

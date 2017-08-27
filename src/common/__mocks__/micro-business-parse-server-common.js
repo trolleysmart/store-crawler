@@ -3,14 +3,14 @@
 import Config from './Config';
 
 const microBusinessParseServerCommon = jest.genMockFromModule('micro-business-parse-server-common');
-let keyValues;
+let finalKeyValues;
 
 class ParseWrapperService {
-  static getConfig = async () => new Config(keyValues);
+  static getConfig = async () => new Config(finalKeyValues);
 }
 
-const setupParseWrapperServiceGetConfig = (arg) => {
-  keyValues = arg;
+const setupParseWrapperServiceGetConfig = ({ keyValues } = {}) => {
+  finalKeyValues = keyValues;
 };
 
 microBusinessParseServerCommon.setupParseWrapperServiceGetConfig = setupParseWrapperServiceGetConfig;

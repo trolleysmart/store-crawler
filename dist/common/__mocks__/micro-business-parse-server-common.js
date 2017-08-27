@@ -11,7 +11,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var microBusinessParseServerCommon = jest.genMockFromModule('micro-business-parse-server-common');
-var keyValues = void 0;
+var finalKeyValues = void 0;
 
 var ParseWrapperService = function ParseWrapperService() {
   _classCallCheck(this, ParseWrapperService);
@@ -22,7 +22,7 @@ ParseWrapperService.getConfig = _asyncToGenerator(regeneratorRuntime.mark(functi
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
-          return _context.abrupt('return', new _Config2.default(keyValues));
+          return _context.abrupt('return', new _Config2.default(finalKeyValues));
 
         case 1:
         case 'end':
@@ -33,8 +33,11 @@ ParseWrapperService.getConfig = _asyncToGenerator(regeneratorRuntime.mark(functi
 }));
 
 
-var setupParseWrapperServiceGetConfig = function setupParseWrapperServiceGetConfig(arg) {
-  keyValues = arg;
+var setupParseWrapperServiceGetConfig = function setupParseWrapperServiceGetConfig() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      keyValues = _ref.keyValues;
+
+  finalKeyValues = keyValues;
 };
 
 microBusinessParseServerCommon.setupParseWrapperServiceGetConfig = setupParseWrapperServiceGetConfig;

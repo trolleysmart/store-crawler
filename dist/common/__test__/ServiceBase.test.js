@@ -15,14 +15,15 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 var MicroBusinessParseServerCommon = require('micro-business-parse-server-common');
 var TrolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
 
+var createNewServiceBase = function createNewServiceBase() {
+  return new _.ServiceBase('countdown');
+};
 var keyValues = (0, _immutable.Map)({ countdown: (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }) });
-var sessionInfo = (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() });
+var sessionInfos = _immutable.List.of((0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }), (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }));
 var storeInfos = _immutable.List.of((0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }), (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }));
-var serviceBase = new _.ServiceBase('countdown');
 
 beforeEach(function () {
-  MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig(keyValues);
-  TrolleySmartParseServerCommon.setupCrawlSessionService(sessionInfo);
+  MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig({ keyValues: keyValues });
 });
 
 describe('getConfig', function () {
@@ -31,7 +32,7 @@ describe('getConfig', function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            expect(serviceBase.getConfig()).resolves.toEqual(keyValues.get('countdown'));
+            expect(createNewServiceBase().getConfig()).resolves.toEqual(keyValues.get('countdown'));
 
           case 1:
           case 'end':
@@ -58,12 +59,16 @@ describe('getConfig', function () {
 });
 
 describe('createNewCrawlSession', function () {
+  beforeEach(function () {
+    TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfo: sessionInfos.first() });
+  });
+
   it('should create new crawl session and return the session info', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            expect(serviceBase.createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfo);
+            expect(createNewServiceBase().createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfos.first());
 
           case 1:
           case 'end':
@@ -80,8 +85,8 @@ describe('getStore', function () {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
-            TrolleySmartParseServerCommon.setupStoreService(storeInfos.first(), (0, _immutable.List)());
-            expect(serviceBase.getStore()).resolves.toEqual(storeInfos.first());
+            TrolleySmartParseServerCommon.setupStoreService({ storeInfo: storeInfos.first(), storeInfos: (0, _immutable.List)() });
+            expect(createNewServiceBase().getStore()).resolves.toEqual(storeInfos.first());
 
           case 2:
           case 'end':
@@ -96,8 +101,8 @@ describe('getStore', function () {
       while (1) {
         switch (_context5.prev = _context5.next) {
           case 0:
-            TrolleySmartParseServerCommon.setupStoreService(null, storeInfos.take(1));
-            expect(serviceBase.getStore()).resolves.toEqual(storeInfos.first());
+            TrolleySmartParseServerCommon.setupStoreService({ storeInfos: storeInfos.take(1) });
+            expect(createNewServiceBase().getStore()).resolves.toEqual(storeInfos.first());
 
           case 2:
           case 'end':
@@ -112,8 +117,8 @@ describe('getStore', function () {
       while (1) {
         switch (_context6.prev = _context6.next) {
           case 0:
-            TrolleySmartParseServerCommon.setupStoreService(null, storeInfos);
-            expect(serviceBase.getStore()).rejects.toBeDefined();
+            TrolleySmartParseServerCommon.setupStoreService({ storeInfos: storeInfos });
+            expect(createNewServiceBase().getStore()).rejects.toBeDefined();
 
           case 2:
           case 'end':
@@ -121,5 +126,55 @@ describe('getStore', function () {
         }
       }
     }, _callee6, undefined);
+  })));
+});
+
+describe('getMostRecentCrawlSessionInfo', function () {
+  it('should return the top most crawl session info', _asyncToGenerator(regeneratorRuntime.mark(function _callee7() {
+    return regeneratorRuntime.wrap(function _callee7$(_context7) {
+      while (1) {
+        switch (_context7.prev = _context7.next) {
+          case 0:
+            TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos: sessionInfos.take(1) });
+            expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).resolves.toEqual(sessionInfos.first());
+
+          case 2:
+          case 'end':
+            return _context7.stop();
+        }
+      }
+    }, _callee7, undefined);
+  })));
+
+  it('should throw exception if multiple crawl session info returned', _asyncToGenerator(regeneratorRuntime.mark(function _callee8() {
+    return regeneratorRuntime.wrap(function _callee8$(_context8) {
+      while (1) {
+        switch (_context8.prev = _context8.next) {
+          case 0:
+            TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos: sessionInfos });
+            expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).rejects.toBeDefined();
+
+          case 2:
+          case 'end':
+            return _context8.stop();
+        }
+      }
+    }, _callee8, undefined);
+  })));
+
+  it('should throw exception if no crawl session found', _asyncToGenerator(regeneratorRuntime.mark(function _callee9() {
+    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      while (1) {
+        switch (_context9.prev = _context9.next) {
+          case 0:
+            TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos: (0, _immutable.List)() });
+            expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).rejects.toBeDefined();
+
+          case 2:
+          case 'end':
+            return _context9.stop();
+        }
+      }
+    }, _callee9, undefined);
   })));
 });

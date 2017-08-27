@@ -15,9 +15,10 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var trolleySmartParseServerCommon = jest.genMockFromModule('trolley-smart-parse-server-common');
-var sessionInfo = void 0;
-var storeInfo = void 0;
-var storeInfos = void 0;
+var finalSessionInfo = void 0;
+var finalSessionInfos = void 0;
+var finalStoreInfo = void 0;
+var finalStoreInfos = void 0;
 
 var ServiceBase = function ServiceBase() {
   var _this = this;
@@ -60,7 +61,7 @@ var CrawlSessionService = function (_ServiceBase) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              return _context2.abrupt('return', sessionInfo);
+              return _context2.abrupt('return', finalSessionInfo);
 
             case 1:
             case 'end':
@@ -68,6 +69,19 @@ var CrawlSessionService = function (_ServiceBase) {
           }
         }
       }, _callee2, _this3);
+    })), _this2.search = _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              return _context3.abrupt('return', finalSessionInfos);
+
+            case 1:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, _callee3, _this3);
     })), _temp), _possibleConstructorReturn(_this2, _ret);
   }
 
@@ -78,7 +92,7 @@ var StoreService = function (_ServiceBase2) {
   _inherits(StoreService, _ServiceBase2);
 
   function StoreService() {
-    var _ref4,
+    var _ref5,
         _this5 = this;
 
     var _temp2, _this4, _ret2;
@@ -89,25 +103,12 @@ var StoreService = function (_ServiceBase2) {
       args[_key2] = arguments[_key2];
     }
 
-    return _ret2 = (_temp2 = (_this4 = _possibleConstructorReturn(this, (_ref4 = StoreService.__proto__ || Object.getPrototypeOf(StoreService)).call.apply(_ref4, [this].concat(args))), _this4), _this4.read = _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              return _context3.abrupt('return', storeInfo);
-
-            case 1:
-            case 'end':
-              return _context3.stop();
-          }
-        }
-      }, _callee3, _this5);
-    })), _this4.search = _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
+    return _ret2 = (_temp2 = (_this4 = _possibleConstructorReturn(this, (_ref5 = StoreService.__proto__ || Object.getPrototypeOf(StoreService)).call.apply(_ref5, [this].concat(args))), _this4), _this4.read = _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
       return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              return _context4.abrupt('return', storeInfos);
+              return _context4.abrupt('return', finalStoreInfo);
 
             case 1:
             case 'end':
@@ -115,19 +116,41 @@ var StoreService = function (_ServiceBase2) {
           }
         }
       }, _callee4, _this5);
+    })), _this4.search = _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
+      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              return _context5.abrupt('return', finalStoreInfos);
+
+            case 1:
+            case 'end':
+              return _context5.stop();
+          }
+        }
+      }, _callee5, _this5);
     })), _temp2), _possibleConstructorReturn(_this4, _ret2);
   }
 
   return StoreService;
 }(ServiceBase);
 
-var setupCrawlSessionService = function setupCrawlSessionService(arg) {
-  sessionInfo = arg;
+var setupCrawlSessionService = function setupCrawlSessionService() {
+  var _ref8 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      sessionInfo = _ref8.sessionInfo,
+      sessionInfos = _ref8.sessionInfos;
+
+  finalSessionInfo = sessionInfo;
+  finalSessionInfos = sessionInfos;
 };
 
-var setupStoreService = function setupStoreService(arg1, arg2) {
-  storeInfo = arg1;
-  storeInfos = arg2;
+var setupStoreService = function setupStoreService() {
+  var _ref9 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      storeInfo = _ref9.storeInfo,
+      storeInfos = _ref9.storeInfos;
+
+  finalStoreInfo = storeInfo;
+  finalStoreInfos = storeInfos;
 };
 
 trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
