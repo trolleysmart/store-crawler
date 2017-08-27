@@ -54,117 +54,115 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 
-var ServiceBase = function ServiceBase() {
-  var _this = this;
-
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+var ServiceBase = function ServiceBase(storeName) {
+  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+    sessionToken = _ref.sessionToken,
     logVerboseFunc = _ref.logVerboseFunc,
     logInfoFunc = _ref.logInfoFunc,
     logErrorFunc = _ref.logErrorFunc;
 
   _classCallCheck(this, ServiceBase);
 
-  this.getConfig = (function() {
-    var _ref2 = _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee(key) {
-        var configs, config;
-        return regeneratorRuntime.wrap(
-          function _callee$(_context) {
-            while (1) {
-              switch ((_context.prev = _context.next)) {
-                case 0:
+  _initialiseProps.call(this);
+
+  this.storeName = storeName;
+  this.sessionToken = sessionToken;
+  this.logVerboseFunc = logVerboseFunc;
+  this.logInfoFunc = logInfoFunc;
+  this.logErrorFunc = logErrorFunc;
+  this.config = null;
+};
+
+var _initialiseProps = function _initialiseProps() {
+  var _this = this;
+
+  this.getConfig = _asyncToGenerator(
+    regeneratorRuntime.mark(function _callee() {
+      var configs, config;
+      return regeneratorRuntime.wrap(
+        function _callee$(_context) {
+          while (1) {
+            switch ((_context.prev = _context.next)) {
+              case 0:
+                if (!_this.config) {
                   _context.next = 2;
-                  return _microBusinessParseServerCommon.ParseWrapperService.getConfig();
+                  break;
+                }
 
-                case 2:
-                  configs = _context.sent;
-                  config = configs.get(key);
+                return _context.abrupt('return', _this.config);
 
-                  if (!config) {
-                    _context.next = 6;
-                    break;
-                  }
+              case 2:
+                _context.next = 4;
+                return _microBusinessParseServerCommon.ParseWrapperService.getConfig();
 
-                  return _context.abrupt('return', _immutable2.default.fromJS(config));
+              case 4:
+                configs = _context.sent;
+                config = configs.get(_this.storeName);
 
-                case 6:
-                  throw new _microBusinessCommonJavascript.Exception('No config found called ' + key + '.');
+                if (!config) {
+                  _context.next = 9;
+                  break;
+                }
 
-                case 7:
-                case 'end':
-                  return _context.stop();
-              }
+                _this.config = _immutable2.default.fromJS(config);
+
+                return _context.abrupt('return', _this.config);
+
+              case 9:
+                throw new _microBusinessCommonJavascript.Exception('Failed to retrieve configuration for ' + _this.storeName + ' store crawler.');
+
+              case 10:
+              case 'end':
+                return _context.stop();
             }
-          },
-          _callee,
-          _this,
-        );
-      }),
-    );
+          }
+        },
+        _callee,
+        _this,
+      );
+    }),
+  );
 
-    return function(_x2) {
-      return _ref2.apply(this, arguments);
-    };
-  })();
-
-  this.createNewCrawlSessionAndGetConfig = (function() {
+  this.createNewCrawlSession = (function() {
     var _ref3 = _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee2(sessionKey, config, storeName, sessionToken) {
-        var sessionInfo, sessionId, finalConfig;
+      regeneratorRuntime.mark(function _callee2(sessionKey) {
+        var config, crawlSessionService, sessionId, sessionInfo;
         return regeneratorRuntime.wrap(
           function _callee2$(_context2) {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
-                  sessionInfo = (0, _immutable.Map)({
-                    sessionKey: sessionKey,
-                    startDateTime: new Date(),
-                  });
-                  _context2.next = 3;
-                  return _trolleySmartParseServerCommon.CrawlSessionService.create(sessionInfo, null, sessionToken);
+                  _context2.next = 2;
+                  return _this.getConfig();
 
-                case 3:
-                  sessionId = _context2.sent;
-                  _context2.t0 = config;
-
-                  if (_context2.t0) {
-                    _context2.next = 9;
-                    break;
-                  }
-
-                  _context2.next = 8;
-                  return _this.getConfig(storeName);
-
-                case 8:
-                  _context2.t0 = _context2.sent;
-
-                case 9:
-                  finalConfig = _context2.t0;
-
-                  if (finalConfig) {
-                    _context2.next = 12;
-                    break;
-                  }
-
-                  throw new _microBusinessCommonJavascript.Exception('Failed to retrieve configuration for ' + storeName + ' store crawler.');
-
-                case 12:
-                  _this.logInfo(finalConfig, function() {
-                    return 'Created session and retrieved config. Session Id: ' + sessionId;
-                  });
-                  _this.logVerbose(finalConfig, function() {
-                    return 'Config: ' + JSON.stringify(finalConfig);
-                  });
-
-                  return _context2.abrupt(
-                    'return',
-                    (0, _immutable.Map)({
-                      sessionInfo: sessionInfo.set('id', sessionId),
-                      config: finalConfig,
-                    }),
+                case 2:
+                  config = _context2.sent;
+                  crawlSessionService = new _trolleySmartParseServerCommon.CrawlSessionService();
+                  _context2.next = 6;
+                  return crawlSessionService.create(
+                    (0, _immutable.Map)({ sessionKey: sessionKey, startDateTime: new Date() }),
+                    null,
+                    _this.sessionToken,
                   );
 
-                case 15:
+                case 6:
+                  sessionId = _context2.sent;
+                  _context2.next = 9;
+                  return crawlSessionService.read(sessionId, _this.sessionToken);
+
+                case 9:
+                  sessionInfo = _context2.sent;
+
+                  _this.logInfo(config, function() {
+                    return 'Created session. Session Id: ' + sessionId;
+                  });
+                  _this.logVerbose(config, function() {
+                    return 'Config: ' + JSON.stringify(config);
+                  });
+
+                  return _context2.abrupt('return', sessionInfo);
+
+                case 13:
                 case 'end':
                   return _context2.stop();
               }
@@ -176,7 +174,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x3, _x4, _x5, _x6) {
+    return function(_x2) {
       return _ref3.apply(this, arguments);
     };
   })();
@@ -241,7 +239,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x7, _x8) {
+    return function(_x3, _x4) {
       return _ref4.apply(this, arguments);
     };
   })();
@@ -282,7 +280,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x9, _x10) {
+    return function(_x5, _x6) {
       return _ref5.apply(this, arguments);
     };
   })();
@@ -342,7 +340,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x11, _x12, _x13) {
+    return function(_x7, _x8, _x9) {
       return _ref6.apply(this, arguments);
     };
   })();
@@ -392,7 +390,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x14, _x15, _x16) {
+    return function(_x10, _x11, _x12) {
       return _ref7.apply(this, arguments);
     };
   })();
@@ -468,7 +466,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x17, _x18, _x19, _x20) {
+    return function(_x13, _x14, _x15, _x16) {
       return _ref8.apply(this, arguments);
     };
   })();
@@ -533,7 +531,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x21, _x22, _x23, _x24) {
+    return function(_x17, _x18, _x19, _x20) {
       return _ref9.apply(this, arguments);
     };
   })();
@@ -612,7 +610,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x25, _x26, _x27, _x28) {
+    return function(_x21, _x22, _x23, _x24) {
       return _ref10.apply(this, arguments);
     };
   })();
@@ -691,7 +689,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x29, _x30, _x31, _x32) {
+    return function(_x25, _x26, _x27, _x28) {
       return _ref11.apply(this, arguments);
     };
   })();
@@ -744,7 +742,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x33, _x34) {
+    return function(_x29, _x30) {
       return _ref12.apply(this, arguments);
     };
   })();
@@ -797,7 +795,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x35, _x36) {
+    return function(_x31, _x32) {
       return _ref13.apply(this, arguments);
     };
   })();
@@ -841,7 +839,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x37, _x38, _x39) {
+    return function(_x33, _x34, _x35) {
       return _ref14.apply(this, arguments);
     };
   })();
@@ -891,7 +889,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x40, _x41, _x42) {
+    return function(_x36, _x37, _x38) {
       return _ref15.apply(this, arguments);
     };
   })();
@@ -930,7 +928,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x43, _x44, _x45) {
+    return function(_x39, _x40, _x41) {
       return _ref16.apply(this, arguments);
     };
   })();
@@ -1057,7 +1055,7 @@ var ServiceBase = function ServiceBase() {
       }),
     );
 
-    return function(_x46, _x47, _x48, _x49, _x50) {
+    return function(_x42, _x43, _x44, _x45, _x46) {
       return _ref17.apply(this, arguments);
     };
   })();
@@ -1083,10 +1081,6 @@ var ServiceBase = function ServiceBase() {
       _this.logErrorFunc(messageFunc());
     }
   };
-
-  this.logVerboseFunc = logVerboseFunc;
-  this.logInfoFunc = logInfoFunc;
-  this.logErrorFunc = logErrorFunc;
 };
 
 exports.default = ServiceBase;

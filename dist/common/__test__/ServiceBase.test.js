@@ -43,14 +43,17 @@ function _asyncToGenerator(fn) {
 }
 
 var MicroBusinessParseServerCommon = require('micro-business-parse-server-common');
+var TrolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
+
+var keyValues = (0, _immutable.Map)({ countdown: (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }) });
+var sessionInfo = (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() });
+
+beforeEach(function() {
+  MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig(keyValues);
+  TrolleySmartParseServerCommon.setupCrawlSessionService(sessionInfo);
+});
 
 describe('getConfig', function() {
-  var keyValues = (0, _immutable.Map)({ key: (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }) });
-
-  beforeEach(function() {
-    MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig(keyValues);
-  });
-
   it(
     'should return the config matches the key',
     _asyncToGenerator(
@@ -60,7 +63,7 @@ describe('getConfig', function() {
             while (1) {
               switch ((_context.prev = _context.next)) {
                 case 0:
-                  expect(new _.ServiceBase().getConfig('key')).resolves.toEqual(keyValues.get('key'));
+                  expect(new _.ServiceBase('countdown').getConfig()).resolves.toEqual(keyValues.get('countdown'));
 
                 case 1:
                 case 'end':
@@ -84,7 +87,7 @@ describe('getConfig', function() {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
-                  expect(new _.ServiceBase().getConfig('unknown')).rejects.toBeDefined();
+                  expect(new _.ServiceBase('unknow').getConfig()).rejects.toBeDefined();
 
                 case 1:
                 case 'end':
@@ -93,6 +96,32 @@ describe('getConfig', function() {
             }
           },
           _callee2,
+          undefined,
+        );
+      }),
+    ),
+  );
+});
+
+describe('createNewCrawlSession', function() {
+  it(
+    'should return the config matches the key',
+    _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee3() {
+        return regeneratorRuntime.wrap(
+          function _callee3$(_context3) {
+            while (1) {
+              switch ((_context3.prev = _context3.next)) {
+                case 0:
+                  expect(new _.ServiceBase('countdown').createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfo);
+
+                case 1:
+                case 'end':
+                  return _context3.stop();
+              }
+            }
+          },
+          _callee3,
           undefined,
         );
       }),

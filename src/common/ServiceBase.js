@@ -22,42 +22,33 @@ export default class ServiceBase {
     this.config = null;
   }
 
-    getConfig = async () => {
-        if (this.config) {
-            return this.config;
-        }
+  getConfig = async () => {
+    if (this.config) {
+      return this.config;
+    }
 
     const configs = await ParseWrapperService.getConfig();
     const config = configs.get(this.storeName);
 
     if (config) {
-        this.config = Immutable.fromJS(config);
+      this.config = Immutable.fromJS(config);
 
       return this.config;
     }
 
-    throw new Exception(`No config found called ${this.storeName}.`);
+    throw new Exception(`Failed to retrieve configuration for ${this.storeName} store crawler.`);
   };
 
   createNewCrawlSession = async (sessionKey) => {
-    const sessionInfo = Map({
-      sessionKey,
-      startDateTime: new Date(),
-    });
-    const sessionId = await CrawlSessionService.create(sessionInfo, null, sessionToken);
-    const config = (await this.getConfig(storeName));
+    const config = await this.getConfig();
+    const crawlSessionService = new CrawlSessionService();
+    const sessionId = await crawlSessionService.create(Map({ sessionKey, startDateTime: new Date() }), null, this.sessionToken);
+    const sessionInfo = await crawlSessionService.read(sessionId, this.sessionToken);
 
-    if (!config) {
-      throw new Exception(`Failed to retrieve configuration for ${storeName} store crawler.`);
-    }
-
-    this.logInfo(config, () => `Created session and retrieved config. Session Id: ${sessionId}`);
+    this.logInfo(config, () => `Created session. Session Id: ${sessionId}`);
     this.logVerbose(config, () => `Config: ${JSON.stringify(config)}`);
 
-    return Map({
-      sessionInfo: sessionInfo.set('id', sessionId),
-      config,
-    });
+    return sessionInfo;
   };
 
   getStore = async (key, sessionToken) => {
