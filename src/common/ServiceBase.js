@@ -1,24 +1,23 @@
 // @flow
 
-import Immutable, { List, Map, Range } from 'immutable';
-import { Exception, ParseWrapperService } from 'micro-business-parse-server-common';
+import Immutable, { List, Map } from 'immutable';
+import { Exception } from 'micro-business-common-javascript';
+import { ParseWrapperService } from 'micro-business-parse-server-common';
 import {
   CrawlResultService,
   CrawlSessionService,
-  MasterProductPriceService,
+  ProductPriceService,
   StoreService,
-  StoreMasterProductService,
+  StoreProductService,
   StoreTagService,
 } from 'trolley-smart-parse-server-common';
 
 export default class ServiceBase {
-  constructor({ logVerboseFunc, logInfoFunc, logErrorFunc }) {
+  constructor({ logVerboseFunc, logInfoFunc, logErrorFunc } = {}) {
     this.logVerboseFunc = logVerboseFunc;
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
   }
-
-  splitIntoChunks = (list, chunkSize) => Range(0, list.count(), chunkSize).map(chunkStart => list.slice(chunkStart, chunkStart + chunkSize));
 
   getConfig = async (key) => {
     const configs = await ParseWrapperService.getConfig();
@@ -128,8 +127,8 @@ export default class ServiceBase {
     }
   };
 
-  createOrUpdateStoreMasterProduct = async (productCategory, productInfo, storeId, sessionToken) => {
-    const storeMasterProducts = await StoreMasterProductService.search(
+  createOrUpdateStoreProduct = async (productCategory, productInfo, storeId, sessionToken) => {
+    const storeMasterProducts = await StoreProductService.search(
       Map({
         conditions: Map({
           productPageUrl: productInfo.get('productPageUrl'),
@@ -140,7 +139,7 @@ export default class ServiceBase {
     );
 
     if (storeMasterProducts.isEmpty()) {
-      await StoreMasterProductService.create(
+      await StoreProductService.create(
         Map({
           productPageUrl: productInfo.get('productPageUrl'),
           lastCrawlDateTime: new Date(1970, 1, 1),
@@ -153,9 +152,9 @@ export default class ServiceBase {
       throw new Exception(`Multiple store master product found for store Id: ${storeId} and productPageUrl: ${productInfo.get('productPageUrl')}`);
     } else {
       const storeMasterProduct = storeMasterProducts.first();
-      const updatedStoreMasterProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl'));
+      const updatedStoreProduct = storeMasterProduct.set('productPageUrl', productInfo.get('productPageUrl'));
 
-      await StoreMasterProductService.update(updatedStoreMasterProduct, sessionToken);
+      await StoreProductService.update(updatedStoreProduct, sessionToken);
     }
   };
 
@@ -258,7 +257,7 @@ export default class ServiceBase {
     }
   };
 
-  getAllStoreMasterProducts = async (storeId, sessionToken) => {
+  getAllStoreProducts = async (storeId, sessionToken) => {
     const criteria = Map({
       includeMasterProduct: true,
       conditions: Map({
@@ -266,7 +265,7 @@ export default class ServiceBase {
       }),
     });
 
-    const result = StoreMasterProductService.searchAll(criteria, sessionToken);
+    const result = StoreProductService.searchAll(criteria, sessionToken);
 
     try {
       let products = List();
@@ -283,7 +282,7 @@ export default class ServiceBase {
     }
   };
 
-  getAllStoreMasterProductsWithoutMasterProduct = async (storeId, sessionToken) => {
+  getAllStoreProductsWithoutMasterProduct = async (storeId, sessionToken) => {
     const criteria = Map({
       conditions: Map({
         storeId,
@@ -291,7 +290,7 @@ export default class ServiceBase {
       }),
     });
 
-    const result = StoreMasterProductService.searchAll(criteria, sessionToken);
+    const result = StoreProductService.searchAll(criteria, sessionToken);
 
     try {
       let products = List();
@@ -308,7 +307,7 @@ export default class ServiceBase {
     }
   };
 
-  getStoreMasterProductsWithMasterProductCriteria = (storeId, lastCrawlDateTime) =>
+  getStoreProductsWithMasterProductCriteria = (storeId, lastCrawlDateTime) =>
     Map({
       includeMasterProduct: true,
       conditions: Map({
@@ -318,17 +317,11 @@ export default class ServiceBase {
       }),
     });
 
-  getStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime, sessionToken) =>
-    StoreMasterProductService.search(
-      this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime).set('limit', 1000),
-      sessionToken,
-    );
+  getStoreProductsWithMasterProduct = async (storeId, lastCrawlDateTime, sessionToken) =>
+    StoreProductService.search(this.getStoreProductsWithMasterProductCriteria(storeId, lastCrawlDateTime).set('limit', 1000), sessionToken);
 
-  getAllStoreMasterProductsWithMasterProduct = async (storeId, lastCrawlDateTime, sessionToken) => {
-    const result = StoreMasterProductService.searchAll(
-      this.getStoreMasterProductsWithMasterProductCriteria(storeId, lastCrawlDateTime),
-      sessionToken,
-    );
+  getAllStoreProductsWithMasterProduct = async (storeId, lastCrawlDateTime, sessionToken) => {
+    const result = StoreProductService.searchAll(this.getStoreProductsWithMasterProductCriteria(storeId, lastCrawlDateTime), sessionToken);
 
     try {
       let products = List();
@@ -356,7 +349,7 @@ export default class ServiceBase {
       }),
     });
 
-    return MasterProductPriceService.search(criteria, sessionToken);
+    return ProductPriceService.search(criteria, sessionToken);
   };
 
   createOrUpdateMasterProductPrice = async (masterProductId, storeId, masterProductPrice, priceDetails, sessionToken) => {
@@ -364,29 +357,27 @@ export default class ServiceBase {
 
     if (!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice')) {
       if (!masterProductPrices.isEmpty()) {
-        await Promise.all(masterProductPrices.map(_ => MasterProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray());
+        await Promise.all(masterProductPrices.map(_ => ProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray());
       }
 
       return;
     }
 
     if (masterProductPrices.isEmpty()) {
-      await MasterProductPriceService.create(masterProductPrice.set('firstCrawledDate', new Date()), null, sessionToken);
+      await ProductPriceService.create(masterProductPrice.set('firstCrawledDate', new Date()), null, sessionToken);
     } else {
       const notMatchedMasterProductPrices = masterProductPrices.filterNot(_ => _.get('priceDetails').equals(priceDetails));
 
       if (!notMatchedMasterProductPrices.isEmpty()) {
-        await Promise.all(notMatchedMasterProductPrices.map(_ => MasterProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray());
+        await Promise.all(notMatchedMasterProductPrices.map(_ => ProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray());
       }
 
       const matchedMasterProductPrices = masterProductPrices.filter(_ => _.get('priceDetails').equals(priceDetails));
 
       if (matchedMasterProductPrices.count() > 1) {
-        await Promise.all(
-          matchedMasterProductPrices.skip(1).map(_ => MasterProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray(),
-        );
+        await Promise.all(matchedMasterProductPrices.skip(1).map(_ => ProductPriceService.update(_.set('status', 'I'), sessionToken)).toArray());
       } else if (matchedMasterProductPrices.count() === 0) {
-        await MasterProductPriceService.create(masterProductPrice.set('firstCrawledDate', new Date()), null, sessionToken);
+        await ProductPriceService.create(masterProductPrice.set('firstCrawledDate', new Date()), null, sessionToken);
       }
     }
   };

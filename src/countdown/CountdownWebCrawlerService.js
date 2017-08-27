@@ -3,7 +3,7 @@
 import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
-import { Exception } from 'micro-business-parse-server-common';
+import { Exception, ImmutableEx } from 'micro-business-common-javascript';
 import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'trolley-smart-parse-server-common';
 import { ServiceBase } from '../common';
 
@@ -284,7 +284,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
       )).first(),
     );
     const storeTags = await this.getStoreTags(storeId, false, sessionToken);
-    const splittedLevelOneProductCategories = this.splitIntoChunks(productCategories, 100);
+    const splittedLevelOneProductCategories = ImmutableEx.splitIntoChunks(productCategories, 100);
 
     await BluebirdPromise.each(splittedLevelOneProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
@@ -301,7 +301,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
       )
       .flatMap(productCategory => productCategory.get('subCategories'));
     const levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(productCategory => productCategory.get('categoryKey'));
-    const splittedLevelTwoProductCategories = this.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+    const splittedLevelTwoProductCategories = ImmutableEx.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
 
     await BluebirdPromise.each(splittedLevelTwoProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
@@ -323,7 +323,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(productCategory =>
       productCategory.get('categoryKey'),
     );
-    const splittedLevelThreeProductCategories = this.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+    const splittedLevelThreeProductCategories = ImmutableEx.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
 
     await BluebirdPromise.each(splittedLevelThreeProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
@@ -476,7 +476,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const storeId = store.get('id');
     const storeTags = await this.getStoreTags(storeId, false, sessionToken);
     const products = await this.getAllStoreMasterProducts(storeId, sessionToken);
-    const splittedProducts = this.splitIntoChunks(products, 20);
+    const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
       Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, false, store.get('name'), sessionToken))),
@@ -493,7 +493,7 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
     const products = await this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime, sessionToken);
-    const splittedProducts = this.splitIntoChunks(products, 20);
+    const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
       Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, true, store.get('name'), sessionToken))),
