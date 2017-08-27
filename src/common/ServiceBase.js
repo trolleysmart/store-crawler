@@ -13,41 +13,50 @@ import {
 } from 'trolley-smart-parse-server-common';
 
 export default class ServiceBase {
-  constructor({ logVerboseFunc, logInfoFunc, logErrorFunc } = {}) {
+  constructor(storeName, { sessionToken, logVerboseFunc, logInfoFunc, logErrorFunc } = {}) {
+    this.storeName = storeName;
+    this.sessionToken = sessionToken;
     this.logVerboseFunc = logVerboseFunc;
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
+    this.config = null;
   }
 
-  getConfig = async (key) => {
+    getConfig = async () => {
+        if (this.config) {
+            return this.config;
+        }
+
     const configs = await ParseWrapperService.getConfig();
-    const config = configs.get(key);
+    const config = configs.get(this.storeName);
 
     if (config) {
-      return Immutable.fromJS(config);
+        this.config = Immutable.fromJS(config);
+
+      return this.config;
     }
 
-    throw new Exception(`No config found called ${key}.`);
+    throw new Exception(`No config found called ${this.storeName}.`);
   };
 
-  createNewCrawlSessionAndGetConfig = async (sessionKey, config, storeName, sessionToken) => {
+  createNewCrawlSession = async (sessionKey) => {
     const sessionInfo = Map({
       sessionKey,
       startDateTime: new Date(),
     });
     const sessionId = await CrawlSessionService.create(sessionInfo, null, sessionToken);
-    const finalConfig = config || (await this.getConfig(storeName));
+    const config = (await this.getConfig(storeName));
 
-    if (!finalConfig) {
+    if (!config) {
       throw new Exception(`Failed to retrieve configuration for ${storeName} store crawler.`);
     }
 
-    this.logInfo(finalConfig, () => `Created session and retrieved config. Session Id: ${sessionId}`);
-    this.logVerbose(finalConfig, () => `Config: ${JSON.stringify(finalConfig)}`);
+    this.logInfo(config, () => `Created session and retrieved config. Session Id: ${sessionId}`);
+    this.logVerbose(config, () => `Config: ${JSON.stringify(config)}`);
 
     return Map({
       sessionInfo: sessionInfo.set('id', sessionId),
-      config: finalConfig,
+      config,
     });
   };
 
