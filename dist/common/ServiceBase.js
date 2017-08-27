@@ -107,7 +107,7 @@ var _initialiseProps = function _initialiseProps() {
                 return 'Created session. Session Id: ' + sessionId;
               });
 
-              return _context2.abrupt('return', crawlSessionService.read(sessionId, _this.sessionToken));
+              return _context2.abrupt('return', crawlSessionService.read(sessionId, null, _this.sessionToken));
 
             case 9:
             case 'end':
@@ -122,60 +122,56 @@ var _initialiseProps = function _initialiseProps() {
     };
   }();
 
-  this.getStore = function () {
-    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(key, sessionToken) {
-      var criteria, results;
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              criteria = (0, _immutable.Map)({
-                conditions: (0, _immutable.Map)({
-                  key: key
-                })
-              });
-              _context3.next = 3;
-              return _trolleySmartParseServerCommon.StoreService.search(criteria, sessionToken);
+  this.getStore = _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+    var criteria, storeService, results;
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            criteria = (0, _immutable.Map)({
+              conditions: (0, _immutable.Map)({
+                key: _this.storeName
+              })
+            });
+            storeService = new _trolleySmartParseServerCommon.StoreService();
+            _context3.next = 4;
+            return storeService.search(criteria, _this.sessionToken);
 
-            case 3:
-              results = _context3.sent;
+          case 4:
+            results = _context3.sent;
 
-              if (!results.isEmpty()) {
-                _context3.next = 12;
-                break;
-              }
+            if (!results.isEmpty()) {
+              _context3.next = 14;
+              break;
+            }
 
-              _context3.t0 = _trolleySmartParseServerCommon.StoreService;
-              _context3.next = 8;
-              return _trolleySmartParseServerCommon.StoreService.create((0, _immutable.Map)({ key: key }, null, sessionToken), null, sessionToken);
+            _context3.t0 = storeService;
+            _context3.next = 9;
+            return storeService.create((0, _immutable.Map)({ key: _this.storeName }, null, _this.sessionToken), null, _this.sessionToken);
 
-            case 8:
-              _context3.t1 = _context3.sent;
-              return _context3.abrupt('return', _context3.t0.read.call(_context3.t0, _context3.t1));
+          case 9:
+            _context3.t1 = _context3.sent;
+            _context3.t2 = _this.sessionToken;
+            return _context3.abrupt('return', _context3.t0.read.call(_context3.t0, _context3.t1, null, _context3.t2));
 
-            case 12:
-              if (!(results.count() === 1)) {
-                _context3.next = 14;
-                break;
-              }
+          case 14:
+            if (!(results.count() === 1)) {
+              _context3.next = 16;
+              break;
+            }
 
-              return _context3.abrupt('return', results.first());
+            return _context3.abrupt('return', results.first());
 
-            case 14:
-              throw new _microBusinessCommonJavascript.Exception('Multiple store found with provided key: ' + key + '.');
+          case 16:
+            throw new _microBusinessCommonJavascript.Exception('Multiple store found with store key: ' + _this.storeName + '.');
 
-            case 15:
-            case 'end':
-              return _context3.stop();
-          }
+          case 17:
+          case 'end':
+            return _context3.stop();
         }
-      }, _callee3, _this);
-    }));
-
-    return function (_x3, _x4) {
-      return _ref4.apply(this, arguments);
-    };
-  }();
+      }
+    }, _callee3, _this);
+  }));
 
   this.getMostRecentCrawlSessionInfo = function () {
     var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(sessionKey, sessionToken) {
@@ -204,7 +200,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee4, _this);
     }));
 
-    return function (_x5, _x6) {
+    return function (_x3, _x4) {
       return _ref5.apply(this, arguments);
     };
   }();
@@ -254,7 +250,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee5, _this, [[6,, 10, 13]]);
     }));
 
-    return function (_x7, _x8, _x9) {
+    return function (_x5, _x6, _x7) {
       return _ref6.apply(this, arguments);
     };
   }();
@@ -295,7 +291,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee6, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x10, _x11, _x12) {
+    return function (_x8, _x9, _x10) {
       return _ref7.apply(this, arguments);
     };
   }();
@@ -356,7 +352,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee7, _this);
     }));
 
-    return function (_x13, _x14, _x15, _x16) {
+    return function (_x11, _x12, _x13, _x14) {
       return _ref8.apply(this, arguments);
     };
   }();
@@ -406,7 +402,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee8, _this);
     }));
 
-    return function (_x17, _x18, _x19, _x20) {
+    return function (_x15, _x16, _x17, _x18) {
       return _ref9.apply(this, arguments);
     };
   }();
@@ -467,7 +463,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee9, _this);
     }));
 
-    return function (_x21, _x22, _x23, _x24) {
+    return function (_x19, _x20, _x21, _x22) {
       return _ref10.apply(this, arguments);
     };
   }();
@@ -528,7 +524,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee10, _this);
     }));
 
-    return function (_x25, _x26, _x27, _x28) {
+    return function (_x23, _x24, _x25, _x26) {
       return _ref11.apply(this, arguments);
     };
   }();
@@ -575,7 +571,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee11, _this, [[2,, 8, 11]]);
     }));
 
-    return function (_x29, _x30) {
+    return function (_x27, _x28) {
       return _ref12.apply(this, arguments);
     };
   }();
@@ -622,7 +618,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee12, _this, [[2,, 8, 11]]);
     }));
 
-    return function (_x31, _x32) {
+    return function (_x29, _x30) {
       return _ref13.apply(this, arguments);
     };
   }();
@@ -654,7 +650,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee13, _this);
     }));
 
-    return function (_x33, _x34, _x35) {
+    return function (_x31, _x32, _x33) {
       return _ref14.apply(this, arguments);
     };
   }();
@@ -695,7 +691,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee14, _this, [[1,, 7, 10]]);
     }));
 
-    return function (_x36, _x37, _x38) {
+    return function (_x34, _x35, _x36) {
       return _ref15.apply(this, arguments);
     };
   }();
@@ -728,7 +724,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee15, _this);
     }));
 
-    return function (_x39, _x40, _x41) {
+    return function (_x37, _x38, _x39) {
       return _ref16.apply(this, arguments);
     };
   }();
@@ -828,7 +824,7 @@ var _initialiseProps = function _initialiseProps() {
       }, _callee16, _this);
     }));
 
-    return function (_x42, _x43, _x44, _x45, _x46) {
+    return function (_x40, _x41, _x42, _x43, _x44) {
       return _ref17.apply(this, arguments);
     };
   }();

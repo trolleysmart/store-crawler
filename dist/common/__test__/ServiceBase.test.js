@@ -17,6 +17,8 @@ var TrolleySmartParseServerCommon = require('trolley-smart-parse-server-common')
 
 var keyValues = (0, _immutable.Map)({ countdown: (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }) });
 var sessionInfo = (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() });
+var storeInfos = _immutable.List.of((0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }), (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }));
+var serviceBase = new _.ServiceBase('countdown');
 
 beforeEach(function () {
   MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig(keyValues);
@@ -29,7 +31,7 @@ describe('getConfig', function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            expect(new _.ServiceBase('countdown').getConfig()).resolves.toEqual(keyValues.get('countdown'));
+            expect(serviceBase.getConfig()).resolves.toEqual(keyValues.get('countdown'));
 
           case 1:
           case 'end':
@@ -56,12 +58,12 @@ describe('getConfig', function () {
 });
 
 describe('createNewCrawlSession', function () {
-  it('should return the config matches the key', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+  it('should create new crawl session and return the session info', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            expect(new _.ServiceBase('countdown').createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfo);
+            expect(serviceBase.createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfo);
 
           case 1:
           case 'end':
@@ -69,5 +71,55 @@ describe('createNewCrawlSession', function () {
         }
       }
     }, _callee3, undefined);
+  })));
+});
+
+describe('getStore', function () {
+  it('should create new store if provided store deos not exist', _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
+    return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            TrolleySmartParseServerCommon.setupStoreService(storeInfos.first(), (0, _immutable.List)());
+            expect(serviceBase.getStore()).resolves.toEqual(storeInfos.first());
+
+          case 2:
+          case 'end':
+            return _context4.stop();
+        }
+      }
+    }, _callee4, undefined);
+  })));
+
+  it('should return the store info if provided store exist', _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
+    return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
+            TrolleySmartParseServerCommon.setupStoreService(null, storeInfos.take(1));
+            expect(serviceBase.getStore()).resolves.toEqual(storeInfos.first());
+
+          case 2:
+          case 'end':
+            return _context5.stop();
+        }
+      }
+    }, _callee5, undefined);
+  })));
+
+  it('should throw exception if multiple store found with the provided store name', _asyncToGenerator(regeneratorRuntime.mark(function _callee6() {
+    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            TrolleySmartParseServerCommon.setupStoreService(null, storeInfos);
+            expect(serviceBase.getStore()).rejects.toBeDefined();
+
+          case 2:
+          case 'end':
+            return _context6.stop();
+        }
+      }
+    }, _callee6, undefined);
   })));
 });

@@ -1,6 +1,6 @@
 // @flow
 
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import uuid from 'uuid/v4';
 import { ServiceBase } from '../';
 
@@ -9,6 +9,8 @@ const TrolleySmartParseServerCommon = require('trolley-smart-parse-server-common
 
 const keyValues = Map({ countdown: Map({ val1: uuid(), val2: uuid() }) });
 const sessionInfo = Map({ val1: uuid(), val2: uuid() });
+const storeInfos = List.of(Map({ val1: uuid(), val2: uuid() }), Map({ val1: uuid(), val2: uuid() }));
+const serviceBase = new ServiceBase('countdown');
 
 beforeEach(() => {
   MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig(keyValues);
@@ -17,7 +19,7 @@ beforeEach(() => {
 
 describe('getConfig', () => {
   it('should return the config matches the key', async () => {
-    expect(new ServiceBase('countdown').getConfig()).resolves.toEqual(keyValues.get('countdown'));
+    expect(serviceBase.getConfig()).resolves.toEqual(keyValues.get('countdown'));
   });
 
   it('should throw exception if provided key does not exist', async () => {
@@ -26,7 +28,24 @@ describe('getConfig', () => {
 });
 
 describe('createNewCrawlSession', () => {
-  it('should return the config matches the key', async () => {
-    expect(new ServiceBase('countdown').createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfo);
+  it('should create new crawl session and return the session info', async () => {
+    expect(serviceBase.createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfo);
+  });
+});
+
+describe('getStore', () => {
+  it('should create new store if provided store deos not exist', async () => {
+    TrolleySmartParseServerCommon.setupStoreService(storeInfos.first(), List());
+    expect(serviceBase.getStore()).resolves.toEqual(storeInfos.first());
+  });
+
+  it('should return the store info if provided store exist', async () => {
+    TrolleySmartParseServerCommon.setupStoreService(null, storeInfos.take(1));
+    expect(serviceBase.getStore()).resolves.toEqual(storeInfos.first());
+  });
+
+  it('should throw exception if multiple store found with the provided store name', async () => {
+    TrolleySmartParseServerCommon.setupStoreService(null, storeInfos);
+    expect(serviceBase.getStore()).rejects.toBeDefined();
   });
 });

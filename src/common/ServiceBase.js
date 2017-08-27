@@ -46,25 +46,30 @@ export default class ServiceBase {
 
     this.logInfo(config, () => `Created session. Session Id: ${sessionId}`);
 
-    return crawlSessionService.read(sessionId, this.sessionToken);
+    return crawlSessionService.read(sessionId, null, this.sessionToken);
   };
 
-  getStore = async (key, sessionToken) => {
+  getStore = async () => {
     const criteria = Map({
       conditions: Map({
-        key,
+        key: this.storeName,
       }),
     });
 
-    const results = await StoreService.search(criteria, sessionToken);
+    const storeService = new StoreService();
+    const results = await storeService.search(criteria, this.sessionToken);
 
     if (results.isEmpty()) {
-      return StoreService.read(await StoreService.create(Map({ key }, null, sessionToken), null, sessionToken));
+      return storeService.read(
+        await storeService.create(Map({ key: this.storeName }, null, this.sessionToken), null, this.sessionToken),
+        null,
+        this.sessionToken,
+      );
     } else if (results.count() === 1) {
       return results.first();
     }
 
-    throw new Exception(`Multiple store found with provided key: ${key}.`);
+    throw new Exception(`Multiple store found with store key: ${this.storeName}.`);
   };
 
   getMostRecentCrawlSessionInfo = async (sessionKey, sessionToken) => {
