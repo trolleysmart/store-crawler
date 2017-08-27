@@ -43,12 +43,10 @@ export default class ServiceBase {
     const config = await this.getConfig();
     const crawlSessionService = new CrawlSessionService();
     const sessionId = await crawlSessionService.create(Map({ sessionKey, startDateTime: new Date() }), null, this.sessionToken);
-    const sessionInfo = await crawlSessionService.read(sessionId, this.sessionToken);
 
     this.logInfo(config, () => `Created session. Session Id: ${sessionId}`);
-    this.logVerbose(config, () => `Config: ${JSON.stringify(config)}`);
 
-    return sessionInfo;
+    return crawlSessionService.read(sessionId, this.sessionToken);
   };
 
   getStore = async (key, sessionToken) => {
