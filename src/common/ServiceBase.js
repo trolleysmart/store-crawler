@@ -20,6 +20,7 @@ export default class ServiceBase {
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
     this.config = null;
+    this.store = null;
   }
 
   getConfig = async () => {
@@ -50,6 +51,10 @@ export default class ServiceBase {
   };
 
   getStore = async () => {
+    if (this.store) {
+      return this.store;
+    }
+
     const criteria = Map({
       conditions: Map({
         key: this.storeName,
@@ -59,23 +64,23 @@ export default class ServiceBase {
     const storeService = new StoreService();
     const results = await storeService.search(criteria, this.sessionToken);
 
-    if (results.isEmpty()) {
-      return storeService.read(
+    if (results.count() > 1) {
+      throw new Exception(`Multiple store found with store key: ${this.storeName}.`);
+    }
+
+    this.store = results.isEmpty()
+      ? await storeService.read(
         await storeService.create(Map({ key: this.storeName }, null, this.sessionToken), null, this.sessionToken),
         null,
         this.sessionToken,
-      );
-    } else if (results.count() === 1) {
-      return results.first();
-    }
+      )
+      : results.first();
 
-    throw new Exception(`Multiple store found with store key: ${this.storeName}.`);
+    return this.store;
   };
 
   getMostRecentCrawlSessionInfo = async (sessionKey) => {
-    const crawlSessionService = new CrawlSessionService();
-
-    const crawlSessionInfos = await crawlSessionService.search(
+    const crawlSessionInfos = await new CrawlSessionService().search(
       Map({
         conditions: Map({
           sessionKey,
@@ -94,17 +99,17 @@ export default class ServiceBase {
     return crawlSessionInfos.first();
   };
 
-  getMostRecentCrawlResults = async (sessionKey, mapFunc, sessionToken) => {
-    const crawlSessionInfo = await this.getMostRecentCrawlSessionInfo(sessionKey, sessionToken);
+  getMostRecentCrawlResults = async (sessionKey, mapFunc) => {
+    const crawlSessionInfo = await this.getMostRecentCrawlSessionInfo(sessionKey, this.sessionToken);
     const crawlSessionId = crawlSessionInfo.get('id');
     let results = List();
-    const result = CrawlResultService.searchAll(
+    const result = new CrawlResultService().searchAll(
       Map({
         conditions: Map({
           crawlSessionId,
         }),
       }),
-      sessionToken,
+      this.sessionToken,
     );
 
     try {
@@ -113,11 +118,11 @@ export default class ServiceBase {
       });
 
       await result.promise;
+
+      return results;
     } finally {
       result.event.unsubscribeAll();
     }
-
-    return results;
   };
 
   getStoreTags = async (storeId, includeTag, sessionToken) => {

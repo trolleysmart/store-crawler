@@ -9,8 +9,8 @@ const TrolleySmartParseServerCommon = require('trolley-smart-parse-server-common
 
 const createNewServiceBase = () => new ServiceBase('countdown');
 const keyValues = Map({ countdown: Map({ val1: uuid(), val2: uuid() }) });
-const sessionInfos = List.of(Map({ val1: uuid(), val2: uuid() }), Map({ val1: uuid(), val2: uuid() }));
-const storeInfos = List.of(Map({ val1: uuid(), val2: uuid() }), Map({ val1: uuid(), val2: uuid() }));
+const crawlSessionInfos = List.of(Map({ id: uuid(), val: uuid() }), Map({ id: uuid(), val: uuid() }));
+const storeInfos = List.of(Map({ id: uuid(), val: uuid() }), Map({ id: uuid(), val: uuid() }));
 
 beforeEach(() => {
   MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig({ keyValues });
@@ -28,11 +28,11 @@ describe('getConfig', () => {
 
 describe('createNewCrawlSession', () => {
   beforeEach(() => {
-    TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfo: sessionInfos.first() });
+    TrolleySmartParseServerCommon.setupCrawlSessionService({ crawlSessionInfo: crawlSessionInfos.first() });
   });
 
   it('should create new crawl session and return the session info', async () => {
-    expect(createNewServiceBase().createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfos.first());
+    expect(createNewServiceBase().createNewCrawlSession('sessionKey')).resolves.toEqual(crawlSessionInfos.first());
   });
 });
 
@@ -55,17 +55,17 @@ describe('getStore', () => {
 
 describe('getMostRecentCrawlSessionInfo', () => {
   it('should return the top most crawl session info', async () => {
-    TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos: sessionInfos.take(1) });
-    expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).resolves.toEqual(sessionInfos.first());
+    TrolleySmartParseServerCommon.setupCrawlSessionService({ crawlSessionInfos: crawlSessionInfos.take(1) });
+    expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).resolves.toEqual(crawlSessionInfos.first());
   });
 
   it('should throw exception if multiple crawl session info returned', async () => {
-    TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos });
+    TrolleySmartParseServerCommon.setupCrawlSessionService({ crawlSessionInfos });
     expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).rejects.toBeDefined();
   });
 
   it('should throw exception if no crawl session found', async () => {
-    TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos: List() });
+    TrolleySmartParseServerCommon.setupCrawlSessionService({ crawlSessionInfos: List() });
     expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).rejects.toBeDefined();
   });
 });

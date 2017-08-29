@@ -3,8 +3,8 @@
 import uuid from 'uuid/v4';
 
 const trolleySmartParseServerCommon = jest.genMockFromModule('trolley-smart-parse-server-common');
-let finalSessionInfo;
-let finalSessionInfos;
+let finalCrawlSessionInfo;
+let finalCrawlSessionInfos;
 let finalStoreInfo;
 let finalStoreInfos;
 
@@ -13,8 +13,8 @@ class ServiceBase {
 }
 
 class CrawlSessionService extends ServiceBase {
-  read = async () => finalSessionInfo;
-  search = async () => finalSessionInfos;
+  read = async () => finalCrawlSessionInfo;
+  search = async () => finalCrawlSessionInfos;
 }
 
 class StoreService extends ServiceBase {
@@ -22,9 +22,9 @@ class StoreService extends ServiceBase {
   search = async () => finalStoreInfos;
 }
 
-const setupCrawlSessionService = ({ sessionInfo, sessionInfos } = {}) => {
-  finalSessionInfo = sessionInfo;
-  finalSessionInfos = sessionInfos;
+const setupCrawlSessionService = ({ crawlSessionInfo, crawlSessionInfos } = {}) => {
+  finalCrawlSessionInfo = crawlSessionInfo;
+  finalCrawlSessionInfos = crawlSessionInfos;
 };
 
 const setupStoreService = ({ storeInfo, storeInfos } = {}) => {
@@ -32,9 +32,10 @@ const setupStoreService = ({ storeInfo, storeInfos } = {}) => {
   finalStoreInfos = storeInfos;
 };
 
-trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
-trolleySmartParseServerCommon.setupStoreService = setupStoreService;
 trolleySmartParseServerCommon.CrawlSessionService = CrawlSessionService;
+trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
+
 trolleySmartParseServerCommon.StoreService = StoreService;
+trolleySmartParseServerCommon.setupStoreService = setupStoreService;
 
 module.exports = trolleySmartParseServerCommon;
