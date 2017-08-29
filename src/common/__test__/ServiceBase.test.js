@@ -21,10 +21,12 @@ beforeEach(() => {
 describe('getConfig', () => {
   it('should return the config matches the key', async () => {
     expect(createNewServiceBase().getConfig()).resolves.toEqual(keyValues.get('countdown'));
+    expect(MicroBusinessParseServerCommon.parseWrapperServiceFuncCallTrack().getConfig.mock.calls.length).toBe(1);
   });
 
   it('should throw exception if provided key does not exist', async () => {
     expect(new ServiceBase('unknow').getConfig()).rejects.toBeDefined();
+    expect(MicroBusinessParseServerCommon.parseWrapperServiceFuncCallTrack().getConfig.mock.calls.length).toBe(1);
   });
 });
 

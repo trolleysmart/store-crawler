@@ -26,7 +26,7 @@ const setupParseWrapperServiceGetConfig = ({ keyValues } = {}) => {
 microBusinessParseServerCommon.resetAllMockTracks = resetAllMockTracks;
 
 microBusinessParseServerCommon.ParseWrapperService = ParseWrapperService;
-microBusinessParseServerCommon.parseWrapperServiceFuncCallTrack = parseWrapperServiceFuncCallTrack;
+microBusinessParseServerCommon.parseWrapperServiceFuncCallTrack = () => parseWrapperServiceFuncCallTrack;
 microBusinessParseServerCommon.setupParseWrapperServiceGetConfig = setupParseWrapperServiceGetConfig;
 
 module.exports = microBusinessParseServerCommon;
