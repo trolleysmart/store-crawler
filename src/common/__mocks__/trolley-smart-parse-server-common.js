@@ -70,11 +70,11 @@ const setupStoreService = ({ storeInfo, storeInfos } = {}) => {
 trolleySmartParseServerCommon.resetAllMockTracks = resetAllMockTracks;
 
 trolleySmartParseServerCommon.CrawlSessionService = CrawlSessionService;
-trolleySmartParseServerCommon.crawlSessionServiceFuncCallTrack = crawlSessionServiceFuncCallTrack;
+trolleySmartParseServerCommon.crawlSessionServiceFuncCallTrack = () => crawlSessionServiceFuncCallTrack;
 trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
 
 trolleySmartParseServerCommon.StoreService = StoreService;
-trolleySmartParseServerCommon.storeServiceFuncCallTrack = storeServiceFuncCallTrack;
+trolleySmartParseServerCommon.storeServiceFuncCallTrack = () => storeServiceFuncCallTrack;
 trolleySmartParseServerCommon.setupStoreService = setupStoreService;
 
 module.exports = trolleySmartParseServerCommon;
