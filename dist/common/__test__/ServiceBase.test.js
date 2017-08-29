@@ -19,11 +19,12 @@ var createNewServiceBase = function createNewServiceBase() {
   return new _.ServiceBase('countdown');
 };
 var keyValues = (0, _immutable.Map)({ countdown: (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }) });
-var sessionInfos = _immutable.List.of((0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }), (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }));
-var storeInfos = _immutable.List.of((0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }), (0, _immutable.Map)({ val1: (0, _v2.default)(), val2: (0, _v2.default)() }));
+var crawlSessionInfos = _immutable.List.of((0, _immutable.Map)({ id: (0, _v2.default)(), val: (0, _v2.default)() }), (0, _immutable.Map)({ id: (0, _v2.default)(), val: (0, _v2.default)() }));
+var storeInfos = _immutable.List.of((0, _immutable.Map)({ id: (0, _v2.default)(), val: (0, _v2.default)() }), (0, _immutable.Map)({ id: (0, _v2.default)(), val: (0, _v2.default)() }));
 
 beforeEach(function () {
   MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig({ keyValues: keyValues });
+  TrolleySmartParseServerCommon.resetAllMockTracks();
 });
 
 describe('getConfig', function () {
@@ -60,7 +61,7 @@ describe('getConfig', function () {
 
 describe('createNewCrawlSession', function () {
   beforeEach(function () {
-    TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfo: sessionInfos.first() });
+    TrolleySmartParseServerCommon.setupCrawlSessionService({ crawlSessionInfo: crawlSessionInfos.first() });
   });
 
   it('should create new crawl session and return the session info', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
@@ -68,7 +69,7 @@ describe('createNewCrawlSession', function () {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            expect(createNewServiceBase().createNewCrawlSession('sessionKey')).resolves.toEqual(sessionInfos.first());
+            expect(createNewServiceBase().createNewCrawlSession('sessionKey')).resolves.toEqual(crawlSessionInfos.first());
 
           case 1:
           case 'end':
@@ -135,8 +136,8 @@ describe('getMostRecentCrawlSessionInfo', function () {
       while (1) {
         switch (_context7.prev = _context7.next) {
           case 0:
-            TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos: sessionInfos.take(1) });
-            expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).resolves.toEqual(sessionInfos.first());
+            TrolleySmartParseServerCommon.setupCrawlSessionService({ crawlSessionInfos: crawlSessionInfos.take(1) });
+            expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).resolves.toEqual(crawlSessionInfos.first());
 
           case 2:
           case 'end':
@@ -151,7 +152,7 @@ describe('getMostRecentCrawlSessionInfo', function () {
       while (1) {
         switch (_context8.prev = _context8.next) {
           case 0:
-            TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos: sessionInfos });
+            TrolleySmartParseServerCommon.setupCrawlSessionService({ crawlSessionInfos: crawlSessionInfos });
             expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).rejects.toBeDefined();
 
           case 2:
@@ -167,7 +168,7 @@ describe('getMostRecentCrawlSessionInfo', function () {
       while (1) {
         switch (_context9.prev = _context9.next) {
           case 0:
-            TrolleySmartParseServerCommon.setupCrawlSessionService({ sessionInfos: (0, _immutable.List)() });
+            TrolleySmartParseServerCommon.setupCrawlSessionService({ crawlSessionInfos: (0, _immutable.List)() });
             expect(createNewServiceBase().getMostRecentCrawlSessionInfo('sessionKey')).rejects.toBeDefined();
 
           case 2:

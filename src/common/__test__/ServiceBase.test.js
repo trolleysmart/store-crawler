@@ -14,6 +14,7 @@ const storeInfos = List.of(Map({ id: uuid(), val: uuid() }), Map({ id: uuid(), v
 
 beforeEach(() => {
   MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig({ keyValues });
+  TrolleySmartParseServerCommon.resetAllMockTracks();
 });
 
 describe('getConfig', () => {

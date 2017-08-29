@@ -4,158 +4,207 @@ var _v = require('uuid/v4');
 
 var _v2 = _interopRequireDefault(_v);
 
+var _CrawlSessionServiceFuncCallTrack = require('./CrawlSessionServiceFuncCallTrack');
+
+var _CrawlSessionServiceFuncCallTrack2 = _interopRequireDefault(_CrawlSessionServiceFuncCallTrack);
+
+var _StoreServiceFuncCallTrack = require('./StoreServiceFuncCallTrack');
+
+var _StoreServiceFuncCallTrack2 = _interopRequireDefault(_StoreServiceFuncCallTrack);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var trolleySmartParseServerCommon = jest.genMockFromModule('trolley-smart-parse-server-common');
-var finalSessionInfo = void 0;
-var finalSessionInfos = void 0;
+var crawlSessionServiceFuncCallTrack = void 0;
+var storeServiceFuncCallTrack = void 0;
+var finalCrawlSessionInfo = void 0;
+var finalCrawlSessionInfos = void 0;
 var finalStoreInfo = void 0;
 var finalStoreInfos = void 0;
 
-var ServiceBase = function ServiceBase() {
+var CrawlSessionService = function CrawlSessionService() {
   var _this = this;
 
-  _classCallCheck(this, ServiceBase);
+  _classCallCheck(this, CrawlSessionService);
 
-  this.create = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
-    return regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            return _context.abrupt('return', (0, _v2.default)());
+  this.create = function () {
+    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(info, acl, sessionToken) {
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              crawlSessionServiceFuncCallTrack.getCreate()(info, acl, sessionToken);
 
-          case 1:
-          case 'end':
-            return _context.stop();
+              return _context.abrupt('return', (0, _v2.default)());
+
+            case 2:
+            case 'end':
+              return _context.stop();
+          }
         }
-      }
-    }, _callee, _this);
-  }));
-};
+      }, _callee, _this);
+    }));
 
-var CrawlSessionService = function (_ServiceBase) {
-  _inherits(CrawlSessionService, _ServiceBase);
+    return function (_x, _x2, _x3) {
+      return _ref.apply(this, arguments);
+    };
+  }();
 
-  function CrawlSessionService() {
-    var _ref2,
-        _this3 = this;
-
-    var _temp, _this2, _ret;
-
-    _classCallCheck(this, CrawlSessionService);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this2 = _possibleConstructorReturn(this, (_ref2 = CrawlSessionService.__proto__ || Object.getPrototypeOf(CrawlSessionService)).call.apply(_ref2, [this].concat(args))), _this2), _this2.read = _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+  this.read = function () {
+    var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(id, criteria, sessionToken) {
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              return _context2.abrupt('return', finalSessionInfo);
+              crawlSessionServiceFuncCallTrack.getRead()(id, criteria, sessionToken);
 
-            case 1:
+              return _context2.abrupt('return', finalCrawlSessionInfo);
+
+            case 2:
             case 'end':
               return _context2.stop();
           }
         }
-      }, _callee2, _this3);
-    })), _this2.search = _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+      }, _callee2, _this);
+    }));
+
+    return function (_x4, _x5, _x6) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+
+  this.search = function () {
+    var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(criteria, sessionToken) {
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
-              return _context3.abrupt('return', finalSessionInfos);
+              crawlSessionServiceFuncCallTrack.getSearch()(criteria, sessionToken);
 
-            case 1:
+              return _context3.abrupt('return', finalCrawlSessionInfos);
+
+            case 2:
             case 'end':
               return _context3.stop();
           }
         }
-      }, _callee3, _this3);
-    })), _temp), _possibleConstructorReturn(_this2, _ret);
-  }
+      }, _callee3, _this);
+    }));
 
-  return CrawlSessionService;
-}(ServiceBase);
+    return function (_x7, _x8) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+};
 
-var StoreService = function (_ServiceBase2) {
-  _inherits(StoreService, _ServiceBase2);
+var StoreService = function StoreService() {
+  var _this2 = this;
 
-  function StoreService() {
-    var _ref5,
-        _this5 = this;
+  _classCallCheck(this, StoreService);
 
-    var _temp2, _this4, _ret2;
-
-    _classCallCheck(this, StoreService);
-
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
-    return _ret2 = (_temp2 = (_this4 = _possibleConstructorReturn(this, (_ref5 = StoreService.__proto__ || Object.getPrototypeOf(StoreService)).call.apply(_ref5, [this].concat(args))), _this4), _this4.read = _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
+  this.create = function () {
+    var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(info, acl, sessionToken) {
       return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              return _context4.abrupt('return', finalStoreInfo);
+              storeServiceFuncCallTrack.getCreate()(info, acl, sessionToken);
 
-            case 1:
+              return _context4.abrupt('return', (0, _v2.default)());
+
+            case 2:
             case 'end':
               return _context4.stop();
           }
         }
-      }, _callee4, _this5);
-    })), _this4.search = _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
+      }, _callee4, _this2);
+    }));
+
+    return function (_x9, _x10, _x11) {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+
+  this.read = function () {
+    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(id, criteria, sessionToken) {
       return regeneratorRuntime.wrap(function _callee5$(_context5) {
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
-              return _context5.abrupt('return', finalStoreInfos);
+              storeServiceFuncCallTrack.getRead()(id, criteria, sessionToken);
 
-            case 1:
+              return _context5.abrupt('return', finalStoreInfo);
+
+            case 2:
             case 'end':
               return _context5.stop();
           }
         }
-      }, _callee5, _this5);
-    })), _temp2), _possibleConstructorReturn(_this4, _ret2);
-  }
+      }, _callee5, _this2);
+    }));
 
-  return StoreService;
-}(ServiceBase);
+    return function (_x12, _x13, _x14) {
+      return _ref5.apply(this, arguments);
+    };
+  }();
+
+  this.search = function () {
+    var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(criteria, sessionToken) {
+      return regeneratorRuntime.wrap(function _callee6$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              storeServiceFuncCallTrack.getSearch()(criteria, sessionToken);
+
+              return _context6.abrupt('return', finalStoreInfos);
+
+            case 2:
+            case 'end':
+              return _context6.stop();
+          }
+        }
+      }, _callee6, _this2);
+    }));
+
+    return function (_x15, _x16) {
+      return _ref6.apply(this, arguments);
+    };
+  }();
+};
+
+var resetAllMockTracks = function resetAllMockTracks() {
+  crawlSessionServiceFuncCallTrack = new _CrawlSessionServiceFuncCallTrack2.default();
+  storeServiceFuncCallTrack = new _StoreServiceFuncCallTrack2.default();
+};
 
 var setupCrawlSessionService = function setupCrawlSessionService() {
-  var _ref8 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      sessionInfo = _ref8.sessionInfo,
-      sessionInfos = _ref8.sessionInfos;
+  var _ref7 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      crawlSessionInfo = _ref7.crawlSessionInfo,
+      crawlSessionInfos = _ref7.crawlSessionInfos;
 
-  finalSessionInfo = sessionInfo;
-  finalSessionInfos = sessionInfos;
+  finalCrawlSessionInfo = crawlSessionInfo;
+  finalCrawlSessionInfos = crawlSessionInfos;
 };
 
 var setupStoreService = function setupStoreService() {
-  var _ref9 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      storeInfo = _ref9.storeInfo,
-      storeInfos = _ref9.storeInfos;
+  var _ref8 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      storeInfo = _ref8.storeInfo,
+      storeInfos = _ref8.storeInfos;
 
   finalStoreInfo = storeInfo;
   finalStoreInfos = storeInfos;
 };
 
-trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
-trolleySmartParseServerCommon.setupStoreService = setupStoreService;
+trolleySmartParseServerCommon.resetAllMockTracks = resetAllMockTracks;
+
 trolleySmartParseServerCommon.CrawlSessionService = CrawlSessionService;
+trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
+
 trolleySmartParseServerCommon.StoreService = StoreService;
+trolleySmartParseServerCommon.setupStoreService = setupStoreService;
 
 module.exports = trolleySmartParseServerCommon;
