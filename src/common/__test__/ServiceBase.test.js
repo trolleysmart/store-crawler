@@ -13,8 +13,9 @@ const crawlSessionInfos = List.of(Map({ id: uuid(), val: uuid() }), Map({ id: uu
 const storeInfos = List.of(Map({ id: uuid(), val: uuid() }), Map({ id: uuid(), val: uuid() }));
 
 beforeEach(() => {
-  MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig({ keyValues });
+  MicroBusinessParseServerCommon.resetAllMockTracks();
   TrolleySmartParseServerCommon.resetAllMockTracks();
+  MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig({ keyValues });
 });
 
 describe('getConfig', () => {

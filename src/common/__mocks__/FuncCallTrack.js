@@ -11,13 +11,4 @@ export default class FuncCallTrack {
     this.count = jest.fn();
     this.exists = jest.fn();
   }
-
-  getCreate = () => this.create;
-  getRead = () => this.read;
-  getUpdate = () => this.update;
-  getDelete = () => this.delete;
-  getSearch = () => this.search;
-  getSearchAll = () => this.searchAll;
-  getCount = () => this.count;
-  getExists = () => this.exists;
 }

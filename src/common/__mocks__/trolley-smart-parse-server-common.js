@@ -14,19 +14,19 @@ let finalStoreInfos;
 
 class CrawlSessionService {
   create = async (info, acl, sessionToken) => {
-    crawlSessionServiceFuncCallTrack.getCreate()(info, acl, sessionToken);
+    crawlSessionServiceFuncCallTrack.create(info, acl, sessionToken);
 
     return uuid();
   };
 
   read = async (id, criteria, sessionToken) => {
-    crawlSessionServiceFuncCallTrack.getRead()(id, criteria, sessionToken);
+    crawlSessionServiceFuncCallTrack.read(id, criteria, sessionToken);
 
     return finalCrawlSessionInfo;
   };
 
   search = async (criteria, sessionToken) => {
-    crawlSessionServiceFuncCallTrack.getSearch()(criteria, sessionToken);
+    crawlSessionServiceFuncCallTrack.search(criteria, sessionToken);
 
     return finalCrawlSessionInfos;
   };
@@ -34,19 +34,19 @@ class CrawlSessionService {
 
 class StoreService {
   create = async (info, acl, sessionToken) => {
-    storeServiceFuncCallTrack.getCreate()(info, acl, sessionToken);
+    storeServiceFuncCallTrack.create(info, acl, sessionToken);
 
     return uuid();
   };
 
   read = async (id, criteria, sessionToken) => {
-    storeServiceFuncCallTrack.getRead()(id, criteria, sessionToken);
+    storeServiceFuncCallTrack.read(id, criteria, sessionToken);
 
     return finalStoreInfo;
   };
 
   search = async (criteria, sessionToken) => {
-    storeServiceFuncCallTrack.getSearch()(criteria, sessionToken);
+    storeServiceFuncCallTrack.search(criteria, sessionToken);
 
     return finalStoreInfos;
   };
@@ -70,9 +70,11 @@ const setupStoreService = ({ storeInfo, storeInfos } = {}) => {
 trolleySmartParseServerCommon.resetAllMockTracks = resetAllMockTracks;
 
 trolleySmartParseServerCommon.CrawlSessionService = CrawlSessionService;
+trolleySmartParseServerCommon.crawlSessionServiceFuncCallTrack = crawlSessionServiceFuncCallTrack;
 trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
 
 trolleySmartParseServerCommon.StoreService = StoreService;
+trolleySmartParseServerCommon.storeServiceFuncCallTrack = storeServiceFuncCallTrack;
 trolleySmartParseServerCommon.setupStoreService = setupStoreService;
 
 module.exports = trolleySmartParseServerCommon;
