@@ -4,7 +4,7 @@ import StoreCrawlerServiceBaseMockTracker from './StoreCrawlerServiceBaseMockTra
 
 let storeCrawlerServiceBaseMockTracker;
 let finalConfig;
-let finalSessionInfo;
+let finalStoreTags;
 
 export const resetAllMockTrackers = () => {
   storeCrawlerServiceBaseMockTracker = new StoreCrawlerServiceBaseMockTracker();
@@ -12,9 +12,9 @@ export const resetAllMockTrackers = () => {
 
 export const getAllMockTrackers = () => ({ storeCrawlerServiceBaseMockTracker });
 
-export const setupStoreCrawlerServiceBase = ({ config, sessionInfo } = {}) => {
+export const setupStoreCrawlerServiceBase = ({ config, storeTags } = {}) => {
   finalConfig = config;
-  finalSessionInfo = sessionInfo;
+  finalStoreTags = storeTags;
 };
 
 export default class StoreCrawlerServiceBase {
@@ -28,23 +28,29 @@ export default class StoreCrawlerServiceBase {
     return finalConfig;
   };
 
-  createNewCrawlSession = async (sessionKey) => {
+  getStoreTags = async (includeTag) => {
     if (storeCrawlerServiceBaseMockTracker) {
-      storeCrawlerServiceBaseMockTracker.createNewCrawlSession(sessionKey);
+      storeCrawlerServiceBaseMockTracker.getStoreTags(includeTag);
     }
 
-    return finalSessionInfo;
+    return finalStoreTags;
   };
 
-  updateExistingCrawlSession = async (sessionInfo) => {
+  createOrUpdateLevelOneProductCategory = async (productCategory, storeTags) => {
     if (storeCrawlerServiceBaseMockTracker) {
-      storeCrawlerServiceBaseMockTracker.updateExistingCrawlSession(sessionInfo);
+      storeCrawlerServiceBaseMockTracker.createOrUpdateLevelOneProductCategory(productCategory, storeTags);
     }
   };
 
-  createNewCrawlResult = async (crawlSessionId, resultSet) => {
+  createOrUpdateLevelTwoProductCategory = async (productCategory, storeTags) => {
     if (storeCrawlerServiceBaseMockTracker) {
-      storeCrawlerServiceBaseMockTracker.createNewCrawlResult(crawlSessionId, resultSet);
+      storeCrawlerServiceBaseMockTracker.createOrUpdateLevelTwoProductCategory(productCategory, storeTags);
+    }
+  };
+
+  createOrUpdateLevelThreeProductCategory = async (productCategory, storeTags) => {
+    if (storeCrawlerServiceBaseMockTracker) {
+      storeCrawlerServiceBaseMockTracker.createOrUpdateLevelThreeProductCategory(productCategory, storeTags);
     }
   };
 

@@ -1,16 +1,20 @@
 // @flow
 
-import { List, Map } from 'immutable';
+import Chance from 'chance';
+import { List, Map, Range } from 'immutable';
 import uuid from 'uuid/v4';
 import { WarehouseWebCrawlerService } from '../';
 
 const StoreCrawlerServiceBase = require('../../common/StoreCrawlerServiceBase');
 
 const createWarehouseWebCrawlerService = () => new WarehouseWebCrawlerService('countdown');
+const chance = new Chance();
 
 jest.mock('../../common/StoreCrawlerServiceBase');
 
-const sessionInfo = Map({ id: uuid() });
+const storeTags = Range(1, chance.integer({ min: 5, max: 20 }))
+  .map(() => Map({ id: uuid() }))
+  .toList();
 
 beforeEach(() => {
   StoreCrawlerServiceBase.resetAllMockTrackers();
@@ -22,38 +26,46 @@ beforeEach(() => {
       logLevel: 2,
       categoryKeysToExclude: List.of('specials', 'electronicsgaming-apple', 'gifting-giftcards-faqs'),
     }),
-    sessionInfo,
+    storeTags,
   });
 });
 
-describe('crawlProductCategories', () => {
-  it('should call createNewCrawlSession', async () => {
-    await createWarehouseWebCrawlerService().crawlProductCategories();
+describe('crawlAndSyncProductCategoriesToStoreTags', () => {
+  it('should call getStoreTags three times for all three level product categories', async () => {
+    await createWarehouseWebCrawlerService().crawlAndSyncProductCategoriesToStoreTags();
 
-    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createNewCrawlSession.mock.calls;
+    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStoreTags.mock.calls;
 
-    expect(calls.length).toBe(1);
-    expect(calls[0][0]).toBe('Warehouse Product Categories');
+    expect(calls.length).toBe(3);
+    expect(calls[0][0]).toBe(false);
+    expect(calls[1][0]).toBe(false);
+    expect(calls[2][0]).toBe(false);
   });
 
-  it('should create crawl result', async () => {
-    await createWarehouseWebCrawlerService().crawlProductCategories();
+  it('should call createOrUpdateLevelOneProductCategory', async () => {
+    await createWarehouseWebCrawlerService().crawlAndSyncProductCategoriesToStoreTags();
 
-    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createNewCrawlResult.mock.calls;
+    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateLevelOneProductCategory.mock.calls;
 
-    expect(calls.length).toBe(1);
-    expect(calls[0][0]).toBeTruthy();
-    expect(calls[0][1]).toBeTruthy();
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0][1]).toEqual(storeTags);
   });
 
-  it('should update crawl session', async () => {
-    await createWarehouseWebCrawlerService().crawlProductCategories();
+  it('should call createOrUpdateLevelTwoProductCategory', async () => {
+    await createWarehouseWebCrawlerService().crawlAndSyncProductCategoriesToStoreTags();
 
-    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.updateExistingCrawlSession.mock.calls;
+    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateLevelTwoProductCategory.mock.calls;
 
-    expect(calls.length).toBe(1);
-    expect(calls[0][0].get('id')).toBe(sessionInfo.get('id'));
-    expect(calls[0][0].has('endDateTime')).toBeTruthy();
-    expect(calls[0][0].getIn(['additionalInfo', 'status'])).toBe('success');
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0][1]).toEqual(storeTags);
+  });
+
+  it('should call createOrUpdateLevelThreeProductCategory', async () => {
+    await createWarehouseWebCrawlerService().crawlAndSyncProductCategoriesToStoreTags();
+
+    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateLevelThreeProductCategory.mock.calls;
+
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0][1]).toEqual(storeTags);
   });
 });

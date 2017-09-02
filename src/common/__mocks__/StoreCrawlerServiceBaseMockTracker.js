@@ -3,8 +3,9 @@
 export default class StoreCrawlerServiceBaseMockTracker {
   constructor() {
     this.getConfig = jest.fn();
-    this.createNewCrawlSession = jest.fn();
-    this.updateExistingCrawlSession = jest.fn();
-    this.createNewCrawlResult = jest.fn();
+    this.getStoreTags = jest.fn();
+    this.createOrUpdateLevelOneProductCategory = jest.fn();
+    this.createOrUpdateLevelTwoProductCategory = jest.fn();
+    this.createOrUpdateLevelThreeProductCategory = jest.fn();
   }
 }
