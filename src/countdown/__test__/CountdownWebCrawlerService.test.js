@@ -24,10 +24,12 @@ beforeEach(() => {
   });
 });
 
-describe('crawlProductCategories', () => {
-  it('should call createNewCrawlSession', async () => {});
+describe('crawlAndSyncProductCategoriesToStoreTags', () => {
+  it('should call getStoreTags three times for all three level product categories', async () => {});
 
-  it('should create crawl result', async () => {});
+  it('should call createOrUpdateLevelOneProductCategory', async () => {});
 
-  it('should update crawl session', async () => {});
+  it('should call createOrUpdateLevelTwoProductCategory', async () => {});
+
+  it('should call createOrUpdateLevelThreeProductCategory', async () => {});
 });

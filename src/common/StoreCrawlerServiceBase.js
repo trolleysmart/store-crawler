@@ -4,14 +4,7 @@ import Immutable, { List, Map } from 'immutable';
 import moment from 'moment';
 import { Exception } from 'micro-business-common-javascript';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
-import {
-  CrawlResultService,
-  CrawlSessionService,
-  ProductPriceService,
-  StoreService,
-  StoreProductService,
-  StoreTagService,
-} from 'trolley-smart-parse-server-common';
+import { ProductPriceService, StoreService, StoreProductService, StoreTagService } from 'trolley-smart-parse-server-common';
 
 export default class StoreCrawlerServiceBase {
   static removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
@@ -45,26 +38,6 @@ export default class StoreCrawlerServiceBase {
     throw new Exception(`Failed to retrieve configuration for ${this.storeKey} store crawler.`);
   };
 
-  createNewCrawlSession = async (sessionKey) => {
-    const crawlSessionService = new CrawlSessionService();
-    const sessionId = await crawlSessionService.create(Map({ sessionKey, startDateTime: new Date() }), null, this.sessionToken);
-
-    return crawlSessionService.read(sessionId, null, this.sessionToken);
-  };
-
-  updateExistingCrawlSession = async (sessionInfo) => {
-    await new CrawlSessionService().update(sessionInfo, this.sessionToken);
-  };
-
-  createNewCrawlResult = async (crawlSessionId, resultSet) => {
-    const crawlResult = Map({
-      crawlSessionId,
-      resultSet,
-    });
-
-    await new CrawlResultService().create(crawlResult, null, this.sessionToken);
-  };
-
   getStore = async () => {
     if (this.store) {
       return this.store;
@@ -95,52 +68,6 @@ export default class StoreCrawlerServiceBase {
   };
 
   getStoreId = async () => (await this.getStore()).get('id');
-
-  getMostRecentCrawlSessionInfo = async (sessionKey) => {
-    const crawlSessionInfos = await new CrawlSessionService().search(
-      Map({
-        conditions: Map({
-          sessionKey,
-        }),
-        topMost: true,
-      }),
-      this.sessionToken,
-    );
-
-    if (crawlSessionInfos.isEmpty()) {
-      throw new Exception(`No crawl session found with session key: ${sessionKey}.`);
-    } else if (crawlSessionInfos.count() > 1) {
-      throw new Exception(`Multiple crawl session found with session key: ${sessionKey}.`);
-    }
-
-    return crawlSessionInfos.first();
-  };
-
-  getMostRecentCrawlResults = async (sessionKey, mapFunc) => {
-    const crawlSessionInfo = await this.getMostRecentCrawlSessionInfo(sessionKey, this.sessionToken);
-    const crawlSessionId = crawlSessionInfo.get('id');
-    let crawlResults = List();
-    const result = new CrawlResultService().searchAll(
-      Map({
-        conditions: Map({
-          crawlSessionId,
-        }),
-      }),
-      this.sessionToken,
-    );
-
-    try {
-      result.event.subscribe((info) => {
-        crawlResults = crawlResults.push(mapFunc ? mapFunc(info) : info);
-      });
-
-      await result.promise;
-
-      return crawlResults;
-    } finally {
-      result.event.unsubscribeAll();
-    }
-  };
 
   getStoreTags = async (includeTag) => {
     const storeId = await this.getStoreId();
