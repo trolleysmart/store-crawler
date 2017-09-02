@@ -73,7 +73,9 @@ var CrawlSessionService = function CrawlSessionService() {
             while (1) {
               switch ((_context.prev = _context.next)) {
                 case 0:
-                  crawlSessionServiceFuncCallTrack.create(info, acl, sessionToken);
+                  if (crawlSessionServiceFuncCallTrack) {
+                    crawlSessionServiceFuncCallTrack.create(info, acl, sessionToken);
+                  }
 
                   return _context.abrupt('return', (0, _v2.default)());
 
@@ -102,7 +104,9 @@ var CrawlSessionService = function CrawlSessionService() {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
-                  crawlSessionServiceFuncCallTrack.read(id, criteria, sessionToken);
+                  if (crawlSessionServiceFuncCallTrack) {
+                    crawlSessionServiceFuncCallTrack.read(id, criteria, sessionToken);
+                  }
 
                   return _context2.abrupt('return', finalCrawlSessionInfo);
 
@@ -131,7 +135,9 @@ var CrawlSessionService = function CrawlSessionService() {
             while (1) {
               switch ((_context3.prev = _context3.next)) {
                 case 0:
-                  crawlSessionServiceFuncCallTrack.search(criteria, sessionToken);
+                  if (crawlSessionServiceFuncCallTrack) {
+                    crawlSessionServiceFuncCallTrack.search(criteria, sessionToken);
+                  }
 
                   return _context3.abrupt('return', finalCrawlSessionInfos);
 
@@ -166,7 +172,9 @@ var StoreService = function StoreService() {
             while (1) {
               switch ((_context4.prev = _context4.next)) {
                 case 0:
-                  storeServiceFuncCallTrack.create(info, acl, sessionToken);
+                  if (storeServiceFuncCallTrack) {
+                    storeServiceFuncCallTrack.create(info, acl, sessionToken);
+                  }
 
                   return _context4.abrupt('return', (0, _v2.default)());
 
@@ -195,7 +203,9 @@ var StoreService = function StoreService() {
             while (1) {
               switch ((_context5.prev = _context5.next)) {
                 case 0:
-                  storeServiceFuncCallTrack.read(id, criteria, sessionToken);
+                  if (storeServiceFuncCallTrack) {
+                    storeServiceFuncCallTrack.read(id, criteria, sessionToken);
+                  }
 
                   return _context5.abrupt('return', finalStoreInfo);
 
@@ -224,7 +234,9 @@ var StoreService = function StoreService() {
             while (1) {
               switch ((_context6.prev = _context6.next)) {
                 case 0:
-                  storeServiceFuncCallTrack.search(criteria, sessionToken);
+                  if (storeServiceFuncCallTrack) {
+                    storeServiceFuncCallTrack.search(criteria, sessionToken);
+                  }
 
                   return _context6.abrupt('return', finalStoreInfos);
 
@@ -246,9 +258,13 @@ var StoreService = function StoreService() {
   })();
 };
 
-var resetAllMockTracks = function resetAllMockTracks() {
+var resetAllMockTrackers = function resetAllMockTrackers() {
   crawlSessionServiceFuncCallTrack = new _CrawlSessionServiceFuncCallTrack2.default();
   storeServiceFuncCallTrack = new _StoreServiceFuncCallTrack2.default();
+};
+
+var getAllMockTrackers = function getAllMockTrackers() {
+  return { crawlSessionServiceFuncCallTrack: crawlSessionServiceFuncCallTrack, storeServiceFuncCallTrack: storeServiceFuncCallTrack };
 };
 
 var setupCrawlSessionService = function setupCrawlSessionService() {
@@ -269,18 +285,13 @@ var setupStoreService = function setupStoreService() {
   finalStoreInfos = storeInfos;
 };
 
-trolleySmartParseServerCommon.resetAllMockTracks = resetAllMockTracks;
+trolleySmartParseServerCommon.resetAllMockTrackers = resetAllMockTrackers;
+trolleySmartParseServerCommon.getAllMockTrackers = getAllMockTrackers;
 
 trolleySmartParseServerCommon.CrawlSessionService = CrawlSessionService;
-trolleySmartParseServerCommon.crawlSessionServiceFuncCallTrack = function() {
-  return crawlSessionServiceFuncCallTrack;
-};
 trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
 
 trolleySmartParseServerCommon.StoreService = StoreService;
-trolleySmartParseServerCommon.storeServiceFuncCallTrack = function() {
-  return storeServiceFuncCallTrack;
-};
 trolleySmartParseServerCommon.setupStoreService = setupStoreService;
 
 module.exports = trolleySmartParseServerCommon;

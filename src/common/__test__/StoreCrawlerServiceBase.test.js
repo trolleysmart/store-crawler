@@ -13,20 +13,20 @@ const crawlSessionInfos = List.of(Map({ id: uuid(), val: uuid() }), Map({ id: uu
 const storeInfos = List.of(Map({ id: uuid(), val: uuid() }), Map({ id: uuid(), val: uuid() }));
 
 beforeEach(() => {
-  MicroBusinessParseServerCommon.resetAllMockTracks();
-  TrolleySmartParseServerCommon.resetAllMockTracks();
+  MicroBusinessParseServerCommon.resetAllMockTrackers();
+  TrolleySmartParseServerCommon.resetAllMockTrackers();
   MicroBusinessParseServerCommon.setupParseWrapperServiceGetConfig({ keyValues });
 });
 
 describe('getConfig', () => {
   it('should return the config matches the key', async () => {
     expect(createNewStoreCrawlerServiceBase().getConfig()).resolves.toEqual(keyValues.get('countdown'));
-    expect(MicroBusinessParseServerCommon.parseWrapperServiceFuncCallTrack().getConfig.mock.calls.length).toBe(1);
+    expect(MicroBusinessParseServerCommon.getAllMockTrackers().parseWrapperServiceFuncCallTrack.getConfig.mock.calls.length).toBe(1);
   });
 
   it('should throw exception if provided key does not exist', async () => {
     expect(new StoreCrawlerServiceBase('unknow').getConfig()).rejects.toBeDefined();
-    expect(MicroBusinessParseServerCommon.parseWrapperServiceFuncCallTrack().getConfig.mock.calls.length).toBe(1);
+    expect(MicroBusinessParseServerCommon.getAllMockTrackers().parseWrapperServiceFuncCallTrack.getConfig.mock.calls.length).toBe(1);
   });
 });
 

@@ -17,18 +17,20 @@ class ParseWrapperService {
   };
 }
 
-const resetAllMockTracks = () => {
+const resetAllMockTrackers = () => {
   parseWrapperServiceFuncCallTrack = new ParseWrapperServiceFuncCallTrack();
 };
+
+const getAllMockTrackers = () => ({ parseWrapperServiceFuncCallTrack });
 
 const setupParseWrapperServiceGetConfig = ({ keyValues } = {}) => {
   finalKeyValues = keyValues;
 };
 
-microBusinessParseServerCommon.resetAllMockTracks = resetAllMockTracks;
+microBusinessParseServerCommon.resetAllMockTrackers = resetAllMockTrackers;
+microBusinessParseServerCommon.getAllMockTrackers = getAllMockTrackers;
 
 microBusinessParseServerCommon.ParseWrapperService = ParseWrapperService;
-microBusinessParseServerCommon.parseWrapperServiceFuncCallTrack = () => parseWrapperServiceFuncCallTrack;
 microBusinessParseServerCommon.setupParseWrapperServiceGetConfig = setupParseWrapperServiceGetConfig;
 
 module.exports = microBusinessParseServerCommon;

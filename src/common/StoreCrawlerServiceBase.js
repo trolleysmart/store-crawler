@@ -14,6 +14,10 @@ import {
 } from 'trolley-smart-parse-server-common';
 
 export default class StoreCrawlerServiceBase {
+  static removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
+
+  static safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
+
   constructor(storeKey, { sessionToken, logVerboseFunc, logInfoFunc, logErrorFunc } = {}) {
     this.storeKey = storeKey;
     this.sessionToken = sessionToken;
@@ -45,9 +49,20 @@ export default class StoreCrawlerServiceBase {
     const crawlSessionService = new CrawlSessionService();
     const sessionId = await crawlSessionService.create(Map({ sessionKey, startDateTime: new Date() }), null, this.sessionToken);
 
-    await this.logInfo(() => `Created session. Session Id: ${sessionId}`);
-
     return crawlSessionService.read(sessionId, null, this.sessionToken);
+  };
+
+  updateExistingCrawlSession = async (sessionInfo) => {
+    await new CrawlSessionService().update(sessionInfo, this.sessionToken);
+  };
+
+  createNewCrawlResult = async (crawlSessionId, resultSet) => {
+    const crawlResult = Map({
+      crawlSessionId,
+      resultSet,
+    });
+
+    await new CrawlResultService().create(crawlResult, null, this.sessionToken);
   };
 
   getStore = async () => {
@@ -359,10 +374,6 @@ export default class StoreCrawlerServiceBase {
       }
     }
   };
-
-  removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
-
-  safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
 
   logVerbose = async (messageFunc) => {
     const config = await this.getConfig();

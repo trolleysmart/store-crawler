@@ -44,23 +44,25 @@ function _asyncToGenerator(fn) {
 
 var StoreCrawlerServiceBase = require('../../common/StoreCrawlerServiceBase');
 
-var createCountdownWebCrawlerService = function createCountdownWebCrawlerService() {
-  return new _.CountdownWebCrawlerService('countdown');
+var createWarehouseWebCrawlerService = function createWarehouseWebCrawlerService() {
+  return new _.WarehouseWebCrawlerService('countdown');
 };
 
 jest.mock('../../common/StoreCrawlerServiceBase');
+
+var sessionInfo = (0, _immutable.Map)({ id: (0, _v2.default)() });
 
 beforeEach(function() {
   StoreCrawlerServiceBase.resetAllMockTrackers();
   StoreCrawlerServiceBase.setupStoreCrawlerServiceBase({
     config: (0, _immutable.Map)({
-      baseUrl: 'https://shop.countdown.co.nz',
+      baseUrl: 'http://www.thewarehouse.co.nz/',
       rateLimit: 1,
       maxConnections: 1,
       logLevel: 2,
-      categoryKeysToExclude: _immutable.List.of('restricted-items', 'christmas'),
+      categoryKeysToExclude: _immutable.List.of('specials', 'electronicsgaming-apple', 'gifting-giftcards-faqs'),
     }),
-    sessionInfo: (0, _immutable.Map)({ id: (0, _v2.default)() }),
+    sessionInfo: sessionInfo,
   });
 });
 
@@ -69,11 +71,22 @@ describe('crawlProductCategories', function() {
     'should call createNewCrawlSession',
     _asyncToGenerator(
       regeneratorRuntime.mark(function _callee() {
+        var calls;
         return regeneratorRuntime.wrap(
           function _callee$(_context) {
             while (1) {
               switch ((_context.prev = _context.next)) {
                 case 0:
+                  _context.next = 2;
+                  return createWarehouseWebCrawlerService().crawlProductCategories();
+
+                case 2:
+                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlSession.mock.calls;
+
+                  expect(calls.length).toBe(1);
+                  expect(calls[0][0]).toBe('Warehouse Product Categories');
+
+                case 5:
                 case 'end':
                   return _context.stop();
               }
@@ -90,11 +103,23 @@ describe('crawlProductCategories', function() {
     'should create crawl result',
     _asyncToGenerator(
       regeneratorRuntime.mark(function _callee2() {
+        var calls;
         return regeneratorRuntime.wrap(
           function _callee2$(_context2) {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
+                  _context2.next = 2;
+                  return createWarehouseWebCrawlerService().crawlProductCategories();
+
+                case 2:
+                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlResult.mock.calls;
+
+                  expect(calls.length).toBe(1);
+                  expect(calls[0][0]).toBeTruthy();
+                  expect(calls[0][1]).toBeTruthy();
+
+                case 6:
                 case 'end':
                   return _context2.stop();
               }
@@ -111,11 +136,24 @@ describe('crawlProductCategories', function() {
     'should update crawl session',
     _asyncToGenerator(
       regeneratorRuntime.mark(function _callee3() {
+        var calls;
         return regeneratorRuntime.wrap(
           function _callee3$(_context3) {
             while (1) {
               switch ((_context3.prev = _context3.next)) {
                 case 0:
+                  _context3.next = 2;
+                  return createWarehouseWebCrawlerService().crawlProductCategories();
+
+                case 2:
+                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.updateExistingCrawlSession.mock.calls;
+
+                  expect(calls.length).toBe(1);
+                  expect(calls[0][0].get('id')).toBe(sessionInfo.get('id'));
+                  expect(calls[0][0].has('endDateTime')).toBeTruthy();
+                  expect(calls[0][0].getIn(['additionalInfo', 'status'])).toBe('success');
+
+                case 7:
                 case 'end':
                   return _context3.stop();
               }

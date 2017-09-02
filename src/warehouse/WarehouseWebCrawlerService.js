@@ -5,7 +5,7 @@ import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
 import moment from 'moment';
 import { Exception, ImmutableEx } from 'micro-business-common-javascript';
-import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'trolley-smart-parse-server-common';
+import { StoreMasterProductService } from 'trolley-smart-parse-server-common';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase {
@@ -13,67 +13,66 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     super('warehouse', context);
   }
 
-  crawlProductCategories = async (config, sessionToken) => {
-    const result = await this.createNewCrawlSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse', sessionToken);
-    const sessionInfo = result.get('sessionInfo');
-    const sessionId = sessionInfo.get('id');
-    const finalConfig = result.get('config');
+  crawlProductCategories = async () => {
+    const sessionInfo = await this.createNewCrawlSession('Warehouse Product Categories');
 
     try {
-      await this.crawlAllProductCategories(sessionId, finalConfig, sessionToken);
+      await this.crawlAllProductCategories(sessionInfo.get('id'));
 
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'success',
+      await this.updateExistingCrawlSession(
+        sessionInfo.merge(
+          Map({
+            endDateTime: new Date(),
+            additionalInfo: Map({
+              status: 'success',
+            }),
           }),
-        }),
+        ),
       );
-
-      await CrawlSessionService.update(updatedSessionInfo, sessionToken);
     } catch (ex) {
       const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'failed',
-            error: errorMessage,
+      await this.updateExistingCrawlSession(
+        sessionInfo.merge(
+          Map({
+            endDateTime: new Date(),
+            additionalInfo: Map({
+              status: 'failed',
+              error: errorMessage,
+            }),
           }),
-        }),
+        ),
       );
 
-      await CrawlSessionService.update(updatedSessionInfo, sessionToken);
       throw ex;
     }
   };
 
-  crawlAllProductCategories = (sessionId, config, sessionToken) =>
-    new Promise((resolve, reject) => {
+  crawlAllProductCategories = async (crawlSessionId) => {
+    const config = await this.getConfig();
+
+    return new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
           const productCategories = this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
-          const crawlResult = Map({
-            crawlSessionId: sessionId,
-            resultSet: Map({
+
+          this.createNewCrawlResult(
+            crawlSessionId,
+            Map({
               productCategories,
             }),
-          });
-
-          CrawlResultService.create(crawlResult, null, sessionToken)
+          )
             .then(() => {
               this.logInfo(() => `Successfully added products for: ${productCategories}.`);
 
@@ -91,6 +90,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       crawler.on('drain', () => resolve());
       crawler.queue(config.get('baseUrl'));
     });
+  };
 
   crawlLevelOneProductCategoriesAndSubProductCategories = (config, $) => {
     const self = this;
@@ -123,7 +123,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
                 .find('.level-1')
                 .text()
                 .trim(),
-              weight: 1,
+              level: 1,
               subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey),
             }),
           );
@@ -168,7 +168,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
                   categoryKey,
                   url: menuItem.attr('href'),
                   name: menuItem.text().trim(),
-                  weight: 2,
+                  level: 2,
                   subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey),
                 }),
               );
@@ -212,7 +212,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
               categoryKey,
               url: menuItem.attr('href'),
               name: menuItem.text().trim(),
-              weight: 3,
+              level: 3,
             }),
           );
 
@@ -321,17 +321,19 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product category page info for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(
+              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`,
+            );
 
             return;
           }
 
-          const productCategory = productCategories.find(_ => _.get('url').localeCompare(this.safeGetUri(res)) === 0);
+          const productCategory = productCategories.find(_ => _.get('url').localeCompare(StoreCrawlerServiceBase.safeGetUri(res)) === 0);
 
           if (!productCategory) {
             // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
@@ -390,18 +392,20 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product category page info for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(
+              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`,
+            );
 
             return;
           }
 
-          const urlOffset = this.safeGetUri(res).indexOf('?');
-          const baseUrl = this.safeGetUri(res).substring(0, urlOffset);
+          const urlOffset = StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
+          const baseUrl = StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(baseUrl) === 0);
 
           if (!productCategory) {
@@ -486,12 +490,12 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }

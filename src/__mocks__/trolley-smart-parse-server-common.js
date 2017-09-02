@@ -64,10 +64,12 @@ class StoreService {
   };
 }
 
-const resetAllMockTracks = () => {
+const resetAllMockTrackers = () => {
   crawlSessionServiceFuncCallTrack = new CrawlSessionServiceFuncCallTrack();
   storeServiceFuncCallTrack = new StoreServiceFuncCallTrack();
 };
+
+const getAllMockTrackers = () => ({ crawlSessionServiceFuncCallTrack, storeServiceFuncCallTrack });
 
 const setupCrawlSessionService = ({ crawlSessionInfo, crawlSessionInfos } = {}) => {
   finalCrawlSessionInfo = crawlSessionInfo;
@@ -79,14 +81,13 @@ const setupStoreService = ({ storeInfo, storeInfos } = {}) => {
   finalStoreInfos = storeInfos;
 };
 
-trolleySmartParseServerCommon.resetAllMockTracks = resetAllMockTracks;
+trolleySmartParseServerCommon.resetAllMockTrackers = resetAllMockTrackers;
+trolleySmartParseServerCommon.getAllMockTrackers = getAllMockTrackers;
 
 trolleySmartParseServerCommon.CrawlSessionService = CrawlSessionService;
-trolleySmartParseServerCommon.crawlSessionServiceFuncCallTrack = () => crawlSessionServiceFuncCallTrack;
 trolleySmartParseServerCommon.setupCrawlSessionService = setupCrawlSessionService;
 
 trolleySmartParseServerCommon.StoreService = StoreService;
-trolleySmartParseServerCommon.storeServiceFuncCallTrack = () => storeServiceFuncCallTrack;
 trolleySmartParseServerCommon.setupStoreService = setupStoreService;
 
 module.exports = trolleySmartParseServerCommon;

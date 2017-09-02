@@ -4,7 +4,7 @@ import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
 import { Exception, ImmutableEx } from 'micro-business-common-javascript';
-import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'trolley-smart-parse-server-common';
+import { StoreMasterProductService } from 'trolley-smart-parse-server-common';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase {
@@ -16,45 +16,43 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
 
   crawlProductCategories = async () => {
     const sessionInfo = await this.createNewCrawlSession('Countdown Product Categories');
-    const crawlSessionService = new CrawlSessionService();
 
     try {
-      const crawlResultService = new CrawlResultService();
       const levelOneProductCategories = await this.crawlLevelOneProductCategories();
       const levelOneAndTwoProductCategories = await this.crawlLevelTwoProductCategories(levelOneProductCategories);
       const levelOneAndTwoAndThreeProductCategories = await this.crawlLevelThreeProductCategories(levelOneAndTwoProductCategories);
-      const crawlResult = Map({
-        crawlSessionId: sessionInfo.get('id'),
-        resultSet: Map({
+
+      await this.createNewCrawlResult(
+        sessionInfo.get('id'),
+        Map({
           productCategories: levelOneAndTwoAndThreeProductCategories,
         }),
-      });
-
-      await crawlResultService.create(crawlResult, null, this.sessionToken);
-
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'success',
-          }),
-        }),
       );
 
-      await crawlSessionService.update(updatedSessionInfo, this.sessionToken);
+      await this.updateExistingCrawlSession(
+        sessionInfo.merge(
+          Map({
+            endDateTime: new Date(),
+            additionalInfo: Map({
+              status: 'success',
+            }),
+          }),
+        ),
+      );
     } catch (ex) {
       const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
-      const updatedSessionInfo = sessionInfo.merge(
-        Map({
-          endDateTime: new Date(),
-          additionalInfo: Map({
-            status: 'failed',
-            error: errorMessage,
+      await this.updateExistingCrawlSession(
+        sessionInfo.merge(
+          Map({
+            endDateTime: new Date(),
+            additionalInfo: Map({
+              status: 'failed',
+              error: errorMessage,
+            }),
           }),
-        }),
+        ),
       );
 
-      await crawlSessionService.update(updatedSessionInfo, this.sessionToken);
       throw ex;
     }
   };
@@ -68,12 +66,12 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -107,7 +105,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
                       categoryKey,
                       name: menuItem.text().trim(),
                       url: `${config.get('baseUrl')}${url}`,
-                      weight: 1,
+                      level: 1,
                       subCategories: List(),
                     }),
                   );
@@ -136,21 +134,23 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
-          const levelOneProductCategoryIdx = productCategories.findIndex(_ => _.get('url').localeCompare(this.safeGetUri(res)) === 0);
+          const levelOneProductCategoryIdx = productCategories.findIndex(
+            _ => _.get('url').localeCompare(StoreCrawlerServiceBase.safeGetUri(res)) === 0,
+          );
 
           if (levelOneProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(() => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level one category.`);
+            this.logError(() => `Failed to match retrieved URL ${StoreCrawlerServiceBase.safeGetUri(res)} against provided level one category.`);
 
             return;
           }
@@ -180,7 +180,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
                 }
 
                 levelTwoProductCategories = levelTwoProductCategories.push(
-                  Map({ categoryKey, name: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, weight: 2 }),
+                  Map({ categoryKey, name: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, level: 2 }),
                 );
 
                 return 0;
@@ -212,21 +212,23 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
 
-          const levelOneProductCategoryIdx = updatedProductCategories.findIndex(_ => this.safeGetUri(res).indexOf(_.get('url')) !== -1);
+          const levelOneProductCategoryIdx = updatedProductCategories.findIndex(
+            _ => StoreCrawlerServiceBase.safeGetUri(res).indexOf(_.get('url')) !== -1,
+          );
 
           if (levelOneProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(() => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level one category.`);
+            this.logError(() => `Failed to match retrieved URL ${StoreCrawlerServiceBase.safeGetUri(res)} against provided level one category.`);
 
             return;
           }
@@ -234,12 +236,12 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
           const levelOneProductCategory = updatedProductCategories.get(levelOneProductCategoryIdx);
           const levelOneProductSubCategoriesCategory = levelOneProductCategory.get('subCategories');
           const levelTwoProductCategoryIdx = levelOneProductSubCategoriesCategory.findIndex(
-            _ => _.get('url').localeCompare(this.safeGetUri(res)) === 0,
+            _ => _.get('url').localeCompare(StoreCrawlerServiceBase.safeGetUri(res)) === 0,
           );
 
           if (levelTwoProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(() => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level two category.`);
+            this.logError(() => `Failed to match retrieved URL ${StoreCrawlerServiceBase.safeGetUri(res)} against provided level two category.`);
 
             return;
           }
@@ -269,7 +271,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
                 }
 
                 levelThreeProductCategories = levelThreeProductCategories.push(
-                  Map({ categoryKey, name: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, weight: 3 }),
+                  Map({ categoryKey, name: menuItem.text().trim(), url: `${config.get('baseUrl')}${url}`, level: 3 }),
                 );
 
                 return 0;
@@ -381,17 +383,19 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product category page info for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(
+              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`,
+            );
 
             return;
           }
 
-          const productCategory = productCategories.find(_ => _.get('url').localeCompare(this.safeGetUri(res)) === 0);
+          const productCategory = productCategories.find(_ => _.get('url').localeCompare(StoreCrawlerServiceBase.safeGetUri(res)) === 0);
 
           if (!productCategory) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
@@ -441,18 +445,20 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product category page info for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(
+              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`,
+            );
 
             return;
           }
 
-          const urlOffset = this.safeGetUri(res).indexOf('?');
-          const baseUrl = this.safeGetUri(res).substring(0, urlOffset);
+          const urlOffset = StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
+          const baseUrl = StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
           const productCategory = productCategories.find(_ => _.get('url').localeCompare(baseUrl) === 0);
 
           if (!productCategory) {
@@ -547,12 +553,12 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
           this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${this.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -706,7 +712,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       .trim();
     const currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
-    return this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+    return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
   };
 
   getWasPrice = (productPriceContent) => {
@@ -723,7 +729,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       .find('.cup-price')
       .text()
       .trim();
-    const price = this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/')));
+    const price = StoreCrawlerServiceBase.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/')));
     const size = unitPriceContent.substring(unitPriceContent.indexOf('/') + 1);
 
     if (!price && !size) {
@@ -799,7 +805,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       .trim();
     const currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
-    return this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+    return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
   };
 
   getBarcodeFromImageUrl = (imageUrl) => {

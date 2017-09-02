@@ -94,17 +94,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
     _this.crawlProductCategories = _asyncToGenerator(
       regeneratorRuntime.mark(function _callee() {
-        var sessionInfo,
-          crawlSessionService,
-          crawlResultService,
-          levelOneProductCategories,
-          levelOneAndTwoProductCategories,
-          levelOneAndTwoAndThreeProductCategories,
-          crawlResult,
-          updatedSessionInfo,
-          errorMessage,
-          _updatedSessionInfo;
-
+        var sessionInfo, levelOneProductCategories, levelOneAndTwoProductCategories, levelOneAndTwoAndThreeProductCategories, errorMessage;
         return regeneratorRuntime.wrap(
           function _callee$(_context) {
             while (1) {
@@ -115,69 +105,68 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
                 case 2:
                   sessionInfo = _context.sent;
-                  crawlSessionService = new _trolleySmartParseServerCommon.CrawlSessionService();
-                  _context.prev = 4;
-                  crawlResultService = new _trolleySmartParseServerCommon.CrawlResultService();
-                  _context.next = 8;
+                  _context.prev = 3;
+                  _context.next = 6;
                   return _this.crawlLevelOneProductCategories();
 
-                case 8:
+                case 6:
                   levelOneProductCategories = _context.sent;
-                  _context.next = 11;
+                  _context.next = 9;
                   return _this.crawlLevelTwoProductCategories(levelOneProductCategories);
 
-                case 11:
+                case 9:
                   levelOneAndTwoProductCategories = _context.sent;
-                  _context.next = 14;
+                  _context.next = 12;
                   return _this.crawlLevelThreeProductCategories(levelOneAndTwoProductCategories);
 
-                case 14:
+                case 12:
                   levelOneAndTwoAndThreeProductCategories = _context.sent;
-                  crawlResult = (0, _immutable.Map)({
-                    crawlSessionId: sessionInfo.get('id'),
-                    resultSet: (0, _immutable.Map)({
+                  _context.next = 15;
+                  return _this.createNewCrawlResult(
+                    sessionInfo.get('id'),
+                    (0, _immutable.Map)({
                       productCategories: levelOneAndTwoAndThreeProductCategories,
                     }),
-                  });
-                  _context.next = 18;
-                  return crawlResultService.create(crawlResult, null, _this.sessionToken);
-
-                case 18:
-                  updatedSessionInfo = sessionInfo.merge(
-                    (0, _immutable.Map)({
-                      endDateTime: new Date(),
-                      additionalInfo: (0, _immutable.Map)({
-                        status: 'success',
-                      }),
-                    }),
                   );
-                  _context.next = 21;
-                  return crawlSessionService.update(updatedSessionInfo, _this.sessionToken);
 
-                case 21:
-                  _context.next = 30;
+                case 15:
+                  _context.next = 17;
+                  return _this.updateExistingCrawlSession(
+                    sessionInfo.merge(
+                      (0, _immutable.Map)({
+                        endDateTime: new Date(),
+                        additionalInfo: (0, _immutable.Map)({
+                          status: 'success',
+                        }),
+                      }),
+                    ),
+                  );
+
+                case 17:
+                  _context.next = 25;
                   break;
 
-                case 23:
-                  _context.prev = 23;
-                  _context.t0 = _context['catch'](4);
+                case 19:
+                  _context.prev = 19;
+                  _context.t0 = _context['catch'](3);
                   errorMessage = _context.t0 instanceof _microBusinessCommonJavascript.Exception ? _context.t0.getErrorMessage() : _context.t0;
-                  _updatedSessionInfo = sessionInfo.merge(
-                    (0, _immutable.Map)({
-                      endDateTime: new Date(),
-                      additionalInfo: (0, _immutable.Map)({
-                        status: 'failed',
-                        error: errorMessage,
+                  _context.next = 24;
+                  return _this.updateExistingCrawlSession(
+                    sessionInfo.merge(
+                      (0, _immutable.Map)({
+                        endDateTime: new Date(),
+                        additionalInfo: (0, _immutable.Map)({
+                          status: 'failed',
+                          error: errorMessage,
+                        }),
                       }),
-                    }),
+                    ),
                   );
-                  _context.next = 29;
-                  return crawlSessionService.update(_updatedSessionInfo, _this.sessionToken);
 
-                case 29:
+                case 24:
                   throw _context.t0;
 
-                case 30:
+                case 25:
                 case 'end':
                   return _context.stop();
               }
@@ -185,7 +174,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
           },
           _callee,
           _this2,
-          [[4, 23]],
+          [[3, 19]],
         );
       }),
     );
@@ -211,7 +200,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
                         maxConnections: config.get('maxConnections'),
                         callback: function callback(error, res, done) {
                           _this.logInfo(function() {
-                            return 'Received response for: ' + _this.safeGetUri(res);
+                            return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
                           });
                           _this.logVerbose(function() {
                             return 'Received response for: ' + JSON.stringify(res);
@@ -219,7 +208,12 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
                           if (error) {
                             done();
-                            reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                            reject(
+                              'Failed to receive product categories for Url: ' +
+                                _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                                ' - Error: ' +
+                                JSON.stringify(error),
+                            );
 
                             return;
                           }
@@ -256,7 +250,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
                                       categoryKey: categoryKey,
                                       name: menuItem.text().trim(),
                                       url: '' + config.get('baseUrl') + url,
-                                      weight: 1,
+                                      level: 1,
                                       subCategories: (0, _immutable.List)(),
                                     }),
                                   );
@@ -313,7 +307,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
                           maxConnections: config.get('maxConnections'),
                           callback: function callback(error, res, done) {
                             _this.logInfo(function() {
-                              return 'Received response for: ' + _this.safeGetUri(res);
+                              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
                             });
                             _this.logVerbose(function() {
                               return 'Received response for: ' + JSON.stringify(res);
@@ -321,19 +315,28 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
                             if (error) {
                               done();
-                              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                              reject(
+                                'Failed to receive product categories for Url: ' +
+                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                                  ' - Error: ' +
+                                  JSON.stringify(error),
+                              );
 
                               return;
                             }
 
                             var levelOneProductCategoryIdx = productCategories.findIndex(function(_) {
-                              return _.get('url').localeCompare(_this.safeGetUri(res)) === 0;
+                              return _.get('url').localeCompare(_2.StoreCrawlerServiceBase.safeGetUri(res)) === 0;
                             });
 
                             if (levelOneProductCategoryIdx === -1) {
                               // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
                               _this.logError(function() {
-                                return 'Failed to match retrieved URL ' + _this.safeGetUri(res) + ' against provided level one category.';
+                                return (
+                                  'Failed to match retrieved URL ' +
+                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                                  ' against provided level one category.'
+                                );
                               });
 
                               return;
@@ -371,7 +374,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
                                       categoryKey: categoryKey,
                                       name: menuItem.text().trim(),
                                       url: '' + config.get('baseUrl') + url,
-                                      weight: 2,
+                                      level: 2,
                                     }),
                                   );
 
@@ -439,7 +442,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
                           maxConnections: config.get('maxConnections'),
                           callback: function callback(error, res, done) {
                             _this.logInfo(function() {
-                              return 'Received response for: ' + _this.safeGetUri(res);
+                              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
                             });
                             _this.logVerbose(function() {
                               return 'Received response for: ' + JSON.stringify(res);
@@ -447,19 +450,28 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
                             if (error) {
                               done();
-                              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                              reject(
+                                'Failed to receive product categories for Url: ' +
+                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                                  ' - Error: ' +
+                                  JSON.stringify(error),
+                              );
 
                               return;
                             }
 
                             var levelOneProductCategoryIdx = updatedProductCategories.findIndex(function(_) {
-                              return _this.safeGetUri(res).indexOf(_.get('url')) !== -1;
+                              return _2.StoreCrawlerServiceBase.safeGetUri(res).indexOf(_.get('url')) !== -1;
                             });
 
                             if (levelOneProductCategoryIdx === -1) {
                               // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
                               _this.logError(function() {
-                                return 'Failed to match retrieved URL ' + _this.safeGetUri(res) + ' against provided level one category.';
+                                return (
+                                  'Failed to match retrieved URL ' +
+                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                                  ' against provided level one category.'
+                                );
                               });
 
                               return;
@@ -468,13 +480,17 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
                             var levelOneProductCategory = updatedProductCategories.get(levelOneProductCategoryIdx);
                             var levelOneProductSubCategoriesCategory = levelOneProductCategory.get('subCategories');
                             var levelTwoProductCategoryIdx = levelOneProductSubCategoriesCategory.findIndex(function(_) {
-                              return _.get('url').localeCompare(_this.safeGetUri(res)) === 0;
+                              return _.get('url').localeCompare(_2.StoreCrawlerServiceBase.safeGetUri(res)) === 0;
                             });
 
                             if (levelTwoProductCategoryIdx === -1) {
                               // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
                               _this.logError(function() {
-                                return 'Failed to match retrieved URL ' + _this.safeGetUri(res) + ' against provided level two category.';
+                                return (
+                                  'Failed to match retrieved URL ' +
+                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                                  ' against provided level two category.'
+                                );
                               });
 
                               return;
@@ -512,7 +528,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
                                       categoryKey: categoryKey,
                                       name: menuItem.text().trim(),
                                       url: '' + config.get('baseUrl') + url,
-                                      weight: 3,
+                                      level: 3,
                                     }),
                                   );
 
@@ -799,7 +815,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(function() {
-              return 'Received response for: ' + _this.safeGetUri(res);
+              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
             });
             _this.logVerbose(function() {
               return 'Received response for: ' + JSON.stringify(res);
@@ -807,13 +823,18 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
             if (error) {
               done();
-              reject('Failed to receive product category page info for Url: ' + _this.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+              reject(
+                'Failed to receive product category page info for Url: ' +
+                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                  ' - Error: ' +
+                  JSON.stringify(error),
+              );
 
               return;
             }
 
             var productCategory = productCategories.find(function(_) {
-              return _.get('url').localeCompare(_this.safeGetUri(res)) === 0;
+              return _.get('url').localeCompare(_2.StoreCrawlerServiceBase.safeGetUri(res)) === 0;
             });
 
             if (!productCategory) {
@@ -869,7 +890,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(function() {
-              return 'Received response for: ' + _this.safeGetUri(res);
+              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
             });
             _this.logVerbose(function() {
               return 'Received response for: ' + JSON.stringify(res);
@@ -877,13 +898,18 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
             if (error) {
               done();
-              reject('Failed to receive product category page info for Url: ' + _this.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+              reject(
+                'Failed to receive product category page info for Url: ' +
+                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                  ' - Error: ' +
+                  JSON.stringify(error),
+              );
 
               return;
             }
 
-            var urlOffset = _this.safeGetUri(res).indexOf('?');
-            var baseUrl = _this.safeGetUri(res).substring(0, urlOffset);
+            var urlOffset = _2.StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
+            var baseUrl = _2.StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
             var productCategory = productCategories.find(function(_) {
               return _.get('url').localeCompare(baseUrl) === 0;
             });
@@ -1098,7 +1124,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
           maxConnections: config.get('maxConnections'),
           callback: function callback(error, res, done) {
             _this.logInfo(function() {
-              return 'Received response for: ' + _this.safeGetUri(res);
+              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
             });
             _this.logVerbose(function() {
               return 'Received response for: ' + JSON.stringify(res);
@@ -1106,7 +1132,9 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
             if (error) {
               done();
-              reject('Failed to receive product categories for Url: ' + _this.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+              reject(
+                'Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error),
+              );
 
               return;
             }
@@ -1266,7 +1294,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
         .trim();
       var currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
-      return _this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+      return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
     };
 
     _this.getWasPrice = function(productPriceContent) {
@@ -1283,7 +1311,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
         .find('.cup-price')
         .text()
         .trim();
-      var price = _this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/')));
+      var price = _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/')));
       var size = unitPriceContent.substring(unitPriceContent.indexOf('/') + 1);
 
       if (!price && !size) {
@@ -1359,7 +1387,7 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
         .trim();
       var currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
-      return _this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+      return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
     };
 
     _this.getBarcodeFromImageUrl = function(imageUrl) {

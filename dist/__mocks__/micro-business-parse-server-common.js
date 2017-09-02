@@ -63,7 +63,9 @@ ParseWrapperService.getConfig = _asyncToGenerator(
         while (1) {
           switch ((_context.prev = _context.next)) {
             case 0:
-              parseWrapperServiceFuncCallTrack.getConfig();
+              if (parseWrapperServiceFuncCallTrack) {
+                parseWrapperServiceFuncCallTrack.getConfig();
+              }
 
               return _context.abrupt('return', new _Config2.default(finalKeyValues));
 
@@ -79,8 +81,12 @@ ParseWrapperService.getConfig = _asyncToGenerator(
   }),
 );
 
-var resetAllMockTracks = function resetAllMockTracks() {
+var resetAllMockTrackers = function resetAllMockTrackers() {
   parseWrapperServiceFuncCallTrack = new _ParseWrapperServiceFuncCallTrack2.default();
+};
+
+var getAllMockTrackers = function getAllMockTrackers() {
+  return { parseWrapperServiceFuncCallTrack: parseWrapperServiceFuncCallTrack };
 };
 
 var setupParseWrapperServiceGetConfig = function setupParseWrapperServiceGetConfig() {
@@ -90,12 +96,10 @@ var setupParseWrapperServiceGetConfig = function setupParseWrapperServiceGetConf
   finalKeyValues = keyValues;
 };
 
-microBusinessParseServerCommon.resetAllMockTracks = resetAllMockTracks;
+microBusinessParseServerCommon.resetAllMockTrackers = resetAllMockTrackers;
+microBusinessParseServerCommon.getAllMockTrackers = getAllMockTrackers;
 
 microBusinessParseServerCommon.ParseWrapperService = ParseWrapperService;
-microBusinessParseServerCommon.parseWrapperServiceFuncCallTrack = function() {
-  return parseWrapperServiceFuncCallTrack;
-};
 microBusinessParseServerCommon.setupParseWrapperServiceGetConfig = setupParseWrapperServiceGetConfig;
 
 module.exports = microBusinessParseServerCommon;
