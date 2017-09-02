@@ -5,31 +5,32 @@ import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
 import { Exception, ImmutableEx } from 'micro-business-common-javascript';
 import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'trolley-smart-parse-server-common';
-import StoreCrawlerServiceBase from '../StoreCrawlerServiceBase';
+import { StoreCrawlerServiceBase } from '../';
 
 export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase {
   static urlPrefix = '/Shop/Browse/';
 
-  crawlProductCategories = async (config, sessionToken) => {
-    const result = await this.createNewCrawlSessionAndGetConfig('Countdown Product Categories', config, 'Countdown', sessionToken);
-    const sessionInfo = result.get('sessionInfo');
-    const sessionId = sessionInfo.get('id');
-    const finalConfig = result.get('config');
+  constructor(context) {
+    super('countdown', context);
+  }
+
+  crawlProductCategories = async () => {
+    const sessionInfo = await this.createNewCrawlSession('Countdown Product Categories');
+    const crawlSessionService = new CrawlSessionService();
 
     try {
-      let productCategories = await this.crawlLevelOneProductCategories(finalConfig);
-
-      productCategories = await this.crawlLevelTwoProductCategories(finalConfig, productCategories);
-      productCategories = await this.crawlLevelThreeProductCategories(finalConfig, productCategories);
-
+      const crawlResultService = new CrawlResultService();
+      const levelOneProductCategories = await this.crawlLevelOneProductCategories();
+      const levelOneAndTwoProductCategories = await this.crawlLevelTwoProductCategories(levelOneProductCategories);
+      const levelOneAndTwoAndThreeProductCategories = await this.crawlLevelThreeProductCategories(levelOneAndTwoProductCategories);
       const crawlResult = Map({
-        crawlSessionId: sessionId,
+        crawlSessionId: sessionInfo.get('id'),
         resultSet: Map({
-          productCategories,
+          productCategories: levelOneAndTwoAndThreeProductCategories,
         }),
       });
 
-      await CrawlResultService.create(crawlResult, null, sessionToken);
+      await crawlResultService.create(crawlResult, null, this.sessionToken);
 
       const updatedSessionInfo = sessionInfo.merge(
         Map({
@@ -40,7 +41,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         }),
       );
 
-      await CrawlSessionService.update(updatedSessionInfo, sessionToken);
+      await crawlSessionService.update(updatedSessionInfo, this.sessionToken);
     } catch (ex) {
       const errorMessage = ex instanceof Exception ? ex.getErrorMessage() : ex;
       const updatedSessionInfo = sessionInfo.merge(
@@ -53,12 +54,13 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         }),
       );
 
-      await CrawlSessionService.update(updatedSessionInfo, sessionToken);
+      await crawlSessionService.update(updatedSessionInfo, this.sessionToken);
       throw ex;
     }
   };
 
-  crawlLevelOneProductCategories = (config) => {
+  crawlLevelOneProductCategories = async () => {
+    const config = await this.getConfig();
     let productCategories = List();
 
     return new Promise((resolve, reject) => {
@@ -66,8 +68,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -125,7 +127,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     });
   };
 
-  crawlLevelTwoProductCategories = (config, productCategories) => {
+  crawlLevelTwoProductCategories = async (productCategories) => {
+    const config = await this.getConfig();
     let updatedProductCategories = productCategories;
 
     return new Promise((resolve, reject) => {
@@ -133,8 +136,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -147,7 +150,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (levelOneProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(config, () => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level one category.`);
+            this.logError(() => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level one category.`);
 
             return;
           }
@@ -200,7 +203,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     });
   };
 
-  crawlLevelThreeProductCategories = (config, productCategories) => {
+  crawlLevelThreeProductCategories = async (productCategories) => {
+    const config = await this.getConfig();
     let updatedProductCategories = productCategories;
 
     return new Promise((resolve, reject) => {
@@ -208,8 +212,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -222,7 +226,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (levelOneProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(config, () => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level one category.`);
+            this.logError(() => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level one category.`);
 
             return;
           }
@@ -235,7 +239,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (levelTwoProductCategoryIdx === -1) {
             // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-            this.logError(config, () => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level two category.`);
+            this.logError(() => `Failed to match retrieved URL ${this.safeGetUri(res)} against provided level two category.`);
 
             return;
           }
@@ -377,8 +381,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -437,8 +441,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -543,8 +547,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();

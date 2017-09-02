@@ -119,35 +119,31 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   this.createNewCrawlSession = (function() {
     var _ref3 = _asyncToGenerator(
       regeneratorRuntime.mark(function _callee2(sessionKey) {
-        var config, crawlSessionService, sessionId;
+        var crawlSessionService, sessionId;
         return regeneratorRuntime.wrap(
           function _callee2$(_context2) {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
-                  _context2.next = 2;
-                  return _this.getConfig();
-
-                case 2:
-                  config = _context2.sent;
                   crawlSessionService = new _trolleySmartParseServerCommon.CrawlSessionService();
-                  _context2.next = 6;
+                  _context2.next = 3;
                   return crawlSessionService.create(
                     (0, _immutable.Map)({ sessionKey: sessionKey, startDateTime: new Date() }),
                     null,
                     _this.sessionToken,
                   );
 
-                case 6:
+                case 3:
                   sessionId = _context2.sent;
-
-                  _this.logInfo(config, function() {
+                  _context2.next = 6;
+                  return _this.logInfo(function() {
                     return 'Created session. Session Id: ' + sessionId;
                   });
 
+                case 6:
                   return _context2.abrupt('return', crawlSessionService.read(sessionId, null, _this.sessionToken));
 
-                case 9:
+                case 7:
                 case 'end':
                   return _context2.stop();
               }
@@ -1066,23 +1062,113 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     return res && res.request && res.request.uri ? res.request.uri.href : '';
   };
 
-  this.logVerbose = function(config, messageFunc) {
-    if (_this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
-      _this.logVerboseFunc(messageFunc());
-    }
-  };
+  this.logVerbose = (function() {
+    var _ref21 = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee17(messageFunc) {
+        var config;
+        return regeneratorRuntime.wrap(
+          function _callee17$(_context17) {
+            while (1) {
+              switch ((_context17.prev = _context17.next)) {
+                case 0:
+                  _context17.next = 2;
+                  return _this.getConfig();
 
-  this.logInfo = function(config, messageFunc) {
-    if (_this.logInfoFunc && config && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
-      _this.logInfoFunc(messageFunc());
-    }
-  };
+                case 2:
+                  config = _context17.sent;
 
-  this.logError = function(config, messageFunc) {
-    if (_this.logErrorFunc && config && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
-      _this.logErrorFunc(messageFunc());
-    }
-  };
+                  if (_this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
+                    _this.logVerboseFunc(messageFunc());
+                  }
+
+                case 4:
+                case 'end':
+                  return _context17.stop();
+              }
+            }
+          },
+          _callee17,
+          _this,
+        );
+      }),
+    );
+
+    return function(_x22) {
+      return _ref21.apply(this, arguments);
+    };
+  })();
+
+  this.logInfo = (function() {
+    var _ref22 = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee18(messageFunc) {
+        var config;
+        return regeneratorRuntime.wrap(
+          function _callee18$(_context18) {
+            while (1) {
+              switch ((_context18.prev = _context18.next)) {
+                case 0:
+                  _context18.next = 2;
+                  return _this.getConfig();
+
+                case 2:
+                  config = _context18.sent;
+
+                  if (_this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
+                    _this.logInfoFunc(messageFunc());
+                  }
+
+                case 4:
+                case 'end':
+                  return _context18.stop();
+              }
+            }
+          },
+          _callee18,
+          _this,
+        );
+      }),
+    );
+
+    return function(_x23) {
+      return _ref22.apply(this, arguments);
+    };
+  })();
+
+  this.logError = (function() {
+    var _ref23 = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee19(messageFunc) {
+        var config;
+        return regeneratorRuntime.wrap(
+          function _callee19$(_context19) {
+            while (1) {
+              switch ((_context19.prev = _context19.next)) {
+                case 0:
+                  _context19.next = 2;
+                  return _this.getConfig();
+
+                case 2:
+                  config = _context19.sent;
+
+                  if (_this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
+                    _this.logErrorFunc(messageFunc());
+                  }
+
+                case 4:
+                case 'end':
+                  return _context19.stop();
+              }
+            }
+          },
+          _callee19,
+          _this,
+        );
+      }),
+    );
+
+    return function(_x24) {
+      return _ref23.apply(this, arguments);
+    };
+  })();
 
   this.storeKey = storeKey;
   this.sessionToken = sessionToken;

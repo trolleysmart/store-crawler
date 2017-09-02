@@ -6,9 +6,13 @@ import Immutable, { List, Map, Range, Set } from 'immutable';
 import moment from 'moment';
 import { Exception, ImmutableEx } from 'micro-business-common-javascript';
 import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'trolley-smart-parse-server-common';
-import StoreCrawlerServiceBase from '../StoreCrawlerServiceBase';
+import { StoreCrawlerServiceBase } from '../';
 
 export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase {
+  constructor(context) {
+    super('warehouse', context);
+  }
+
   crawlProductCategories = async (config, sessionToken) => {
     const result = await this.createNewCrawlSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse', sessionToken);
     const sessionInfo = result.get('sessionInfo');
@@ -51,8 +55,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -71,12 +75,12 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           CrawlResultService.create(crawlResult, null, sessionToken)
             .then(() => {
-              this.logInfo(config, () => `Successfully added products for: ${productCategories}.`);
+              this.logInfo(() => `Successfully added products for: ${productCategories}.`);
 
               done();
             })
             .catch((err) => {
-              this.logError(config, () => `Failed to save products for: ${productCategories}. Error: ${JSON.stringify(err)}`);
+              this.logError(() => `Failed to save products for: ${productCategories}. Error: ${JSON.stringify(err)}`);
 
               done();
               reject(`Failed to save products for: ${productCategories}. Error: ${JSON.stringify(err)}`);
@@ -317,8 +321,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -386,8 +390,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();
@@ -482,8 +486,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
         callback: (error, res, done) => {
-          this.logInfo(config, () => `Received response for: ${this.safeGetUri(res)}`);
-          this.logVerbose(config, () => `Received response for: ${JSON.stringify(res)}`);
+          this.logInfo(() => `Received response for: ${this.safeGetUri(res)}`);
+          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
 
           if (error) {
             done();

@@ -42,11 +42,10 @@ export default class StoreCrawlerServiceBase {
   };
 
   createNewCrawlSession = async (sessionKey) => {
-    const config = await this.getConfig();
     const crawlSessionService = new CrawlSessionService();
     const sessionId = await crawlSessionService.create(Map({ sessionKey, startDateTime: new Date() }), null, this.sessionToken);
 
-    this.logInfo(config, () => `Created session. Session Id: ${sessionId}`);
+    await this.logInfo(() => `Created session. Session Id: ${sessionId}`);
 
     return crawlSessionService.read(sessionId, null, this.sessionToken);
   };
@@ -365,20 +364,26 @@ export default class StoreCrawlerServiceBase {
 
   safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
 
-  logVerbose = (config, messageFunc) => {
-    if (this.logVerboseFunc && config && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
+  logVerbose = async (messageFunc) => {
+    const config = await this.getConfig();
+
+    if (this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
       this.logVerboseFunc(messageFunc());
     }
   };
 
-  logInfo = (config, messageFunc) => {
-    if (this.logInfoFunc && config && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
+  logInfo = async (messageFunc) => {
+    const config = await this.getConfig();
+
+    if (this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
       this.logInfoFunc(messageFunc());
     }
   };
 
-  logError = (config, messageFunc) => {
-    if (this.logErrorFunc && config && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
+  logError = async (messageFunc) => {
+    const config = await this.getConfig();
+
+    if (this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
       this.logErrorFunc(messageFunc());
     }
   };
