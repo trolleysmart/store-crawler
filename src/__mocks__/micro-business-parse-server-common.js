@@ -9,7 +9,9 @@ let finalKeyValues;
 
 class ParseWrapperService {
   static getConfig = async () => {
-    parseWrapperServiceFuncCallTrack.getConfig();
+    if (parseWrapperServiceFuncCallTrack) {
+      parseWrapperServiceFuncCallTrack.getConfig();
+    }
 
     return new Config(finalKeyValues);
   };

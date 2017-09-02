@@ -14,19 +14,25 @@ let finalStoreInfos;
 
 class CrawlSessionService {
   create = async (info, acl, sessionToken) => {
-    crawlSessionServiceFuncCallTrack.create(info, acl, sessionToken);
+    if (crawlSessionServiceFuncCallTrack) {
+      crawlSessionServiceFuncCallTrack.create(info, acl, sessionToken);
+    }
 
     return uuid();
   };
 
   read = async (id, criteria, sessionToken) => {
-    crawlSessionServiceFuncCallTrack.read(id, criteria, sessionToken);
+    if (crawlSessionServiceFuncCallTrack) {
+      crawlSessionServiceFuncCallTrack.read(id, criteria, sessionToken);
+    }
 
     return finalCrawlSessionInfo;
   };
 
   search = async (criteria, sessionToken) => {
-    crawlSessionServiceFuncCallTrack.search(criteria, sessionToken);
+    if (crawlSessionServiceFuncCallTrack) {
+      crawlSessionServiceFuncCallTrack.search(criteria, sessionToken);
+    }
 
     return finalCrawlSessionInfos;
   };
@@ -34,19 +40,25 @@ class CrawlSessionService {
 
 class StoreService {
   create = async (info, acl, sessionToken) => {
-    storeServiceFuncCallTrack.create(info, acl, sessionToken);
+    if (storeServiceFuncCallTrack) {
+      storeServiceFuncCallTrack.create(info, acl, sessionToken);
+    }
 
     return uuid();
   };
 
   read = async (id, criteria, sessionToken) => {
-    storeServiceFuncCallTrack.read(id, criteria, sessionToken);
+    if (storeServiceFuncCallTrack) {
+      storeServiceFuncCallTrack.read(id, criteria, sessionToken);
+    }
 
     return finalStoreInfo;
   };
 
   search = async (criteria, sessionToken) => {
-    storeServiceFuncCallTrack.search(criteria, sessionToken);
+    if (storeServiceFuncCallTrack) {
+      storeServiceFuncCallTrack.search(criteria, sessionToken);
+    }
 
     return finalStoreInfos;
   };
