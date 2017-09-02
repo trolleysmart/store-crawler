@@ -75,7 +75,7 @@ describe('getConfig', function() {
               switch ((_context.prev = _context.next)) {
                 case 0:
                   expect(createNewStoreCrawlerServiceBase().getConfig()).resolves.toEqual(keyValues.get('countdown'));
-                  expect(MicroBusinessParseServerCommon.getAllMockTrackers().parseWrapperServiceFuncCallTrack.getConfig.mock.calls.length).toBe(1);
+                  expect(MicroBusinessParseServerCommon.getAllMockTrackers().parseWrapperServiceMockTracker.getConfig.mock.calls.length).toBe(1);
 
                 case 2:
                 case 'end':
@@ -100,7 +100,7 @@ describe('getConfig', function() {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
                   expect(new _.StoreCrawlerServiceBase('unknow').getConfig()).rejects.toBeDefined();
-                  expect(MicroBusinessParseServerCommon.getAllMockTrackers().parseWrapperServiceFuncCallTrack.getConfig.mock.calls.length).toBe(1);
+                  expect(MicroBusinessParseServerCommon.getAllMockTrackers().parseWrapperServiceMockTracker.getConfig.mock.calls.length).toBe(1);
 
                 case 2:
                 case 'end':

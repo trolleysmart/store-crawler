@@ -81,7 +81,7 @@ describe('crawlProductCategories', function() {
                   return createWarehouseWebCrawlerService().crawlProductCategories();
 
                 case 2:
-                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlSession.mock.calls;
+                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createNewCrawlSession.mock.calls;
 
                   expect(calls.length).toBe(1);
                   expect(calls[0][0]).toBe('Warehouse Product Categories');
@@ -113,7 +113,7 @@ describe('crawlProductCategories', function() {
                   return createWarehouseWebCrawlerService().crawlProductCategories();
 
                 case 2:
-                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlResult.mock.calls;
+                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createNewCrawlResult.mock.calls;
 
                   expect(calls.length).toBe(1);
                   expect(calls[0][0]).toBeTruthy();
@@ -146,7 +146,7 @@ describe('crawlProductCategories', function() {
                   return createWarehouseWebCrawlerService().crawlProductCategories();
 
                 case 2:
-                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.updateExistingCrawlSession.mock.calls;
+                  calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.updateExistingCrawlSession.mock.calls;
 
                   expect(calls.length).toBe(1);
                   expect(calls[0][0].get('id')).toBe(sessionInfo.get('id'));

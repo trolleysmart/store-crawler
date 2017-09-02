@@ -5,9 +5,9 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports.setupStoreCrawlerServiceBase = exports.getAllMockTrackers = exports.resetAllMockTrackers = undefined;
 
-var _StoreCrawlerServiceBaseFuncsCallTrack = require('./StoreCrawlerServiceBaseFuncsCallTrack');
+var _StoreCrawlerServiceBaseMockTracker = require('./StoreCrawlerServiceBaseMockTracker');
 
-var _StoreCrawlerServiceBaseFuncsCallTrack2 = _interopRequireDefault(_StoreCrawlerServiceBaseFuncsCallTrack);
+var _StoreCrawlerServiceBaseMockTracker2 = _interopRequireDefault(_StoreCrawlerServiceBaseMockTracker);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -49,16 +49,16 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 
-var storeCrawlerServiceBaseFuncsCallTrack = void 0;
+var storeCrawlerServiceBaseMockTracker = void 0;
 var finalConfig = void 0;
 var finalSessionInfo = void 0;
 
 var resetAllMockTrackers = (exports.resetAllMockTrackers = function resetAllMockTrackers() {
-  storeCrawlerServiceBaseFuncsCallTrack = new _StoreCrawlerServiceBaseFuncsCallTrack2.default();
+  storeCrawlerServiceBaseMockTracker = new _StoreCrawlerServiceBaseMockTracker2.default();
 });
 
 var getAllMockTrackers = (exports.getAllMockTrackers = function getAllMockTrackers() {
-  return { storeCrawlerServiceBaseFuncsCallTrack: storeCrawlerServiceBaseFuncsCallTrack };
+  return { storeCrawlerServiceBaseMockTracker: storeCrawlerServiceBaseMockTracker };
 });
 
 var setupStoreCrawlerServiceBase = (exports.setupStoreCrawlerServiceBase = function setupStoreCrawlerServiceBase() {
@@ -82,8 +82,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
           while (1) {
             switch ((_context.prev = _context.next)) {
               case 0:
-                if (storeCrawlerServiceBaseFuncsCallTrack) {
-                  storeCrawlerServiceBaseFuncsCallTrack.getConfig();
+                if (storeCrawlerServiceBaseMockTracker) {
+                  storeCrawlerServiceBaseMockTracker.getConfig();
                 }
 
                 return _context.abrupt('return', finalConfig);
@@ -108,8 +108,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
-                  if (storeCrawlerServiceBaseFuncsCallTrack) {
-                    storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlSession(sessionKey);
+                  if (storeCrawlerServiceBaseMockTracker) {
+                    storeCrawlerServiceBaseMockTracker.createNewCrawlSession(sessionKey);
                   }
 
                   return _context2.abrupt('return', finalSessionInfo);
@@ -139,8 +139,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
             while (1) {
               switch ((_context3.prev = _context3.next)) {
                 case 0:
-                  if (storeCrawlerServiceBaseFuncsCallTrack) {
-                    storeCrawlerServiceBaseFuncsCallTrack.updateExistingCrawlSession(sessionInfo);
+                  if (storeCrawlerServiceBaseMockTracker) {
+                    storeCrawlerServiceBaseMockTracker.updateExistingCrawlSession(sessionInfo);
                   }
 
                 case 1:
@@ -168,8 +168,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
             while (1) {
               switch ((_context4.prev = _context4.next)) {
                 case 0:
-                  if (storeCrawlerServiceBaseFuncsCallTrack) {
-                    storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlResult(crawlSessionId, resultSet);
+                  if (storeCrawlerServiceBaseMockTracker) {
+                    storeCrawlerServiceBaseMockTracker.createNewCrawlResult(crawlSessionId, resultSet);
                   }
 
                 case 1:

@@ -10,8 +10,8 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 
-var StoreCrawlerServiceBaseFuncsCallTrack = function StoreCrawlerServiceBaseFuncsCallTrack() {
-  _classCallCheck(this, StoreCrawlerServiceBaseFuncsCallTrack);
+var StoreCrawlerServiceBaseMockTracker = function StoreCrawlerServiceBaseMockTracker() {
+  _classCallCheck(this, StoreCrawlerServiceBaseMockTracker);
 
   this.getConfig = jest.fn();
   this.createNewCrawlSession = jest.fn();
@@ -19,4 +19,4 @@ var StoreCrawlerServiceBaseFuncsCallTrack = function StoreCrawlerServiceBaseFunc
   this.createNewCrawlResult = jest.fn();
 };
 
-exports.default = StoreCrawlerServiceBaseFuncsCallTrack;
+exports.default = StoreCrawlerServiceBaseMockTracker;

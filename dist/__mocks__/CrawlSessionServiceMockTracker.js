@@ -4,9 +4,9 @@ Object.defineProperty(exports, '__esModule', {
   value: true,
 });
 
-var _FuncCallTrack2 = require('./FuncCallTrack');
+var _TrolleySmartParseServerCommonMockTrackerBase = require('./TrolleySmartParseServerCommonMockTrackerBase');
 
-var _FuncCallTrack3 = _interopRequireDefault(_FuncCallTrack2);
+var _TrolleySmartParseServerCommonMockTrackerBase2 = _interopRequireDefault(_TrolleySmartParseServerCommonMockTrackerBase);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -35,19 +35,19 @@ function _inherits(subClass, superClass) {
   if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : (subClass.__proto__ = superClass);
 }
 
-var StoreServiceFuncCallTrack = (function(_FuncCallTrack) {
-  _inherits(StoreServiceFuncCallTrack, _FuncCallTrack);
+var CrawlSessionServiceMockTracker = (function(_TrolleySmartParseSer) {
+  _inherits(CrawlSessionServiceMockTracker, _TrolleySmartParseSer);
 
-  function StoreServiceFuncCallTrack() {
-    _classCallCheck(this, StoreServiceFuncCallTrack);
+  function CrawlSessionServiceMockTracker() {
+    _classCallCheck(this, CrawlSessionServiceMockTracker);
 
     return _possibleConstructorReturn(
       this,
-      (StoreServiceFuncCallTrack.__proto__ || Object.getPrototypeOf(StoreServiceFuncCallTrack)).apply(this, arguments),
+      (CrawlSessionServiceMockTracker.__proto__ || Object.getPrototypeOf(CrawlSessionServiceMockTracker)).apply(this, arguments),
     );
   }
 
-  return StoreServiceFuncCallTrack;
-})(_FuncCallTrack3.default);
+  return CrawlSessionServiceMockTracker;
+})(_TrolleySmartParseServerCommonMockTrackerBase2.default);
 
-exports.default = StoreServiceFuncCallTrack;
+exports.default = CrawlSessionServiceMockTracker;

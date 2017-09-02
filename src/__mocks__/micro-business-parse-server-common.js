@@ -1,16 +1,16 @@
 // @flow
 
 import Config from './Config';
-import ParseWrapperServiceFuncCallTrack from './ParseWrapperServiceFuncCallTrack';
+import ParseWrapperServiceMockTrackerk from './ParseWrapperServiceMockTracker';
 
 const microBusinessParseServerCommon = jest.genMockFromModule('micro-business-parse-server-common');
-let parseWrapperServiceFuncCallTrack;
+let parseWrapperServiceMockTracker;
 let finalKeyValues;
 
 class ParseWrapperService {
   static getConfig = async () => {
-    if (parseWrapperServiceFuncCallTrack) {
-      parseWrapperServiceFuncCallTrack.getConfig();
+    if (parseWrapperServiceMockTracker) {
+      parseWrapperServiceMockTracker.getConfig();
     }
 
     return new Config(finalKeyValues);
@@ -18,10 +18,10 @@ class ParseWrapperService {
 }
 
 const resetAllMockTrackers = () => {
-  parseWrapperServiceFuncCallTrack = new ParseWrapperServiceFuncCallTrack();
+  parseWrapperServiceMockTracker = new ParseWrapperServiceMockTrackerk();
 };
 
-const getAllMockTrackers = () => ({ parseWrapperServiceFuncCallTrack });
+const getAllMockTrackers = () => ({ parseWrapperServiceMockTracker });
 
 const setupParseWrapperServiceGetConfig = ({ keyValues } = {}) => {
   finalKeyValues = keyValues;

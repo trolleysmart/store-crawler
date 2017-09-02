@@ -10,10 +10,10 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 
-var ParseWrapperServiceFuncCallTrack = function ParseWrapperServiceFuncCallTrack() {
-  _classCallCheck(this, ParseWrapperServiceFuncCallTrack);
+var ParseWrapperServiceMockTrackerk = function ParseWrapperServiceMockTrackerk() {
+  _classCallCheck(this, ParseWrapperServiceMockTrackerk);
 
   this.getConfig = jest.fn();
 };
 
-exports.default = ParseWrapperServiceFuncCallTrack;
+exports.default = ParseWrapperServiceMockTrackerk;

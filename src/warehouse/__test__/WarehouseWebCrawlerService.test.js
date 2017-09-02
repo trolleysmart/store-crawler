@@ -30,7 +30,7 @@ describe('crawlProductCategories', () => {
   it('should call createNewCrawlSession', async () => {
     await createWarehouseWebCrawlerService().crawlProductCategories();
 
-    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlSession.mock.calls;
+    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createNewCrawlSession.mock.calls;
 
     expect(calls.length).toBe(1);
     expect(calls[0][0]).toBe('Warehouse Product Categories');
@@ -39,7 +39,7 @@ describe('crawlProductCategories', () => {
   it('should create crawl result', async () => {
     await createWarehouseWebCrawlerService().crawlProductCategories();
 
-    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlResult.mock.calls;
+    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createNewCrawlResult.mock.calls;
 
     expect(calls.length).toBe(1);
     expect(calls[0][0]).toBeTruthy();
@@ -49,7 +49,7 @@ describe('crawlProductCategories', () => {
   it('should update crawl session', async () => {
     await createWarehouseWebCrawlerService().crawlProductCategories();
 
-    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseFuncsCallTrack.updateExistingCrawlSession.mock.calls;
+    const calls = StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.updateExistingCrawlSession.mock.calls;
 
     expect(calls.length).toBe(1);
     expect(calls[0][0].get('id')).toBe(sessionInfo.get('id'));

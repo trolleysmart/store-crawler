@@ -10,8 +10,8 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 
-var FuncCallTrack = function FuncCallTrack() {
-  _classCallCheck(this, FuncCallTrack);
+var TrolleySmartParseServerCommonMockTrackerBase = function TrolleySmartParseServerCommonMockTrackerBase() {
+  _classCallCheck(this, TrolleySmartParseServerCommonMockTrackerBase);
 
   this.create = jest.fn();
   this.read = jest.fn();
@@ -23,4 +23,4 @@ var FuncCallTrack = function FuncCallTrack() {
   this.exists = jest.fn();
 };
 
-exports.default = FuncCallTrack;
+exports.default = TrolleySmartParseServerCommonMockTrackerBase;

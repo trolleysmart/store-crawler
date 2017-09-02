@@ -1,16 +1,16 @@
 // @flow
 
-import StoreCrawlerServiceBaseFuncsCallTrack from './StoreCrawlerServiceBaseFuncsCallTrack';
+import StoreCrawlerServiceBaseMockTracker from './StoreCrawlerServiceBaseMockTracker';
 
-let storeCrawlerServiceBaseFuncsCallTrack;
+let storeCrawlerServiceBaseMockTracker;
 let finalConfig;
 let finalSessionInfo;
 
 export const resetAllMockTrackers = () => {
-  storeCrawlerServiceBaseFuncsCallTrack = new StoreCrawlerServiceBaseFuncsCallTrack();
+  storeCrawlerServiceBaseMockTracker = new StoreCrawlerServiceBaseMockTracker();
 };
 
-export const getAllMockTrackers = () => ({ storeCrawlerServiceBaseFuncsCallTrack });
+export const getAllMockTrackers = () => ({ storeCrawlerServiceBaseMockTracker });
 
 export const setupStoreCrawlerServiceBase = ({ config, sessionInfo } = {}) => {
   finalConfig = config;
@@ -21,30 +21,30 @@ export default class StoreCrawlerServiceBase {
   static safeGetUri = res => res;
 
   getConfig = async () => {
-    if (storeCrawlerServiceBaseFuncsCallTrack) {
-      storeCrawlerServiceBaseFuncsCallTrack.getConfig();
+    if (storeCrawlerServiceBaseMockTracker) {
+      storeCrawlerServiceBaseMockTracker.getConfig();
     }
 
     return finalConfig;
   };
 
   createNewCrawlSession = async (sessionKey) => {
-    if (storeCrawlerServiceBaseFuncsCallTrack) {
-      storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlSession(sessionKey);
+    if (storeCrawlerServiceBaseMockTracker) {
+      storeCrawlerServiceBaseMockTracker.createNewCrawlSession(sessionKey);
     }
 
     return finalSessionInfo;
   };
 
   updateExistingCrawlSession = async (sessionInfo) => {
-    if (storeCrawlerServiceBaseFuncsCallTrack) {
-      storeCrawlerServiceBaseFuncsCallTrack.updateExistingCrawlSession(sessionInfo);
+    if (storeCrawlerServiceBaseMockTracker) {
+      storeCrawlerServiceBaseMockTracker.updateExistingCrawlSession(sessionInfo);
     }
   };
 
   createNewCrawlResult = async (crawlSessionId, resultSet) => {
-    if (storeCrawlerServiceBaseFuncsCallTrack) {
-      storeCrawlerServiceBaseFuncsCallTrack.createNewCrawlResult(crawlSessionId, resultSet);
+    if (storeCrawlerServiceBaseMockTracker) {
+      storeCrawlerServiceBaseMockTracker.createNewCrawlResult(crawlSessionId, resultSet);
     }
   };
 

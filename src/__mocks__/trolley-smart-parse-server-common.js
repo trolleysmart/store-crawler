@@ -1,12 +1,12 @@
 // @flow
 
 import uuid from 'uuid/v4';
-import CrawlSessionServiceFuncCallTrack from './CrawlSessionServiceFuncCallTrack';
-import StoreServiceFuncCallTrack from './StoreServiceFuncCallTrack';
+import CrawlSessionServiceMockTracker from './CrawlSessionServiceMockTracker';
+import StoreServiceMockTracker from './StoreServiceMockTracker';
 
 const trolleySmartParseServerCommon = jest.genMockFromModule('trolley-smart-parse-server-common');
-let crawlSessionServiceFuncCallTrack;
-let storeServiceFuncCallTrack;
+let crawlSessionServiceMockTracker;
+let storeServiceMockTracker;
 let finalCrawlSessionInfo;
 let finalCrawlSessionInfos;
 let finalStoreInfo;
@@ -14,24 +14,24 @@ let finalStoreInfos;
 
 class CrawlSessionService {
   create = async (info, acl, sessionToken) => {
-    if (crawlSessionServiceFuncCallTrack) {
-      crawlSessionServiceFuncCallTrack.create(info, acl, sessionToken);
+    if (crawlSessionServiceMockTracker) {
+      crawlSessionServiceMockTracker.create(info, acl, sessionToken);
     }
 
     return uuid();
   };
 
   read = async (id, criteria, sessionToken) => {
-    if (crawlSessionServiceFuncCallTrack) {
-      crawlSessionServiceFuncCallTrack.read(id, criteria, sessionToken);
+    if (crawlSessionServiceMockTracker) {
+      crawlSessionServiceMockTracker.read(id, criteria, sessionToken);
     }
 
     return finalCrawlSessionInfo;
   };
 
   search = async (criteria, sessionToken) => {
-    if (crawlSessionServiceFuncCallTrack) {
-      crawlSessionServiceFuncCallTrack.search(criteria, sessionToken);
+    if (crawlSessionServiceMockTracker) {
+      crawlSessionServiceMockTracker.search(criteria, sessionToken);
     }
 
     return finalCrawlSessionInfos;
@@ -40,24 +40,24 @@ class CrawlSessionService {
 
 class StoreService {
   create = async (info, acl, sessionToken) => {
-    if (storeServiceFuncCallTrack) {
-      storeServiceFuncCallTrack.create(info, acl, sessionToken);
+    if (storeServiceMockTracker) {
+      storeServiceMockTracker.create(info, acl, sessionToken);
     }
 
     return uuid();
   };
 
   read = async (id, criteria, sessionToken) => {
-    if (storeServiceFuncCallTrack) {
-      storeServiceFuncCallTrack.read(id, criteria, sessionToken);
+    if (storeServiceMockTracker) {
+      storeServiceMockTracker.read(id, criteria, sessionToken);
     }
 
     return finalStoreInfo;
   };
 
   search = async (criteria, sessionToken) => {
-    if (storeServiceFuncCallTrack) {
-      storeServiceFuncCallTrack.search(criteria, sessionToken);
+    if (storeServiceMockTracker) {
+      storeServiceMockTracker.search(criteria, sessionToken);
     }
 
     return finalStoreInfos;
@@ -65,11 +65,11 @@ class StoreService {
 }
 
 const resetAllMockTrackers = () => {
-  crawlSessionServiceFuncCallTrack = new CrawlSessionServiceFuncCallTrack();
-  storeServiceFuncCallTrack = new StoreServiceFuncCallTrack();
+  crawlSessionServiceMockTracker = new CrawlSessionServiceMockTracker();
+  storeServiceMockTracker = new StoreServiceMockTracker();
 };
 
-const getAllMockTrackers = () => ({ crawlSessionServiceFuncCallTrack, storeServiceFuncCallTrack });
+const getAllMockTrackers = () => ({ crawlSessionServiceMockTracker, storeServiceMockTracker });
 
 const setupCrawlSessionService = ({ crawlSessionInfo, crawlSessionInfos } = {}) => {
   finalCrawlSessionInfo = crawlSessionInfo;

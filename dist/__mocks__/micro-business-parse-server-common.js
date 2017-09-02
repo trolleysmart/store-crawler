@@ -4,9 +4,9 @@ var _Config = require('./Config');
 
 var _Config2 = _interopRequireDefault(_Config);
 
-var _ParseWrapperServiceFuncCallTrack = require('./ParseWrapperServiceFuncCallTrack');
+var _ParseWrapperServiceMockTracker = require('./ParseWrapperServiceMockTracker');
 
-var _ParseWrapperServiceFuncCallTrack2 = _interopRequireDefault(_ParseWrapperServiceFuncCallTrack);
+var _ParseWrapperServiceMockTracker2 = _interopRequireDefault(_ParseWrapperServiceMockTracker);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -49,7 +49,7 @@ function _classCallCheck(instance, Constructor) {
 }
 
 var microBusinessParseServerCommon = jest.genMockFromModule('micro-business-parse-server-common');
-var parseWrapperServiceFuncCallTrack = void 0;
+var parseWrapperServiceMockTracker = void 0;
 var finalKeyValues = void 0;
 
 var ParseWrapperService = function ParseWrapperService() {
@@ -63,8 +63,8 @@ ParseWrapperService.getConfig = _asyncToGenerator(
         while (1) {
           switch ((_context.prev = _context.next)) {
             case 0:
-              if (parseWrapperServiceFuncCallTrack) {
-                parseWrapperServiceFuncCallTrack.getConfig();
+              if (parseWrapperServiceMockTracker) {
+                parseWrapperServiceMockTracker.getConfig();
               }
 
               return _context.abrupt('return', new _Config2.default(finalKeyValues));
@@ -82,11 +82,11 @@ ParseWrapperService.getConfig = _asyncToGenerator(
 );
 
 var resetAllMockTrackers = function resetAllMockTrackers() {
-  parseWrapperServiceFuncCallTrack = new _ParseWrapperServiceFuncCallTrack2.default();
+  parseWrapperServiceMockTracker = new _ParseWrapperServiceMockTracker2.default();
 };
 
 var getAllMockTrackers = function getAllMockTrackers() {
-  return { parseWrapperServiceFuncCallTrack: parseWrapperServiceFuncCallTrack };
+  return { parseWrapperServiceMockTracker: parseWrapperServiceMockTracker };
 };
 
 var setupParseWrapperServiceGetConfig = function setupParseWrapperServiceGetConfig() {

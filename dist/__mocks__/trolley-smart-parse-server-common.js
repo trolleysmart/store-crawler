@@ -4,13 +4,13 @@ var _v = require('uuid/v4');
 
 var _v2 = _interopRequireDefault(_v);
 
-var _CrawlSessionServiceFuncCallTrack = require('./CrawlSessionServiceFuncCallTrack');
+var _CrawlSessionServiceMockTracker = require('./CrawlSessionServiceMockTracker');
 
-var _CrawlSessionServiceFuncCallTrack2 = _interopRequireDefault(_CrawlSessionServiceFuncCallTrack);
+var _CrawlSessionServiceMockTracker2 = _interopRequireDefault(_CrawlSessionServiceMockTracker);
 
-var _StoreServiceFuncCallTrack = require('./StoreServiceFuncCallTrack');
+var _StoreServiceMockTracker = require('./StoreServiceMockTracker');
 
-var _StoreServiceFuncCallTrack2 = _interopRequireDefault(_StoreServiceFuncCallTrack);
+var _StoreServiceMockTracker2 = _interopRequireDefault(_StoreServiceMockTracker);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -53,8 +53,8 @@ function _classCallCheck(instance, Constructor) {
 }
 
 var trolleySmartParseServerCommon = jest.genMockFromModule('trolley-smart-parse-server-common');
-var crawlSessionServiceFuncCallTrack = void 0;
-var storeServiceFuncCallTrack = void 0;
+var crawlSessionServiceMockTracker = void 0;
+var storeServiceMockTracker = void 0;
 var finalCrawlSessionInfo = void 0;
 var finalCrawlSessionInfos = void 0;
 var finalStoreInfo = void 0;
@@ -73,8 +73,8 @@ var CrawlSessionService = function CrawlSessionService() {
             while (1) {
               switch ((_context.prev = _context.next)) {
                 case 0:
-                  if (crawlSessionServiceFuncCallTrack) {
-                    crawlSessionServiceFuncCallTrack.create(info, acl, sessionToken);
+                  if (crawlSessionServiceMockTracker) {
+                    crawlSessionServiceMockTracker.create(info, acl, sessionToken);
                   }
 
                   return _context.abrupt('return', (0, _v2.default)());
@@ -104,8 +104,8 @@ var CrawlSessionService = function CrawlSessionService() {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
-                  if (crawlSessionServiceFuncCallTrack) {
-                    crawlSessionServiceFuncCallTrack.read(id, criteria, sessionToken);
+                  if (crawlSessionServiceMockTracker) {
+                    crawlSessionServiceMockTracker.read(id, criteria, sessionToken);
                   }
 
                   return _context2.abrupt('return', finalCrawlSessionInfo);
@@ -135,8 +135,8 @@ var CrawlSessionService = function CrawlSessionService() {
             while (1) {
               switch ((_context3.prev = _context3.next)) {
                 case 0:
-                  if (crawlSessionServiceFuncCallTrack) {
-                    crawlSessionServiceFuncCallTrack.search(criteria, sessionToken);
+                  if (crawlSessionServiceMockTracker) {
+                    crawlSessionServiceMockTracker.search(criteria, sessionToken);
                   }
 
                   return _context3.abrupt('return', finalCrawlSessionInfos);
@@ -172,8 +172,8 @@ var StoreService = function StoreService() {
             while (1) {
               switch ((_context4.prev = _context4.next)) {
                 case 0:
-                  if (storeServiceFuncCallTrack) {
-                    storeServiceFuncCallTrack.create(info, acl, sessionToken);
+                  if (storeServiceMockTracker) {
+                    storeServiceMockTracker.create(info, acl, sessionToken);
                   }
 
                   return _context4.abrupt('return', (0, _v2.default)());
@@ -203,8 +203,8 @@ var StoreService = function StoreService() {
             while (1) {
               switch ((_context5.prev = _context5.next)) {
                 case 0:
-                  if (storeServiceFuncCallTrack) {
-                    storeServiceFuncCallTrack.read(id, criteria, sessionToken);
+                  if (storeServiceMockTracker) {
+                    storeServiceMockTracker.read(id, criteria, sessionToken);
                   }
 
                   return _context5.abrupt('return', finalStoreInfo);
@@ -234,8 +234,8 @@ var StoreService = function StoreService() {
             while (1) {
               switch ((_context6.prev = _context6.next)) {
                 case 0:
-                  if (storeServiceFuncCallTrack) {
-                    storeServiceFuncCallTrack.search(criteria, sessionToken);
+                  if (storeServiceMockTracker) {
+                    storeServiceMockTracker.search(criteria, sessionToken);
                   }
 
                   return _context6.abrupt('return', finalStoreInfos);
@@ -259,12 +259,12 @@ var StoreService = function StoreService() {
 };
 
 var resetAllMockTrackers = function resetAllMockTrackers() {
-  crawlSessionServiceFuncCallTrack = new _CrawlSessionServiceFuncCallTrack2.default();
-  storeServiceFuncCallTrack = new _StoreServiceFuncCallTrack2.default();
+  crawlSessionServiceMockTracker = new _CrawlSessionServiceMockTracker2.default();
+  storeServiceMockTracker = new _StoreServiceMockTracker2.default();
 };
 
 var getAllMockTrackers = function getAllMockTrackers() {
-  return { crawlSessionServiceFuncCallTrack: crawlSessionServiceFuncCallTrack, storeServiceFuncCallTrack: storeServiceFuncCallTrack };
+  return { crawlSessionServiceMockTracker: crawlSessionServiceMockTracker, storeServiceMockTracker: storeServiceMockTracker };
 };
 
 var setupCrawlSessionService = function setupCrawlSessionService() {

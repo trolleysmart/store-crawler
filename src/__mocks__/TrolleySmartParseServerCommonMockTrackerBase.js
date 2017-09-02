@@ -1,6 +1,6 @@
 // @flow
 
-export default class FuncCallTrack {
+export default class TrolleySmartParseServerCommonMockTrackerBase {
   constructor() {
     this.create = jest.fn();
     this.read = jest.fn();

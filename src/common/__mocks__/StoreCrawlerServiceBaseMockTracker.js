@@ -1,6 +1,6 @@
 // @flow
 
-export default class StoreCrawlerServiceBaseFuncsCallTrack {
+export default class StoreCrawlerServiceBaseMockTracker {
   constructor() {
     this.getConfig = jest.fn();
     this.createNewCrawlSession = jest.fn();
