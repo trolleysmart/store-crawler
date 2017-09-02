@@ -1,8 +1,5 @@
 // @flow
 
-import './countdown';
-import './warehouse';
-
-export { ServiceBase } from './common';
+export StoreCrawlerServiceBase from './StoreCrawlerServiceBase';
 export { CountdownWebCrawlerService } from './countdown';
 export { WarehouseWebCrawlerService } from './warehouse';

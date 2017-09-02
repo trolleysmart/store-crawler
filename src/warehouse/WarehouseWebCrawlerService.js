@@ -6,9 +6,9 @@ import Immutable, { List, Map, Range, Set } from 'immutable';
 import moment from 'moment';
 import { Exception, ImmutableEx } from 'micro-business-common-javascript';
 import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'trolley-smart-parse-server-common';
-import { ServiceBase } from '../common';
+import StoreCrawlerServiceBase from '../StoreCrawlerServiceBase';
 
-export default class WarehouseWebCrawlerService extends ServiceBase {
+export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase {
   crawlProductCategories = async (config, sessionToken) => {
     const result = await this.createNewCrawlSessionAndGetConfig('Warehouse Product Categories', config, 'Warehouse', sessionToken);
     const sessionInfo = result.get('sessionInfo');
@@ -93,29 +93,39 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     let productCategories = Set();
 
     $('.menu-container .level-1 .menu-category').filter(function filterMenuItems() {
-      $(this).children().each(function onEachMenuItem() {
-        const menuItem = $(this);
-        const categoryKey = menuItem.attr('class');
+      $(this)
+        .children()
+        .each(function onEachMenuItem() {
+          const menuItem = $(this);
+          const categoryKey = menuItem.attr('class');
 
-        if (
-          config.get('categoryKeysToExclude') &&
-          config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
-        ) {
+          if (
+            config.get('categoryKeysToExclude') &&
+            config.get('categoryKeysToExclude').find(
+              _ =>
+                _.toLowerCase()
+                  .trim()
+                  .localeCompare(categoryKey.toLowerCase().trim()) === 0,
+            )
+          ) {
+            return 0;
+          }
+
+          productCategories = productCategories.add(
+            Map({
+              categoryKey,
+              url: menuItem.find('.level-1').attr('href'),
+              name: menuItem
+                .find('.level-1')
+                .text()
+                .trim(),
+              weight: 1,
+              subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey),
+            }),
+          );
+
           return 0;
-        }
-
-        productCategories = productCategories.add(
-          Map({
-            categoryKey,
-            url: menuItem.find('.level-1').attr('href'),
-            name: menuItem.find('.level-1').text().trim(),
-            weight: 1,
-            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey),
-          }),
-        );
-
-        return 0;
-      });
+        });
 
       return 0;
     });
@@ -128,33 +138,42 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     let productCategories = Set();
 
     parentNode.find('.menu-navigation .menu-container-level-2 .inner').filter(function filterMenuItems() {
-      $(this).find('.category-column').each(function onEachColumn() {
-        $(this).children().each(function onEachMenuItem() {
-          const menuItem = $(this).find('.category-level-2');
-          const categoryKey = `${parentCategoryKey}/${menuItem.attr('data-gtm-cgid')}`;
+      $(this)
+        .find('.category-column')
+        .each(function onEachColumn() {
+          $(this)
+            .children()
+            .each(function onEachMenuItem() {
+              const menuItem = $(this).find('.category-level-2');
+              const categoryKey = `${parentCategoryKey}/${menuItem.attr('data-gtm-cgid')}`;
 
-          if (
-            config.get('categoryKeysToExclude') &&
-            config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
-          ) {
-            return 0;
-          }
+              if (
+                config.get('categoryKeysToExclude') &&
+                config.get('categoryKeysToExclude').find(
+                  _ =>
+                    _.toLowerCase()
+                      .trim()
+                      .localeCompare(categoryKey.toLowerCase().trim()) === 0,
+                )
+              ) {
+                return 0;
+              }
 
-          productCategories = productCategories.add(
-            Map({
-              categoryKey,
-              url: menuItem.attr('href'),
-              name: menuItem.text().trim(),
-              weight: 2,
-              subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey),
-            }),
-          );
+              productCategories = productCategories.add(
+                Map({
+                  categoryKey,
+                  url: menuItem.attr('href'),
+                  name: menuItem.text().trim(),
+                  weight: 2,
+                  subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey),
+                }),
+              );
+
+              return 0;
+            });
 
           return 0;
         });
-
-        return 0;
-      });
 
       return 0;
     });
@@ -166,28 +185,35 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     let productCategories = Set();
 
     parentNode.find('.menu-container-level-3').filter(function filterMenuItems() {
-      $(this).children().each(function onEachMenuItem() {
-        const menuItem = $(this).find('.category-level-3');
-        const categoryKey = `${parentCategoryKey}/${menuItem.attr('data-gtm-cgid')}`;
+      $(this)
+        .children()
+        .each(function onEachMenuItem() {
+          const menuItem = $(this).find('.category-level-3');
+          const categoryKey = `${parentCategoryKey}/${menuItem.attr('data-gtm-cgid')}`;
 
-        if (
-          config.get('categoryKeysToExclude') &&
-          config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
-        ) {
+          if (
+            config.get('categoryKeysToExclude') &&
+            config.get('categoryKeysToExclude').find(
+              _ =>
+                _.toLowerCase()
+                  .trim()
+                  .localeCompare(categoryKey.toLowerCase().trim()) === 0,
+            )
+          ) {
+            return 0;
+          }
+
+          productCategories = productCategories.add(
+            Map({
+              categoryKey,
+              url: menuItem.attr('href'),
+              name: menuItem.text().trim(),
+              weight: 3,
+            }),
+          );
+
           return 0;
-        }
-
-        productCategories = productCategories.add(
-          Map({
-            categoryKey,
-            url: menuItem.attr('href'),
-            name: menuItem.text().trim(),
-            weight: 3,
-          }),
-        );
-
-        return 0;
-      });
+        });
 
       return 0;
     });
@@ -327,15 +353,26 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     let total = 0;
 
     $('.tab-content #results-products .pagination').filter(function filterPagination() {
-      $(this).children().find('.results-hits').filter(function filterResultHit() {
-        const info = $(this).text().trim();
-        const line2 = info.split('\r\n')[1].trim();
-        const spaceIdx = line2.indexOf(' ');
+      $(this)
+        .children()
+        .find('.results-hits')
+        .filter(function filterResultHit() {
+          const info = $(this)
+            .text()
+            .trim();
+          const line2 = info.split('\r\n')[1].trim();
+          const spaceIdx = line2.indexOf(' ');
 
-        total = parseInt(line2.substring(0, spaceIdx).replace(',', '').trim(), 10);
+          total = parseInt(
+            line2
+              .substring(0, spaceIdx)
+              .replace(',', '')
+              .trim(),
+            10,
+          );
 
-        return 0;
-      });
+          return 0;
+        });
 
       return 0;
     });
@@ -393,13 +430,17 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
 
   crawlProductInfo = (config, $) => {
     let products = List();
-    $('.tab-content .search-result-content .search-result-items').children().filter(function filterSearchResultItems() {
-      const productPageUrl = $(this).find('.product-info-wrapper .name-link').attr('href');
+    $('.tab-content .search-result-content .search-result-items')
+      .children()
+      .filter(function filterSearchResultItems() {
+        const productPageUrl = $(this)
+          .find('.product-info-wrapper .name-link')
+          .attr('href');
 
-      products = products.push(Map({ productPageUrl }));
+        products = products.push(Map({ productPageUrl }));
 
-      return 0;
-    });
+        return 0;
+      });
 
     return products;
   };
@@ -455,13 +496,17 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
           const self = this;
           let tagUrls = List();
 
-          $('.breadcrumb').children().filter(function filterTags() {
-            const tag = $(this).find('a').attr('href');
+          $('.breadcrumb')
+            .children()
+            .filter(function filterTags() {
+              const tag = $(this)
+                .find('a')
+                .attr('href');
 
-            tagUrls = tagUrls.push(tag);
+              tagUrls = tagUrls.push(tag);
 
-            return 0;
-          });
+              return 0;
+            });
 
           tagUrls = tagUrls.skip(1).pop();
 
@@ -471,34 +516,49 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
             const mainContainer = $(this);
 
             mainContainer.find('.row-product-details').filter(function filterDetails() {
-              $(this).find('.product-image-container .product-primary-image .product-image .primary-image').filter(function filterImage() {
-                productInfo = productInfo.merge({
-                  imageUrl: $(this).attr('src'),
+              $(this)
+                .find('.product-image-container .product-primary-image .product-image .primary-image')
+                .filter(function filterImage() {
+                  productInfo = productInfo.merge({
+                    imageUrl: $(this).attr('src'),
+                  });
+
+                  return 0;
                 });
 
-                return 0;
-              });
+              $(this)
+                .find('.product-detail')
+                .filter(function filterDetail() {
+                  const name = $(this)
+                    .find('.product-name')
+                    .text()
+                    .trim();
+                  const descriptionContainer = $(this).find('.product-description');
+                  const description = descriptionContainer
+                    .find('.description-text')
+                    .text()
+                    .trim()
+                    .split('\r\n')[0];
+                  const barcode = descriptionContainer
+                    .find('.product-number .product-id')
+                    .text()
+                    .trim()
+                    .split('\r\n')[0];
+                  const priceContainer = $(this).find('#product-content .upper-product-price .product-price');
 
-              $(this).find('.product-detail').filter(function filterDetail() {
-                const name = $(this).find('.product-name').text().trim();
-                const descriptionContainer = $(this).find('.product-description');
-                const description = descriptionContainer.find('.description-text').text().trim().split('\r\n')[0];
-                const barcode = descriptionContainer.find('.product-number .product-id').text().trim().split('\r\n')[0];
-                const priceContainer = $(this).find('#product-content .upper-product-price .product-price');
+                  productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
+                  productInfo = productInfo.merge(self.crawlSalePrice($, priceContainer));
+                  productInfo = productInfo.merge(self.crawlSavingPrice($, priceContainer, productInfo));
+                  productInfo = productInfo.merge(self.crawlOfferEndDate($, priceContainer));
 
-                productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
-                productInfo = productInfo.merge(self.crawlSalePrice($, priceContainer));
-                productInfo = productInfo.merge(self.crawlSavingPrice($, priceContainer, productInfo));
-                productInfo = productInfo.merge(self.crawlOfferEndDate($, priceContainer));
+                  productInfo = productInfo.merge({
+                    name,
+                    description,
+                    barcode,
+                  });
 
-                productInfo = productInfo.merge({
-                  name,
-                  description,
-                  barcode,
+                  return 0;
                 });
-
-                return 0;
-              });
 
               return 0;
             });
@@ -526,7 +586,9 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     let result = Map();
 
     priceContainer.find('.standardprice .pv-price').filter(function filterstandardPrice() {
-      const currentPriceWithDollarSign = $(this).text().trim();
+      const currentPriceWithDollarSign = $(this)
+        .text()
+        .trim();
       const currentPrice = self.removeDollarSignFromPrice(currentPriceWithDollarSign);
 
       result = Map({ currentPrice });
@@ -542,7 +604,9 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     let result = Map();
 
     priceContainer.find('.price-sales .pv-price').filter(function filterStandardPrice() {
-      const currentPriceWithDollarSign = $(this).text().trim();
+      const currentPriceWithDollarSign = $(this)
+        .text()
+        .trim();
       const currentPrice = self.removeDollarSignFromPrice(currentPriceWithDollarSign);
 
       result = Map({ currentPrice });
@@ -558,7 +622,9 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     let result = Map();
 
     priceContainer.find('.promotion .save-amount').filter(function filterSalePrice() {
-      const savingText = $(this).text().trim();
+      const savingText = $(this)
+        .text()
+        .trim();
       const savingWithDollarSign = savingText.substring(savingText.indexOf('$'));
       const saving = self.removeDollarSignFromPrice(savingWithDollarSign);
 
@@ -577,7 +643,9 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
     let result = Map();
 
     priceContainer.find('.offers-end').filter(function filterOfferEndDate() {
-      const offerEndDateText = $(this).text().trim();
+      const offerEndDateText = $(this)
+        .text()
+        .trim();
       const offerEndDate = offerEndDateText.substring(offerEndDateText.lastIndexOf(' ')).trim();
 
       result = Map({ offerEndDate: moment(offerEndDate, 'DD/MM/YYYY').toDate() });
@@ -591,11 +659,18 @@ export default class WarehouseWebCrawlerService extends ServiceBase {
   crawlBenefitAndFeatures = ($, mainContainer) => {
     let benefitsAndFeatures = List();
 
-    mainContainer.find('.row .product-features-print .product-features .featuresbenefits-text ul').children().filter(function filterFeatureBenefit() {
-      benefitsAndFeatures = benefitsAndFeatures.push($(this).text().trim());
+    mainContainer
+      .find('.row .product-features-print .product-features .featuresbenefits-text ul')
+      .children()
+      .filter(function filterFeatureBenefit() {
+        benefitsAndFeatures = benefitsAndFeatures.push(
+          $(this)
+            .text()
+            .trim(),
+        );
 
-      return 0;
-    });
+        return 0;
+      });
 
     return Map({ benefitsAndFeatures });
   };

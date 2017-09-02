@@ -5,9 +5,9 @@ import Crawler from 'crawler';
 import Immutable, { List, Map, Range, Set } from 'immutable';
 import { Exception, ImmutableEx } from 'micro-business-common-javascript';
 import { CrawlResultService, CrawlSessionService, StoreMasterProductService } from 'trolley-smart-parse-server-common';
-import { ServiceBase } from '../common';
+import StoreCrawlerServiceBase from '../StoreCrawlerServiceBase';
 
-export default class CountdownWebCrawlerService extends ServiceBase {
+export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase {
   static urlPrefix = '/Shop/Browse/';
 
   crawlProductCategories = async (config, sessionToken) => {
@@ -78,34 +78,43 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
           const $ = res.$;
 
-          $('#BrowseSlideBox .row-fluid').children().filter(function filterCategoriesColumns() {
-            $(this).find('.toolbar-slidebox-item').each(function filterProductCategory() {
-              const menuItem = $(this).find('.toolbar-slidebox-link');
-              const url = menuItem.attr('href');
-              const categoryKey = url.substring(url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length);
+          $('#BrowseSlideBox .row-fluid')
+            .children()
+            .filter(function filterCategoriesColumns() {
+              $(this)
+                .find('.toolbar-slidebox-item')
+                .each(function filterProductCategory() {
+                  const menuItem = $(this).find('.toolbar-slidebox-link');
+                  const url = menuItem.attr('href');
+                  const categoryKey = url.substring(url.indexOf(CountdownWebCrawlerService.urlPrefix) + CountdownWebCrawlerService.urlPrefix.length);
 
-              if (
-                config.get('categoryKeysToExclude') &&
-                config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
-              ) {
-                return 0;
-              }
+                  if (
+                    config.get('categoryKeysToExclude') &&
+                    config.get('categoryKeysToExclude').find(
+                      _ =>
+                        _.toLowerCase()
+                          .trim()
+                          .localeCompare(categoryKey.toLowerCase().trim()) === 0,
+                    )
+                  ) {
+                    return 0;
+                  }
 
-              productCategories = productCategories.push(
-                Map({
-                  categoryKey,
-                  name: menuItem.text().trim(),
-                  url: `${config.get('baseUrl')}${url}`,
-                  weight: 1,
-                  subCategories: List(),
-                }),
-              );
+                  productCategories = productCategories.push(
+                    Map({
+                      categoryKey,
+                      name: menuItem.text().trim(),
+                      url: `${config.get('baseUrl')}${url}`,
+                      weight: 1,
+                      subCategories: List(),
+                    }),
+                  );
+
+                  return 0;
+                });
 
               return 0;
             });
-
-            return 0;
-          });
 
           done();
         },
@@ -157,7 +166,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
                 if (
                   config.get('categoryKeysToExclude') &&
-                  config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
+                  config.get('categoryKeysToExclude').find(
+                    _ =>
+                      _.toLowerCase()
+                        .trim()
+                        .localeCompare(categoryKey.toLowerCase().trim()) === 0,
+                  )
                 ) {
                   return 0;
                 }
@@ -240,7 +254,12 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
                 if (
                   config.get('categoryKeysToExclude') &&
-                  config.get('categoryKeysToExclude').find(_ => _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0)
+                  config.get('categoryKeysToExclude').find(
+                    _ =>
+                      _.toLowerCase()
+                        .trim()
+                        .localeCompare(categoryKey.toLowerCase().trim()) === 0,
+                  )
                 ) {
                   return 0;
                 }
@@ -393,10 +412,18 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     let total = 0;
 
     $('#middle-panel .side-gutter #content-panel .paging-container .paging-description').filter(function filterPagingDescription() {
-      const info = $(this).text().trim();
+      const info = $(this)
+        .text()
+        .trim();
       const spaceIdx = info.indexOf(' ');
 
-      total = parseInt(info.substring(0, spaceIdx).replace(',', '').trim(), 10);
+      total = parseInt(
+        info
+          .substring(0, spaceIdx)
+          .replace(',', '')
+          .trim(),
+        10,
+      );
 
       return 0;
     });
@@ -456,16 +483,24 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
   crawlProductInfo = (config, $) => {
     let products = List();
-    $('#middle-panel .side-gutter #content-panel #product-list').children().filter(function filterProductList() {
-      $(this).find('.product-stamp .details-container').each(function filterProductDetails() {
-        const productPageUrl = config.get('baseUrl') + $(this).find('._jumpTop').attr('href');
+    $('#middle-panel .side-gutter #content-panel #product-list')
+      .children()
+      .filter(function filterProductList() {
+        $(this)
+          .find('.product-stamp .details-container')
+          .each(function filterProductDetails() {
+            const productPageUrl =
+              config.get('baseUrl') +
+              $(this)
+                .find('._jumpTop')
+                .attr('href');
 
-        products = products.push(Map({ productPageUrl }));
+            products = products.push(Map({ productPageUrl }));
 
+            return 0;
+          });
         return 0;
       });
-      return 0;
-    });
 
     return products;
   };
@@ -522,15 +557,17 @@ export default class CountdownWebCrawlerService extends ServiceBase {
           const self = this;
           let tagUrls = Set();
 
-          $('#breadcrumb-panel .breadcrumbs').children().filter(function filterProductTags() {
-            const tagUrl = $(this).attr('href');
+          $('#breadcrumb-panel .breadcrumbs')
+            .children()
+            .filter(function filterProductTags() {
+              const tagUrl = $(this).attr('href');
 
-            if (tagUrl) {
-              tagUrls = tagUrls.add(config.get('baseUrl') + tagUrl);
-            }
+              if (tagUrl) {
+                tagUrls = tagUrls.add(config.get('baseUrl') + tagUrl);
+              }
 
-            return 0;
-          });
+              return 0;
+            });
 
           productInfo = productInfo.merge({ tagUrls });
 
@@ -544,7 +581,9 @@ export default class CountdownWebCrawlerService extends ServiceBase {
               if (badgeSrc) {
                 productInfo = productInfo.merge(self.translateBadge(badgeSrc));
               } else {
-                const badgeUrl = $(this).find('a img').attr('src');
+                const badgeUrl = $(this)
+                  .find('a img')
+                  .attr('src');
 
                 if (badgeUrl) {
                   productInfo = productInfo.merge(self.translateBadge(badgeUrl));
@@ -552,9 +591,17 @@ export default class CountdownWebCrawlerService extends ServiceBase {
                   const multiBuyLinkContainer = $(this).find('.multi-buy-link');
 
                   if (multiBuyLinkContainer) {
-                    const awardQuantityFullText = multiBuyLinkContainer.find('.multi-buy-award-quantity').text().trim();
+                    const awardQuantityFullText = multiBuyLinkContainer
+                      .find('.multi-buy-award-quantity')
+                      .text()
+                      .trim();
                     const awardQuantity = parseFloat(awardQuantityFullText.substring(0, awardQuantityFullText.indexOf(' ')));
-                    const awardValue = parseFloat(multiBuyLinkContainer.find('.multi-buy-award-value').text().trim());
+                    const awardValue = parseFloat(
+                      multiBuyLinkContainer
+                        .find('.multi-buy-award-value')
+                        .text()
+                        .trim(),
+                    );
 
                     productInfo = productInfo.merge({
                       multiBuyInfo: Map({
@@ -575,10 +622,16 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             const productDetailsBasicInfo = $(this).find('#product-details-info-content .prod-details-basic-info');
             const titleContainer = productDetailsBasicInfo.find('.product-title h1');
             const title = titleContainer.text().trim();
-            const size = titleContainer.find('span').text().trim();
+            const size = titleContainer
+              .find('span')
+              .text()
+              .trim();
             const sizeOffset = title.indexOf(size);
             const name = sizeOffset === -1 || size.length === 0 ? title : title.substring(0, sizeOffset).trim();
-            const description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
+            const description = productDetailsBasicInfo
+              .find('.product-info-panel .product-description p')
+              .text()
+              .trim();
 
             productInfo = productInfo.merge({
               name,
@@ -606,7 +659,10 @@ export default class CountdownWebCrawlerService extends ServiceBase {
             productDetailsBasicInfo.find('.cost-container .club-price-container').filter(function filterClubPriceDetails() {
               const clubPriceContent = $(this).find('.drop-down-club-price-wrapper');
               const currentPrice = self.getClubPrice(clubPriceContent);
-              const nonClubPriceContent = $(this).find('.grid-non-club-price').text().trim();
+              const nonClubPriceContent = $(this)
+                .find('.grid-non-club-price')
+                .text()
+                .trim();
               const wasPrice = self.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
               const unitPrice = self.getUnitPrice($(this));
 
@@ -636,21 +692,33 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     });
 
   getCurrentPrice = (productPriceContent) => {
-    const currentPriceContent = productPriceContent.find('.price').text().trim();
-    const currentPriceTails = productPriceContent.find('.price .visible-phone').text().trim();
+    const currentPriceContent = productPriceContent
+      .find('.price')
+      .text()
+      .trim();
+    const currentPriceTails = productPriceContent
+      .find('.price .visible-phone')
+      .text()
+      .trim();
     const currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
     return this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
   };
 
   getWasPrice = (productPriceContent) => {
-    const wasPriceContent = productPriceContent.find('.was-price').text().trim();
+    const wasPriceContent = productPriceContent
+      .find('.was-price')
+      .text()
+      .trim();
 
     return parseFloat(wasPriceContent.substring(wasPriceContent.indexOf('$') + 1));
   };
 
   getUnitPrice = (priceContainer) => {
-    const unitPriceContent = priceContainer.find('.cup-price').text().trim();
+    const unitPriceContent = priceContainer
+      .find('.cup-price')
+      .text()
+      .trim();
     const price = this.removeDollarSignFromPrice(unitPriceContent.substring(0, unitPriceContent.indexOf('/')));
     const size = unitPriceContent.substring(unitPriceContent.indexOf('/') + 1);
 
@@ -697,7 +765,10 @@ export default class CountdownWebCrawlerService extends ServiceBase {
     const multiBuyIconUrl = lowerCaseUrl.match(/\dfor\d/);
 
     if (multiBuyIconUrl) {
-      const multiBuyFullText = lowerCaseUrl.substring(lowerCaseUrl.lastIndexOf('/') + 1).trim().match(/\d+/g);
+      const multiBuyFullText = lowerCaseUrl
+        .substring(lowerCaseUrl.lastIndexOf('/') + 1)
+        .trim()
+        .match(/\d+/g);
       const awardQuantity = parseInt(multiBuyFullText[0], 10);
       let awardValue = parseFloat(multiBuyFullText[1]);
 
@@ -718,7 +789,10 @@ export default class CountdownWebCrawlerService extends ServiceBase {
 
   getClubPrice = (productPriceContent) => {
     const currentPriceContent = productPriceContent.text().trim();
-    const currentPriceTails = productPriceContent.find('.visible-phone').text().trim();
+    const currentPriceTails = productPriceContent
+      .find('.visible-phone')
+      .text()
+      .trim();
     const currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
     return this.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
