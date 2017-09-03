@@ -634,10 +634,10 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             case 0:
               _context13.t0 = new _trolleySmartParseServerCommon.StoreProductService();
               _context13.next = 3;
-              return _this.getStoreProductsCriteria({ lastCrawlDateTime: lastCrawlDateTime }).set('limit', 1000);
+              return _this.getStoreProductsCriteria({ lastCrawlDateTime: lastCrawlDateTime });
 
             case 3:
-              _context13.t1 = _context13.sent;
+              _context13.t1 = _context13.sent.set('limit', 1000);
               _context13.t2 = _this.sessionToken;
               return _context13.abrupt('return', _context13.t0.search.call(_context13.t0, _context13.t1, _context13.t2));
 

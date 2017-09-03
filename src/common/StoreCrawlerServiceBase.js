@@ -274,7 +274,7 @@ export default class StoreCrawlerServiceBase {
   };
 
   getStoreProducts = async ({ lastCrawlDateTime } = {}) =>
-    new StoreProductService().search(await this.getStoreProductsCriteria({ lastCrawlDateTime }).set('limit', 1000), this.sessionToken);
+    new StoreProductService().search((await this.getStoreProductsCriteria({ lastCrawlDateTime })).set('limit', 1000), this.sessionToken);
 
   getActiveProductPrices = async (storeProductId) => {
     const storeId = await this.getStoreId();
