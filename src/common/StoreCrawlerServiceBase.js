@@ -186,7 +186,7 @@ export default class StoreCrawlerServiceBase {
       await storeTagService.update(
         foundStoreTag.merge(
           Map({
-            storeTagIds: parentStoreTagIds,
+            parentStoreTagId: parentStoreTagIds.first(),
             name: productCategory.first().get('name'),
             level: productCategory.first().get('level'),
             url: productCategory.first().get('url'),
@@ -197,9 +197,9 @@ export default class StoreCrawlerServiceBase {
     } else {
       await storeTagService.create(
         Map({
+          parentStoreTagId: parentStoreTagIds.first(),
           key: productCategory.first().get('categoryKey'),
           storeId,
-          storeTagIds: parentStoreTagIds,
           name: productCategory.first().get('name'),
           level: 2,
           url: productCategory.first().get('url'),
@@ -223,7 +223,7 @@ export default class StoreCrawlerServiceBase {
       await storeTagService.update(
         foundStoreTag.merge(
           Map({
-            storeTagIds: parentStoreTagIds,
+            parentStoreTagId: parentStoreTagIds.first(),
             name: productCategory.first().get('name'),
             level: productCategory.first().get('level'),
             url: productCategory.first().get('url'),
@@ -236,7 +236,7 @@ export default class StoreCrawlerServiceBase {
         Map({
           key: productCategory.first().get('categoryKey'),
           storeId,
-          storeTagIds: parentStoreTagIds,
+          parentStoreTagId: parentStoreTagIds.first(),
           name: productCategory.first().get('name'),
           level: 3,
           url: productCategory.first().get('url'),
@@ -338,7 +338,7 @@ export default class StoreCrawlerServiceBase {
       Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags))),
     );
 
-    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags();
+    const storeTagsWithUpdatedLevelOneStoreTags = await this.getStoreTags();
     const levelTwoProductCategories = productCategories
       .map(productCategory =>
         productCategory.update('subCategories', subCategories =>
@@ -352,12 +352,12 @@ export default class StoreCrawlerServiceBase {
     await BluebirdPromise.each(splittedLevelTwoProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
         productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories),
+          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneStoreTags),
         ),
       ),
     );
 
-    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags();
+    const storeTagsWithUpdatedLevelTwoStoreTags = await this.getStoreTags();
     const levelThreeProductCategories = productCategories
       .flatMap(productCategory => productCategory.get('subCategories'))
       .map(productCategory =>
@@ -374,7 +374,7 @@ export default class StoreCrawlerServiceBase {
     await BluebirdPromise.each(splittedLevelThreeProductCategories.toArray(), productCategoryChunks =>
       Promise.all(
         productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories),
+          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoStoreTags),
         ),
       ),
     );

@@ -1049,17 +1049,16 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                 _context12.next = 12;
                 return _bluebird2.default.each(splittedTags.toArray(), function (tagsChunks) {
                   return Promise.all(tagsChunks.map(function (tag) {
-                    return _this.createNewTag(tag.delete('storeTags').delete('tag').delete('store').delete('url').set('tagIds', tag.get('storeTagIds').map(function (storeTagId) {
-                      return levelOneStoreTags.find(function (levelOneStoreTag) {
-                        return levelOneStoreTag.get('id').localeCompare(storeTagId) === 0;
-                      });
-                    }).map(function (levelOneStoreTag) {
-                      return levelOneTags.find(function (levelOneTag) {
-                        return levelOneTag.get('key').localeCompare(levelOneStoreTag.get('key')) === 0;
-                      });
-                    }).map(function (levelOneTag) {
-                      return levelOneTag.get('id');
-                    })));
+                    var parentStoreTag = levelOneStoreTags.find(function (levelOneStoreTag) {
+                      return levelOneStoreTag.get('id').localeCompare(tag.get('parentStoreTagId')) === 0;
+                    });
+                    var parentTag = levelOneTags.find(function (levelOneTag) {
+                      return levelOneTag.get('key').localeCompare(parentStoreTag.get('key')) === 0;
+                    });
+                    var parentTagId = parentTag.get('id');
+                    var tagToCreate = tag.delete('parentStoreTag').delete('tag').delete('store').delete('url').set('parentTagId', parentTagId);
+
+                    return _this.createNewTag(tagToCreate);
                   }).toArray());
                 });
 
@@ -1108,17 +1107,16 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                 _context13.next = 12;
                 return _bluebird2.default.each(splittedTags.toArray(), function (tagsChunks) {
                   return Promise.all(tagsChunks.map(function (tag) {
-                    return _this.createNewTag(tag.delete('storeTags').delete('tag').delete('store').delete('url').set('tagIds', tag.get('storeTagIds').map(function (storeTagId) {
-                      return levelTwoStoreTags.find(function (levelTwoStoreTag) {
-                        return levelTwoStoreTag.get('id').localeCompare(storeTagId) === 0;
-                      });
-                    }).map(function (levelTwoStoreTag) {
-                      return levelTwoTags.find(function (levelTwoTag) {
-                        return levelTwoTag.get('key').localeCompare(levelTwoStoreTag.get('key')) === 0;
-                      });
-                    }).map(function (levelTwoTag) {
-                      return levelTwoTag.get('id');
-                    })));
+                    var parentStoreTag = levelTwoStoreTags.find(function (levelTwoStoreTag) {
+                      return levelTwoStoreTag.get('id').localeCompare(tag.get('parentStoreTagId')) === 0;
+                    });
+                    var parentTag = levelTwoTags.find(function (levelTwoTag) {
+                      return levelTwoTag.get('key').localeCompare(parentStoreTag.get('key')) === 0;
+                    });
+                    var parentTagId = parentTag.get('id');
+                    var tagToCreate = tag.delete('parentStoreTag').delete('tag').delete('store').delete('url').set('parentTagId', parentTagId);
+
+                    return _this.createNewTag(tagToCreate);
                   }).toArray());
                 });
 

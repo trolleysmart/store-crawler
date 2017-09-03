@@ -843,25 +843,21 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     await BluebirdPromise.each(splittedTags.toArray(), tagsChunks =>
       Promise.all(
         tagsChunks
-          .map(tag =>
-            this.createNewTag(
-              tag
-                .delete('storeTags')
-                .delete('tag')
-                .delete('store')
-                .delete('url')
-                .set(
-                  'tagIds',
-                  tag
-                    .get('storeTagIds')
-                    .map(storeTagId => levelOneStoreTags.find(levelOneStoreTag => levelOneStoreTag.get('id').localeCompare(storeTagId) === 0))
-                    .map(levelOneStoreTag =>
-                      levelOneTags.find(levelOneTag => levelOneTag.get('key').localeCompare(levelOneStoreTag.get('key')) === 0),
-                    )
-                    .map(levelOneTag => levelOneTag.get('id')),
-                ),
-            ),
-          )
+          .map((tag) => {
+            const parentStoreTag = levelOneStoreTags.find(
+              levelOneStoreTag => levelOneStoreTag.get('id').localeCompare(tag.get('parentStoreTagId')) === 0,
+            );
+            const parentTag = levelOneTags.find(levelOneTag => levelOneTag.get('key').localeCompare(parentStoreTag.get('key')) === 0);
+            const parentTagId = parentTag.get('id');
+            const tagToCreate = tag
+              .delete('parentStoreTag')
+              .delete('tag')
+              .delete('store')
+              .delete('url')
+              .set('parentTagId', parentTagId);
+
+            return this.createNewTag(tagToCreate);
+          })
           .toArray(),
       ),
     );
@@ -881,25 +877,21 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     await BluebirdPromise.each(splittedTags.toArray(), tagsChunks =>
       Promise.all(
         tagsChunks
-          .map(tag =>
-            this.createNewTag(
-              tag
-                .delete('storeTags')
-                .delete('tag')
-                .delete('store')
-                .delete('url')
-                .set(
-                  'tagIds',
-                  tag
-                    .get('storeTagIds')
-                    .map(storeTagId => levelTwoStoreTags.find(levelTwoStoreTag => levelTwoStoreTag.get('id').localeCompare(storeTagId) === 0))
-                    .map(levelTwoStoreTag =>
-                      levelTwoTags.find(levelTwoTag => levelTwoTag.get('key').localeCompare(levelTwoStoreTag.get('key')) === 0),
-                    )
-                    .map(levelTwoTag => levelTwoTag.get('id')),
-                ),
-            ),
-          )
+          .map((tag) => {
+            const parentStoreTag = levelTwoStoreTags.find(
+              levelTwoStoreTag => levelTwoStoreTag.get('id').localeCompare(tag.get('parentStoreTagId')) === 0,
+            );
+            const parentTag = levelTwoTags.find(levelTwoTag => levelTwoTag.get('key').localeCompare(parentStoreTag.get('key')) === 0);
+            const parentTagId = parentTag.get('id');
+            const tagToCreate = tag
+              .delete('parentStoreTag')
+              .delete('tag')
+              .delete('store')
+              .delete('url')
+              .set('parentTagId', parentTagId);
+
+            return this.createNewTag(tagToCreate);
+          })
           .toArray(),
       ),
     );

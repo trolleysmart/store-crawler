@@ -431,7 +431,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
               _context9.next = 9;
               return storeTagService.update(foundStoreTag.merge((0, _immutable.Map)({
-                storeTagIds: parentStoreTagIds,
+                parentStoreTagId: parentStoreTagIds.first(),
                 name: productCategory.first().get('name'),
                 level: productCategory.first().get('level'),
                 url: productCategory.first().get('url')
@@ -444,9 +444,9 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             case 11:
               _context9.next = 13;
               return storeTagService.create((0, _immutable.Map)({
+                parentStoreTagId: parentStoreTagIds.first(),
                 key: productCategory.first().get('categoryKey'),
                 storeId: storeId,
-                storeTagIds: parentStoreTagIds,
                 name: productCategory.first().get('name'),
                 level: 2,
                 url: productCategory.first().get('url')
@@ -498,7 +498,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
               _context10.next = 9;
               return storeTagService.update(foundStoreTag.merge((0, _immutable.Map)({
-                storeTagIds: parentStoreTagIds,
+                parentStoreTagId: parentStoreTagIds.first(),
                 name: productCategory.first().get('name'),
                 level: productCategory.first().get('level'),
                 url: productCategory.first().get('url')
@@ -513,7 +513,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               return storeTagService.create((0, _immutable.Map)({
                 key: productCategory.first().get('categoryKey'),
                 storeId: storeId,
-                storeTagIds: parentStoreTagIds,
+                parentStoreTagId: parentStoreTagIds.first(),
                 name: productCategory.first().get('name'),
                 level: 3,
                 url: productCategory.first().get('url')
@@ -812,7 +812,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   }();
 
   this.crawlAndSyncProductCategoriesToStoreTags = _asyncToGenerator(regeneratorRuntime.mark(function _callee17() {
-    var productCategories, storeTags, splittedLevelOneProductCategories, storeTagsWithUpdatedLevelOneProductCategories, levelTwoProductCategories, levelTwoProductCategoriesGroupedByCategoryKey, splittedLevelTwoProductCategories, storeTagsWithUpdatedLevelTwoProductCategories, levelThreeProductCategories, levelThreeProductCategoriesGroupedByCategoryKey, splittedLevelThreeProductCategories;
+    var productCategories, storeTags, splittedLevelOneProductCategories, storeTagsWithUpdatedLevelOneStoreTags, levelTwoProductCategories, levelTwoProductCategoriesGroupedByCategoryKey, splittedLevelTwoProductCategories, storeTagsWithUpdatedLevelTwoStoreTags, levelThreeProductCategories, levelThreeProductCategoriesGroupedByCategoryKey, splittedLevelThreeProductCategories;
     return regeneratorRuntime.wrap(function _callee17$(_context17) {
       while (1) {
         switch (_context17.prev = _context17.next) {
@@ -840,7 +840,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             return _this.getStoreTags();
 
           case 11:
-            storeTagsWithUpdatedLevelOneProductCategories = _context17.sent;
+            storeTagsWithUpdatedLevelOneStoreTags = _context17.sent;
             levelTwoProductCategories = productCategories.map(function (productCategory) {
               return productCategory.update('subCategories', function (subCategories) {
                 return subCategories.map(function (subCategory) {
@@ -857,7 +857,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             _context17.next = 17;
             return _bluebird2.default.each(splittedLevelTwoProductCategories.toArray(), function (productCategoryChunks) {
               return Promise.all(productCategoryChunks.map(function (productCategory) {
-                return _this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories);
+                return _this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneStoreTags);
               }));
             });
 
@@ -866,7 +866,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             return _this.getStoreTags();
 
           case 19:
-            storeTagsWithUpdatedLevelTwoProductCategories = _context17.sent;
+            storeTagsWithUpdatedLevelTwoStoreTags = _context17.sent;
             levelThreeProductCategories = productCategories.flatMap(function (productCategory) {
               return productCategory.get('subCategories');
             }).map(function (productCategory) {
@@ -885,7 +885,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             _context17.next = 25;
             return _bluebird2.default.each(splittedLevelThreeProductCategories.toArray(), function (productCategoryChunks) {
               return Promise.all(productCategoryChunks.map(function (productCategory) {
-                return _this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories);
+                return _this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoStoreTags);
               }));
             });
 
