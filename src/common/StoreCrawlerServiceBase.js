@@ -90,7 +90,7 @@ export default class StoreCrawlerServiceBase {
   };
 
   updateExistingStoreTag = async (storeTag) => {
-    await new StoreProductService().update(storeTag, this.sessionToken);
+    await new StoreTagService().update(storeTag, this.sessionToken);
   };
 
   getTags = async (level) => {

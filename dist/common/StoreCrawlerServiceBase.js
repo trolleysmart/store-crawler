@@ -222,7 +222,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
           switch (_context5.prev = _context5.next) {
             case 0:
               _context5.next = 2;
-              return new _trolleySmartParseServerCommon.StoreProductService().update(storeTag, _this.sessionToken);
+              return new _trolleySmartParseServerCommon.StoreTagService().update(storeTag, _this.sessionToken);
 
             case 2:
             case 'end':
