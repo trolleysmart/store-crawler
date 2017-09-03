@@ -566,10 +566,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                   crawler.on('drain', function () {
                     return resolve();
                   });
-                  // Only go through level one product categories, all items are listed under level one, no need to crawl other product categories
-                  storeTags.filter(function (storeTag) {
-                    return storeTag.get('level') === 1;
-                  }).forEach(function (productCategory) {
+                  storeTags.forEach(function (productCategory) {
                     return (0, _immutable.Range)(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(function (offset) {
                       return crawler.queue(productCategory.get('url') + '?page=' + (offset + 1));
                     });

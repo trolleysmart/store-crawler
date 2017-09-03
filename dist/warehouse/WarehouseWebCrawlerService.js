@@ -321,7 +321,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                       var productInfos = _this.crawlProductInfo(config, res.$);
 
                       Promise.all(productInfos.filter(function (productInfo) {
-                        return productInfo.get('url');
+                        return productInfo.get('productPageUrl');
                       }).map(function (productInfo) {
                         return _this.createOrUpdateStoreProduct(productCategory, productInfo);
                       })).then(function () {

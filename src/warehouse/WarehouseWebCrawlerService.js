@@ -279,7 +279,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           Promise.all(
             productInfos
-              .filter(productInfo => productInfo.get('url'))
+              .filter(productInfo => productInfo.get('productPageUrl'))
               .map(productInfo => this.createOrUpdateStoreProduct(productCategory, productInfo)),
           )
             .then(() => done())

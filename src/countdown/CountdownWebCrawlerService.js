@@ -395,14 +395,11 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       });
 
       crawler.on('drain', () => resolve());
-      // Only go through level one product categories, all items are listed under level one, no need to crawl other product categories
-      storeTags
-        .filter(storeTag => storeTag.get('level') === 1)
-        .forEach(productCategory =>
-          Range(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(offset =>
-            crawler.queue(`${productCategory.get('url')}?page=${offset + 1}`),
-          ),
-        );
+      storeTags.forEach(productCategory =>
+        Range(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(offset =>
+          crawler.queue(`${productCategory.get('url')}?page=${offset + 1}`),
+        ),
+      );
     });
   };
 
