@@ -1,30 +1,14 @@
 // @flow
 
-import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import { List, Map, Range, Set } from 'immutable';
 import moment from 'moment';
-import { ImmutableEx } from 'micro-business-common-javascript';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase {
   constructor(context) {
     super('warehouse', context);
   }
-
-  crawlProductsDetailsAndCurrentPrice = async () => {
-    const storeTags = await this.getStoreTags(false);
-    const lastCrawlDateTime = new Date();
-
-    lastCrawlDateTime.setDate(new Date().getDate() - 1);
-
-    const products = await this.getStoreProducts({ lastCrawlDateTime });
-    const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
-
-    await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
-      Promise.all(productChunk.map(product => this.crawlProductDetails(product, storeTags))),
-    );
-  };
 
   crawlAllProductCategories = async () => {
     const config = await this.getConfig();
@@ -580,8 +564,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
-      /* tagIds: product.get('tagIds'), */
       storeProductId,
+      /* tagIds: product.get('tagIds'), */
     }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
 
     return Promise.all([

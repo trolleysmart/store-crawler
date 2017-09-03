@@ -46,32 +46,6 @@ describe('crawlProducts', function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _context.next = 2;
-            return createWarehouseWebCrawlerService().crawlProductsDetailsAndCurrentPrice();
-
-          case 2:
-
-            /* console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStoreTags.mock.calls.length);
-               * console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStoreTags.mock.calls[0]);
-                * console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStore.mock.calls.length);
-               * console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStore.mock.calls[0]);
-                * console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStoreId.mock.calls.length);
-               * console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStoreId.mock.calls[0]);
-                * console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStoreProducts.mock.calls.length);
-               * console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.getStoreProducts.mock.calls[0]);
-               */
-            console.log(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice.mock.calls.length);
-            console.log('1) ' + JSON.stringify(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice.mock.calls[0][0], null, 2));
-            console.log('2) ' + JSON.stringify(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice.mock.calls[0][1], null, 2));
-            console.log('3) ' + JSON.stringify(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice.mock.calls[0][2], null, 2));
-            console.log('4) ' + JSON.stringify(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice.mock.calls[1][0], null, 2));
-            console.log('5) ' + JSON.stringify(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice.mock.calls[1][1], null, 2));
-            console.log('6) ' + JSON.stringify(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice.mock.calls[1][2], null, 2));
-
-            console.log('---> 1) ' + JSON.stringify(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.updateExistingStoreProduct.mock.calls[0][0], null, 2));
-            console.log('---> 2) ' + JSON.stringify(StoreCrawlerServiceBase.getAllMockTrackers().storeCrawlerServiceBaseMockTracker.updateExistingStoreProduct.mock.calls[1][0], null, 2));
-
-          case 11:
           case 'end':
             return _context.stop();
         }

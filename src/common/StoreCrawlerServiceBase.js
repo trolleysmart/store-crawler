@@ -362,6 +362,20 @@ export default class StoreCrawlerServiceBase {
     await this.crawlProductsForEachStoreTag(await this.crawlStoreTagsTotalItemsInfo(await this.getStoreTags()));
   };
 
+  crawlProductsDetailsAndCurrentPrice = async () => {
+    const storeTags = await this.getStoreTags(false);
+    const lastCrawlDateTime = new Date();
+
+    lastCrawlDateTime.setDate(new Date().getDate() - 1);
+
+    const products = await this.getStoreProducts({ lastCrawlDateTime });
+    const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
+
+    await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
+      Promise.all(productChunk.map(product => this.crawlProductDetails(product, storeTags))),
+    );
+  };
+
   logVerbose = async (messageFunc) => {
     const config = await this.getConfig();
 
@@ -390,4 +404,5 @@ export default class StoreCrawlerServiceBase {
   crawlAllProductCategories = async () => List();
   crawlStoreTagsTotalItemsInfo = async () => List();
   crawlProductsForEachStoreTag = async () => {};
+  crawlProductDetails = async () => {};
 }

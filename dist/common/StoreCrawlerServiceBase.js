@@ -857,39 +857,44 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }
     }, _callee16, _this);
   }));
+  this.crawlProductsDetailsAndCurrentPrice = _asyncToGenerator(regeneratorRuntime.mark(function _callee17() {
+    var storeTags, lastCrawlDateTime, products, splittedProducts;
+    return regeneratorRuntime.wrap(function _callee17$(_context17) {
+      while (1) {
+        switch (_context17.prev = _context17.next) {
+          case 0:
+            _context17.next = 2;
+            return _this.getStoreTags(false);
+
+          case 2:
+            storeTags = _context17.sent;
+            lastCrawlDateTime = new Date();
+
+
+            lastCrawlDateTime.setDate(new Date().getDate() - 1);
+
+            _context17.next = 7;
+            return _this.getStoreProducts({ lastCrawlDateTime: lastCrawlDateTime });
+
+          case 7:
+            products = _context17.sent;
+            splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
+            _context17.next = 11;
+            return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
+              return Promise.all(productChunk.map(function (product) {
+                return _this.crawlProductDetails(product, storeTags);
+              }));
+            });
+
+          case 11:
+          case 'end':
+            return _context17.stop();
+        }
+      }
+    }, _callee17, _this);
+  }));
 
   this.logVerbose = function () {
-    var _ref21 = _asyncToGenerator(regeneratorRuntime.mark(function _callee17(messageFunc) {
-      var config;
-      return regeneratorRuntime.wrap(function _callee17$(_context17) {
-        while (1) {
-          switch (_context17.prev = _context17.next) {
-            case 0:
-              _context17.next = 2;
-              return _this.getConfig();
-
-            case 2:
-              config = _context17.sent;
-
-
-              if (_this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
-                _this.logVerboseFunc(messageFunc());
-              }
-
-            case 4:
-            case 'end':
-              return _context17.stop();
-          }
-        }
-      }, _callee17, _this);
-    }));
-
-    return function (_x19) {
-      return _ref21.apply(this, arguments);
-    };
-  }();
-
-  this.logInfo = function () {
     var _ref22 = _asyncToGenerator(regeneratorRuntime.mark(function _callee18(messageFunc) {
       var config;
       return regeneratorRuntime.wrap(function _callee18$(_context18) {
@@ -903,8 +908,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               config = _context18.sent;
 
 
-              if (_this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
-                _this.logInfoFunc(messageFunc());
+              if (_this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
+                _this.logVerboseFunc(messageFunc());
               }
 
             case 4:
@@ -915,12 +920,12 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee18, _this);
     }));
 
-    return function (_x20) {
+    return function (_x19) {
       return _ref22.apply(this, arguments);
     };
   }();
 
-  this.logError = function () {
+  this.logInfo = function () {
     var _ref23 = _asyncToGenerator(regeneratorRuntime.mark(function _callee19(messageFunc) {
       var config;
       return regeneratorRuntime.wrap(function _callee19$(_context19) {
@@ -934,8 +939,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               config = _context19.sent;
 
 
-              if (_this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
-                _this.logErrorFunc(messageFunc());
+              if (_this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
+                _this.logInfoFunc(messageFunc());
               }
 
             case 4:
@@ -946,26 +951,43 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee19, _this);
     }));
 
-    return function (_x21) {
+    return function (_x20) {
       return _ref23.apply(this, arguments);
     };
   }();
 
-  this.crawlAllProductCategories = _asyncToGenerator(regeneratorRuntime.mark(function _callee20() {
-    return regeneratorRuntime.wrap(function _callee20$(_context20) {
-      while (1) {
-        switch (_context20.prev = _context20.next) {
-          case 0:
-            return _context20.abrupt('return', (0, _immutable.List)());
+  this.logError = function () {
+    var _ref24 = _asyncToGenerator(regeneratorRuntime.mark(function _callee20(messageFunc) {
+      var config;
+      return regeneratorRuntime.wrap(function _callee20$(_context20) {
+        while (1) {
+          switch (_context20.prev = _context20.next) {
+            case 0:
+              _context20.next = 2;
+              return _this.getConfig();
 
-          case 1:
-          case 'end':
-            return _context20.stop();
+            case 2:
+              config = _context20.sent;
+
+
+              if (_this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
+                _this.logErrorFunc(messageFunc());
+              }
+
+            case 4:
+            case 'end':
+              return _context20.stop();
+          }
         }
-      }
-    }, _callee20, _this);
-  }));
-  this.crawlStoreTagsTotalItemsInfo = _asyncToGenerator(regeneratorRuntime.mark(function _callee21() {
+      }, _callee20, _this);
+    }));
+
+    return function (_x21) {
+      return _ref24.apply(this, arguments);
+    };
+  }();
+
+  this.crawlAllProductCategories = _asyncToGenerator(regeneratorRuntime.mark(function _callee21() {
     return regeneratorRuntime.wrap(function _callee21$(_context21) {
       while (1) {
         switch (_context21.prev = _context21.next) {
@@ -979,16 +1001,41 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }
     }, _callee21, _this);
   }));
-  this.crawlProductsForEachStoreTag = _asyncToGenerator(regeneratorRuntime.mark(function _callee22() {
+  this.crawlStoreTagsTotalItemsInfo = _asyncToGenerator(regeneratorRuntime.mark(function _callee22() {
     return regeneratorRuntime.wrap(function _callee22$(_context22) {
       while (1) {
         switch (_context22.prev = _context22.next) {
           case 0:
+            return _context22.abrupt('return', (0, _immutable.List)());
+
+          case 1:
           case 'end':
             return _context22.stop();
         }
       }
     }, _callee22, _this);
+  }));
+  this.crawlProductsForEachStoreTag = _asyncToGenerator(regeneratorRuntime.mark(function _callee23() {
+    return regeneratorRuntime.wrap(function _callee23$(_context23) {
+      while (1) {
+        switch (_context23.prev = _context23.next) {
+          case 0:
+          case 'end':
+            return _context23.stop();
+        }
+      }
+    }, _callee23, _this);
+  }));
+  this.crawlProductDetails = _asyncToGenerator(regeneratorRuntime.mark(function _callee24() {
+    return regeneratorRuntime.wrap(function _callee24$(_context24) {
+      while (1) {
+        switch (_context24.prev = _context24.next) {
+          case 0:
+          case 'end':
+            return _context24.stop();
+        }
+      }
+    }, _callee24, _this);
   }));
 
   this.storeKey = storeKey;

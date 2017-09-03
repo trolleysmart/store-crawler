@@ -18,7 +18,12 @@ var createCountdownWebCrawlerService = function createCountdownWebCrawlerService
   return new _.CountdownWebCrawlerService('countdown');
 };
 
+var store = (0, _immutable.Map)({ id: (0, _v2.default)() });
 var storeTags = _immutable.List.of((0, _immutable.Map)({ id: (0, _v2.default)(), url: 'https://shop.countdown.co.nz/Shop/Browse/baby-care/baby-formula' }));
+var storeProducts = _immutable.List.of((0, _immutable.Map)({
+  id: (0, _v2.default)(),
+  productPageUrl: 'https://shop.countdown.co.nz/Shop/ProductDetails?stockcode=473704&name=blackmores-follow-on-from-6-months-formula-stage-2'
+}), (0, _immutable.Map)({ id: (0, _v2.default)(), productPageUrl: 'https://shop.countdown.co.nz/Shop/ProductDetails?stockcode=722127&name=abes-bagels-cinnamon-raisin-360g' }));
 
 jest.mock('../../common/StoreCrawlerServiceBase');
 
@@ -32,7 +37,9 @@ beforeEach(function () {
       logLevel: 2,
       categoryKeysToExclude: _immutable.List.of('restricted-items', 'christmas')
     }),
-    storeTags: storeTags
+    store: store,
+    storeTags: storeTags,
+    storeProducts: storeProducts
   });
 });
 

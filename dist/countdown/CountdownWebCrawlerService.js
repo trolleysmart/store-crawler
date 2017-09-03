@@ -4,19 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _bluebird = require('bluebird');
-
-var _bluebird2 = _interopRequireDefault(_bluebird);
-
 var _crawler = require('crawler');
 
 var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
-
-var _microBusinessCommonJavascript = require('micro-business-common-javascript');
-
-var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
 
 var _2 = require('../');
 
@@ -536,53 +528,158 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
       return products;
     };
 
-    _this.crawlProductsDetails = function () {
-      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(config, sessionToken) {
-        var finalConfig, store, storeId, storeTags, products, splittedProducts;
+    _this.crawlProductDetails = function () {
+      var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(product, storeTags) {
+        var config;
         return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
             switch (_context7.prev = _context7.next) {
               case 0:
-                _context7.t0 = config;
+                _context7.next = 2;
+                return _this.getConfig();
 
-                if (_context7.t0) {
-                  _context7.next = 5;
-                  break;
-                }
+              case 2:
+                config = _context7.sent;
+                return _context7.abrupt('return', new Promise(function (resolve, reject) {
+                  var productInfo = (0, _immutable.Map)();
 
-                _context7.next = 4;
-                return _this.getConfig('Countdown');
+                  var crawler = new _crawler2.default({
+                    rateLimit: config.get('rateLimit'),
+                    maxConnections: config.get('maxConnections'),
+                    callback: function callback(error, res, done) {
+                      _this.logInfo(function () {
+                        return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
+                      });
+                      _this.logVerbose(function () {
+                        return 'Received response for: ' + JSON.stringify(res);
+                      });
+
+                      if (error) {
+                        done();
+                        reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+
+                        return;
+                      }
+
+                      var $ = res.$;
+                      var self = _this;
+                      var tagUrls = (0, _immutable.Set)();
+
+                      $('#breadcrumb-panel .breadcrumbs').children().filter(function filterProductTags() {
+                        var tagUrl = $(this).attr('href');
+
+                        if (tagUrl) {
+                          tagUrls = tagUrls.add(config.get('baseUrl') + tagUrl);
+                        }
+
+                        return 0;
+                      });
+
+                      productInfo = productInfo.merge({ tagUrls: tagUrls });
+
+                      $('#content-container #content-panel #product-details').filter(function filterProductDetails() {
+                        var productTagWrapperContainer = $(this).find('.product-tag-wrapper');
+                        var productTagDesktop = productTagWrapperContainer.find('.main-product .product-tag-desktop');
+
+                        productTagDesktop.children().each(function filterBadges() {
+                          var badgeSrc = $(this).attr('src');
+
+                          if (badgeSrc) {
+                            productInfo = productInfo.merge(self.translateBadge(badgeSrc));
+                          } else {
+                            var badgeUrl = $(this).find('a img').attr('src');
+
+                            if (badgeUrl) {
+                              productInfo = productInfo.merge(self.translateBadge(badgeUrl));
+                            } else {
+                              var multiBuyLinkContainer = $(this).find('.multi-buy-link');
+
+                              if (multiBuyLinkContainer) {
+                                var awardQuantityFullText = multiBuyLinkContainer.find('.multi-buy-award-quantity').text().trim();
+                                var awardQuantity = parseFloat(awardQuantityFullText.substring(0, awardQuantityFullText.indexOf(' ')));
+                                var awardValue = parseFloat(multiBuyLinkContainer.find('.multi-buy-award-value').text().trim());
+
+                                productInfo = productInfo.merge({
+                                  multiBuyInfo: (0, _immutable.Map)({
+                                    awardQuantity: awardQuantity,
+                                    awardValue: awardValue
+                                  })
+                                });
+                              }
+                            }
+                          }
+
+                          return 0;
+                        });
+
+                        var imageUrl = config.get('baseUrl') + productTagWrapperContainer.find('.big-image-container .product-image .product-image').attr('src');
+                        var barcode = self.getBarcodeFromImageUrl(imageUrl);
+                        var productDetailsBasicInfo = $(this).find('#product-details-info-content .prod-details-basic-info');
+                        var titleContainer = productDetailsBasicInfo.find('.product-title h1');
+                        var title = titleContainer.text().trim();
+                        var size = titleContainer.find('span').text().trim();
+                        var sizeOffset = title.indexOf(size);
+                        var name = sizeOffset === -1 || size.length === 0 ? title : title.substring(0, sizeOffset).trim();
+                        var description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
+
+                        productInfo = productInfo.merge({
+                          name: name,
+                          description: description,
+                          barcode: barcode,
+                          imageUrl: imageUrl,
+                          size: size
+                        });
+
+                        productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
+                          var priceContent = $(this).find('.product-price');
+                          var currentPrice = self.getCurrentPrice(priceContent);
+                          var wasPrice = self.getWasPrice(priceContent);
+                          var unitPrice = self.getUnitPrice($(this));
+
+                          productInfo = productInfo.merge({
+                            currentPrice: currentPrice,
+                            wasPrice: wasPrice || undefined,
+                            unitPrice: unitPrice
+                          });
+
+                          return 0;
+                        });
+
+                        productDetailsBasicInfo.find('.cost-container .club-price-container').filter(function filterClubPriceDetails() {
+                          var clubPriceContent = $(this).find('.drop-down-club-price-wrapper');
+                          var currentPrice = self.getClubPrice(clubPriceContent);
+                          var nonClubPriceContent = $(this).find('.grid-non-club-price').text().trim();
+                          var wasPrice = _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
+                          var unitPrice = self.getUnitPrice($(this));
+
+                          productInfo = productInfo.merge({
+                            currentPrice: currentPrice,
+                            wasPrice: wasPrice || undefined,
+                            unitPrice: unitPrice
+                          });
+
+                          return 0;
+                        });
+
+                        return 0;
+                      });
+
+                      _this.updateProductDetails(product, storeTags, productInfo).then(function () {
+                        return done();
+                      }).catch(function (internalError) {
+                        done();
+                        reject(internalError);
+                      });
+                    }
+                  });
+
+                  crawler.on('drain', function () {
+                    return resolve();
+                  });
+                  crawler.queue(product.get('productPageUrl'));
+                }));
 
               case 4:
-                _context7.t0 = _context7.sent;
-
-              case 5:
-                finalConfig = _context7.t0;
-                _context7.next = 8;
-                return _this.getStore('Countdown', sessionToken);
-
-              case 8:
-                store = _context7.sent;
-                storeId = store.get('id');
-                _context7.next = 12;
-                return _this.getStoreTags(storeId, false, sessionToken);
-
-              case 12:
-                storeTags = _context7.sent;
-                _context7.next = 15;
-                return _this.getAllStoreMasterProducts(storeId, sessionToken);
-
-              case 15:
-                products = _context7.sent;
-                splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
-                _context7.next = 19;
-                return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
-                  return Promise.all(productChunk.map(function (product) {
-                    return _this.crawlProductDetails(finalConfig, product, storeTags, false, store.get('name'), sessionToken);
-                  }));
-                });
-
-              case 19:
               case 'end':
                 return _context7.stop();
             }
@@ -594,211 +691,6 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
         return _ref7.apply(this, arguments);
       };
     }();
-
-    _this.crawlProductsPriceDetails = function () {
-      var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(config, sessionToken) {
-        var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products, splittedProducts;
-        return regeneratorRuntime.wrap(function _callee8$(_context8) {
-          while (1) {
-            switch (_context8.prev = _context8.next) {
-              case 0:
-                _context8.t0 = config;
-
-                if (_context8.t0) {
-                  _context8.next = 5;
-                  break;
-                }
-
-                _context8.next = 4;
-                return _this.getConfig('Countdown');
-
-              case 4:
-                _context8.t0 = _context8.sent;
-
-              case 5:
-                finalConfig = _context8.t0;
-                _context8.next = 8;
-                return _this.getStore('Countdown', sessionToken);
-
-              case 8:
-                store = _context8.sent;
-                storeId = store.get('id');
-                _context8.next = 12;
-                return _this.getStoreTags(storeId, false, sessionToken);
-
-              case 12:
-                storeTags = _context8.sent;
-                lastCrawlDateTime = new Date();
-
-
-                lastCrawlDateTime.setDate(new Date().getDate() - 1);
-
-                _context8.next = 17;
-                return _this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime, sessionToken);
-
-              case 17:
-                products = _context8.sent;
-                splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
-                _context8.next = 21;
-                return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
-                  return Promise.all(productChunk.map(function (product) {
-                    return _this.crawlProductDetails(finalConfig, product, storeTags, true, store.get('name'), sessionToken);
-                  }));
-                });
-
-              case 21:
-              case 'end':
-                return _context8.stop();
-            }
-          }
-        }, _callee8, _this2);
-      }));
-
-      return function (_x7, _x8) {
-        return _ref8.apply(this, arguments);
-      };
-    }();
-
-    _this.crawlProductDetails = function (config, product, storeTags, updatePriceDetails, storeName, sessionToken) {
-      return new Promise(function (resolve, reject) {
-        var productInfo = (0, _immutable.Map)();
-
-        var crawler = new _crawler2.default({
-          rateLimit: config.get('rateLimit'),
-          maxConnections: config.get('maxConnections'),
-          callback: function callback(error, res, done) {
-            _this.logInfo(function () {
-              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
-            });
-            _this.logVerbose(function () {
-              return 'Received response for: ' + JSON.stringify(res);
-            });
-
-            if (error) {
-              done();
-              reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
-
-              return;
-            }
-
-            var $ = res.$;
-            var self = _this;
-            var tagUrls = (0, _immutable.Set)();
-
-            $('#breadcrumb-panel .breadcrumbs').children().filter(function filterProductTags() {
-              var tagUrl = $(this).attr('href');
-
-              if (tagUrl) {
-                tagUrls = tagUrls.add(config.get('baseUrl') + tagUrl);
-              }
-
-              return 0;
-            });
-
-            productInfo = productInfo.merge({ tagUrls: tagUrls });
-
-            $('#content-container #content-panel #product-details').filter(function filterProductDetails() {
-              var productTagWrapperContainer = $(this).find('.product-tag-wrapper');
-              var productTagDesktop = productTagWrapperContainer.find('.main-product .product-tag-desktop');
-
-              productTagDesktop.children().each(function filterBadges() {
-                var badgeSrc = $(this).attr('src');
-
-                if (badgeSrc) {
-                  productInfo = productInfo.merge(self.translateBadge(badgeSrc));
-                } else {
-                  var badgeUrl = $(this).find('a img').attr('src');
-
-                  if (badgeUrl) {
-                    productInfo = productInfo.merge(self.translateBadge(badgeUrl));
-                  } else {
-                    var multiBuyLinkContainer = $(this).find('.multi-buy-link');
-
-                    if (multiBuyLinkContainer) {
-                      var awardQuantityFullText = multiBuyLinkContainer.find('.multi-buy-award-quantity').text().trim();
-                      var awardQuantity = parseFloat(awardQuantityFullText.substring(0, awardQuantityFullText.indexOf(' ')));
-                      var awardValue = parseFloat(multiBuyLinkContainer.find('.multi-buy-award-value').text().trim());
-
-                      productInfo = productInfo.merge({
-                        multiBuyInfo: (0, _immutable.Map)({
-                          awardQuantity: awardQuantity,
-                          awardValue: awardValue
-                        })
-                      });
-                    }
-                  }
-                }
-
-                return 0;
-              });
-
-              var imageUrl = config.get('baseUrl') + productTagWrapperContainer.find('.big-image-container .product-image .product-image').attr('src');
-              var barcode = self.getBarcodeFromImageUrl(imageUrl);
-              var productDetailsBasicInfo = $(this).find('#product-details-info-content .prod-details-basic-info');
-              var titleContainer = productDetailsBasicInfo.find('.product-title h1');
-              var title = titleContainer.text().trim();
-              var size = titleContainer.find('span').text().trim();
-              var sizeOffset = title.indexOf(size);
-              var name = sizeOffset === -1 || size.length === 0 ? title : title.substring(0, sizeOffset).trim();
-              var description = productDetailsBasicInfo.find('.product-info-panel .product-description p').text().trim();
-
-              productInfo = productInfo.merge({
-                name: name,
-                description: description,
-                barcode: barcode,
-                imageUrl: imageUrl,
-                size: size
-              });
-
-              productDetailsBasicInfo.find('.cost-container .price-container').filter(function filterPriceDetails() {
-                var priceContent = $(this).find('.product-price');
-                var currentPrice = self.getCurrentPrice(priceContent);
-                var wasPrice = self.getWasPrice(priceContent);
-                var unitPrice = self.getUnitPrice($(this));
-
-                productInfo = productInfo.merge({
-                  currentPrice: currentPrice,
-                  wasPrice: wasPrice || undefined,
-                  unitPrice: unitPrice
-                });
-
-                return 0;
-              });
-
-              productDetailsBasicInfo.find('.cost-container .club-price-container').filter(function filterClubPriceDetails() {
-                var clubPriceContent = $(this).find('.drop-down-club-price-wrapper');
-                var currentPrice = self.getClubPrice(clubPriceContent);
-                var nonClubPriceContent = $(this).find('.grid-non-club-price').text().trim();
-                var wasPrice = _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
-                var unitPrice = self.getUnitPrice($(this));
-
-                productInfo = productInfo.merge({
-                  currentPrice: currentPrice,
-                  wasPrice: wasPrice || undefined,
-                  unitPrice: unitPrice
-                });
-
-                return 0;
-              });
-
-              return 0;
-            });
-
-            _this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken).then(function () {
-              return done();
-            }).catch(function (internalError) {
-              done();
-              reject(internalError);
-            });
-          }
-        });
-
-        crawler.on('drain', function () {
-          return resolve();
-        });
-        crawler.queue(product.get('productPageUrl'));
-      });
-    };
 
     _this.getCurrentPrice = function (productPriceContent) {
       var currentPriceContent = productPriceContent.find('.price').text().trim();
@@ -913,21 +805,14 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
     };
 
     _this.updateProductDetails = function () {
-      var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(product, storeTags, originalProductInfo, updatePriceDetails, storeName, sessionToken) {
-        var masterProductId, storeId, productInfo, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, masterProductPrice;
-        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(product, storeTags, originalProductInfo) {
+        var storeId, productInfo, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, storeProductId, productPrice;
+        return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
-            switch (_context9.prev = _context9.next) {
+            switch (_context8.prev = _context8.next) {
               case 0:
-                masterProductId = product.get('masterProductId');
                 storeId = product.get('storeId');
                 productInfo = originalProductInfo;
-
-                if (!updatePriceDetails) {
-                  _context9.next = 18;
-                  break;
-                }
-
                 priceDetails = void 0;
                 priceToDisplay = void 0;
 
@@ -978,31 +863,27 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                 priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(multiBuyInfo ? (0, _immutable.Map)({ multiBuyInfo: multiBuyInfo }) : (0, _immutable.Map)()).merge(unitPrice ? (0, _immutable.Map)({ unitPrice: unitPrice }) : (0, _immutable.Map)()).merge((0, _immutable.Map)({ saving: saving, savingPercentage: savingPercentage }));
 
-                masterProductPrice = (0, _immutable.Map)({
-                  masterProductId: masterProductId,
-                  storeId: storeId,
-                  name: product.getIn(['masterProduct', 'name']),
-                  description: product.getIn(['masterProduct', 'description']),
-                  storeName: storeName,
-                  status: 'A',
+                storeProductId = product.get('id');
+                productPrice = (0, _immutable.Map)({
+                  name: productInfo.get('name'),
+                  description: productInfo.get('description'),
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
                   saving: saving,
                   savingPercentage: savingPercentage,
-                  tagIds: product.getIn(['masterProduct', 'tagIds'])
+                  status: 'A',
+                  special: priceDetails.get('specialType').localeCompare('none') !== 0,
+                  storeId: storeId,
+                  storeProductId: storeProductId
+                  /* tagIds: product.getIn(['masterProduct', 'tagIds']), */
                 });
-                _context9.next = 18;
-                return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
-
-              case 18:
-                _context9.next = 20;
-                return _trolleySmartParseServerCommon.StoreMasterProductService.update(product.merge({
+                return _context8.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, priceDetails), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
                   imageUrl: productInfo.get('imageUrl'),
                   size: productInfo.get('size'),
-                  lastCrawlDateTime: updatePriceDetails ? new Date() : productInfo.get('lastCrawlDateTime'),
+                  lastCrawlDateTime: new Date(),
                   storeTagIds: storeTags.filter(function (storeTag) {
                     return productInfo.get('tagUrls').find(function (tagUrl) {
                       return tagUrl.localeCompare(storeTag.get('url')) === 0;
@@ -1010,18 +891,18 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                   }).map(function (storeTag) {
                     return storeTag.get('id');
                   })
-                }), sessionToken);
+                }))]));
 
-              case 20:
+              case 16:
               case 'end':
-                return _context9.stop();
+                return _context8.stop();
             }
           }
-        }, _callee9, _this2);
+        }, _callee8, _this2);
       }));
 
-      return function (_x9, _x10, _x11, _x12, _x13, _x14) {
-        return _ref9.apply(this, arguments);
+      return function (_x7, _x8, _x9) {
+        return _ref8.apply(this, arguments);
       };
     }();
 
