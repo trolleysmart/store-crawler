@@ -125,7 +125,7 @@ export default class StoreCrawlerServiceBase {
     );
 
     if (storeProducts.isEmpty()) {
-      await StoreProductService.create(
+      await storeProductService.create(
         productInfo.merge(
           Map({
             lastCrawlDateTime: moment('01/01/1971', 'DD/MM/YYYY').toDate(),
