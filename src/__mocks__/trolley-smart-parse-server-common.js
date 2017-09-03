@@ -4,7 +4,6 @@ import uuid from 'uuid/v4';
 import StoreServiceMockTracker from './StoreServiceMockTracker';
 
 const trolleySmartParseServerCommon = jest.genMockFromModule('trolley-smart-parse-server-common');
-let crawlSessionServiceMockTracker;
 let storeServiceMockTracker;
 let finalStoreInfo;
 let finalStoreInfos;
@@ -39,7 +38,7 @@ const resetAllMockTrackers = () => {
   storeServiceMockTracker = new StoreServiceMockTracker();
 };
 
-const getAllMockTrackers = () => ({ crawlSessionServiceMockTracker, storeServiceMockTracker });
+const getAllMockTrackers = () => ({ storeServiceMockTracker });
 
 const setupStoreService = ({ storeInfo, storeInfos } = {}) => {
   finalStoreInfo = storeInfo;
