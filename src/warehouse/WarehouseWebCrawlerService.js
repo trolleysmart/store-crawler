@@ -5,13 +5,26 @@ import Crawler from 'crawler';
 import { List, Map, Range, Set } from 'immutable';
 import moment from 'moment';
 import { ImmutableEx } from 'micro-business-common-javascript';
-import { StoreMasterProductService } from 'trolley-smart-parse-server-common';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase {
   constructor(context) {
     super('warehouse', context);
   }
+
+  crawlProductsDetailsAndCurrentPrice = async () => {
+    const storeTags = await this.getStoreTags(false);
+    const lastCrawlDateTime = new Date();
+
+    lastCrawlDateTime.setDate(new Date().getDate() - 1);
+
+    const products = await this.getStoreProducts({ lastCrawlDateTime });
+    const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
+
+    await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
+      Promise.all(productChunk.map(product => this.crawlProductDetails(product, storeTags))),
+    );
+  };
 
   crawlAllProductCategories = async () => {
     const config = await this.getConfig();
@@ -317,38 +330,10 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     return products;
   };
 
-  crawlProductsDetails = async (config, sessionToken) => {
-    const finalConfig = config || (await this.getConfig('Warehouse'));
-    const store = await this.getStore('Warehouse', sessionToken);
-    const storeId = store.get('id');
-    const storeTags = await this.getStoreTags(storeId, false, sessionToken);
-    const products = await this.getAllStoreMasterProducts(storeId, sessionToken);
-    const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
+  crawlProductDetails = async (product, storeTags) => {
+    const config = await this.getConfig();
 
-    await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
-      Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, false, store.get('name'), sessionToken))),
-    );
-  };
-
-  crawlProductsPriceDetails = async (config, sessionToken) => {
-    const finalConfig = config || (await this.getConfig('Warehouse'));
-    const store = await this.getStore('Warehouse', sessionToken);
-    const storeId = store.get('id');
-    const storeTags = await this.getStoreTags(storeId, false, sessionToken);
-    const lastCrawlDateTime = new Date();
-
-    lastCrawlDateTime.setDate(new Date().getDate() - 1);
-
-    const products = await this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime, sessionToken);
-    const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
-
-    await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
-      Promise.all(productChunk.map(product => this.crawlProductDetails(finalConfig, product, storeTags, true, store.get('name'), sessionToken))),
-    );
-  };
-
-  crawlProductDetails = (config, product, storeTags, updatePriceDetails, storeName, sessionToken) =>
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       let productInfo = Map();
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
@@ -410,12 +395,12 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
                     .find('.description-text')
                     .text()
                     .trim()
-                    .split('\r\n')[0];
+                    .split('\n')[0];
                   const barcode = descriptionContainer
                     .find('.product-number .product-id')
                     .text()
                     .trim()
-                    .split('\r\n')[0];
+                    .split('\n')[0];
                   const priceContainer = $(this).find('#product-content .upper-product-price .product-price');
 
                   productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
@@ -440,7 +425,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
             return 0;
           });
 
-          this.updateProductDetails(product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken)
+          this.updateProductDetails(product, storeTags, productInfo)
             .then(() => done())
             .catch((internalError) => {
               done();
@@ -452,16 +437,16 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       crawler.on('drain', () => resolve());
       crawler.queue(product.get('productPageUrl'));
     });
+  };
 
   crawlStandardPrice = ($, priceContainer) => {
-    const self = this;
     let result = Map();
 
     priceContainer.find('.standardprice .pv-price').filter(function filterstandardPrice() {
       const currentPriceWithDollarSign = $(this)
         .text()
         .trim();
-      const currentPrice = self.removeDollarSignFromPrice(currentPriceWithDollarSign);
+      const currentPrice = StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceWithDollarSign);
 
       result = Map({ currentPrice });
 
@@ -472,14 +457,13 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
   };
 
   crawlSalePrice = ($, priceContainer) => {
-    const self = this;
     let result = Map();
 
     priceContainer.find('.price-sales .pv-price').filter(function filterStandardPrice() {
       const currentPriceWithDollarSign = $(this)
         .text()
         .trim();
-      const currentPrice = self.removeDollarSignFromPrice(currentPriceWithDollarSign);
+      const currentPrice = StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceWithDollarSign);
 
       result = Map({ currentPrice });
 
@@ -490,7 +474,6 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
   };
 
   crawlSavingPrice = ($, priceContainer, productInfo) => {
-    const self = this;
     let result = Map();
 
     priceContainer.find('.promotion .save-amount').filter(function filterSalePrice() {
@@ -498,7 +481,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
         .text()
         .trim();
       const savingWithDollarSign = savingText.substring(savingText.indexOf('$'));
-      const saving = self.removeDollarSignFromPrice(savingWithDollarSign);
+      const saving = StoreCrawlerServiceBase.removeDollarSignFromPrice(savingWithDollarSign);
 
       result = Map({
         saving,
@@ -547,77 +530,74 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     return Map({ benefitsAndFeatures });
   };
 
-  updateProductDetails = async (product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken) => {
-    const masterProductId = product.get('masterProductId');
-    const storeId = product.get('storeId');
+  updateProductDetails = async (product, storeTags, productInfo) => {
+    const storeId = await this.getStoreId();
+    let priceDetails;
+    let priceToDisplay;
 
-    if (updatePriceDetails) {
-      let priceDetails;
-      let priceToDisplay;
+    if ((productInfo.has('wasPrice') && productInfo.get('wasPrice')) || (productInfo.has('offerEndDate') && productInfo.get('offerEndDate'))) {
+      priceDetails = Map({
+        specialType: 'special',
+      });
 
-      if ((productInfo.has('wasPrice') && productInfo.get('wasPrice')) || (productInfo.has('offerEndDate') && productInfo.get('offerEndDate'))) {
-        priceDetails = Map({
-          specialType: 'special',
-        });
+      priceToDisplay = productInfo.get('currentPrice');
+    } else {
+      priceDetails = Map({
+        specialType: 'none',
+      });
 
-        priceToDisplay = productInfo.get('currentPrice');
-      } else {
-        priceDetails = Map({
-          specialType: 'none',
-        });
-
-        priceToDisplay = productInfo.get('currentPrice');
-      }
-
-      const currentPrice = productInfo.get('currentPrice');
-      const wasPrice = productInfo.get('wasPrice');
-      const offerEndDate = productInfo.get('offerEndDate');
-      let saving = 0;
-      let savingPercentage = 0;
-
-      if (wasPrice && currentPrice) {
-        saving = wasPrice - currentPrice;
-
-        const temp = saving * 100;
-
-        savingPercentage = temp / wasPrice;
-      }
-
-      priceDetails = priceDetails
-        .merge(currentPrice ? Map({ currentPrice }) : Map())
-        .merge(wasPrice ? Map({ wasPrice }) : Map())
-        .merge(offerEndDate ? Map({ offerEndDate }) : Map())
-        .merge(Map({ saving, savingPercentage }));
-
-      const masterProductPrice = Map({
-        masterProductId,
-        storeId,
-        name: product.getIn(['masterProduct', 'name']),
-        description: product.getIn(['masterProduct', 'description']),
-        storeName,
-        status: 'A',
-        priceDetails,
-        priceToDisplay,
-        saving,
-        savingPercentage,
-        tagIds: product.getIn(['masterProduct', 'tagIds']),
-      }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
-
-      await this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
+      priceToDisplay = productInfo.get('currentPrice');
     }
 
-    StoreMasterProductService.update(
-      product.merge({
-        name: productInfo.get('name'),
-        description: productInfo.get('name'),
-        barcode: productInfo.get('barcode'),
-        imageUrl: productInfo.get('imageUrl'),
-        lastCrawlDateTime: updatePriceDetails ? new Date() : productInfo.get('lastCrawlDateTime'),
-        storeTagIds: storeTags
-          .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-          .map(storeTag => storeTag.get('id')),
-      }),
-      sessionToken,
-    );
+    const currentPrice = productInfo.get('currentPrice');
+    const wasPrice = productInfo.get('wasPrice');
+    const offerEndDate = productInfo.get('offerEndDate');
+    let saving = 0;
+    let savingPercentage = 0;
+
+    if (wasPrice && currentPrice) {
+      saving = wasPrice - currentPrice;
+
+      const temp = saving * 100;
+
+      savingPercentage = temp / wasPrice;
+    }
+
+    priceDetails = priceDetails
+      .merge(currentPrice ? Map({ currentPrice }) : Map())
+      .merge(wasPrice ? Map({ wasPrice }) : Map())
+      .merge(offerEndDate ? Map({ offerEndDate }) : Map())
+      .merge(Map({ saving, savingPercentage }));
+
+    const storeProductId = product.get('id');
+    const productPrice = Map({
+      name: productInfo.get('name'),
+      description: productInfo.get('description'),
+      priceDetails,
+      priceToDisplay,
+      saving,
+      savingPercentage,
+      status: 'A',
+      special: priceDetails.get('specialType').localeCompare('none') !== 0,
+      storeId,
+      /* tagIds: product.get('tagIds'), */
+      storeProductId,
+    }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
+
+    return Promise.all([
+      this.createOrUpdateProductPrice(storeProductId, productPrice, priceDetails),
+      this.updateExistingStoreProduct(
+        product.merge({
+          name: productInfo.get('name'),
+          description: productInfo.get('description'),
+          barcode: productInfo.get('barcode'),
+          imageUrl: productInfo.get('imageUrl'),
+          lastCrawlDateTime: new Date(),
+          storeTagIds: storeTags
+            .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+            .map(storeTag => storeTag.get('id')),
+        }),
+      ),
+    ]);
   };
 }

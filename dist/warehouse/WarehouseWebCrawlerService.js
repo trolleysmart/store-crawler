@@ -1,7 +1,7 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-  value: true,
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
 
 var _bluebird = require('bluebird');
@@ -20,68 +20,19 @@ var _moment2 = _interopRequireDefault(_moment);
 
 var _microBusinessCommonJavascript = require('micro-business-common-javascript');
 
-var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
-
 var _2 = require('../');
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _asyncToGenerator(fn) {
-  return function() {
-    var gen = fn.apply(this, arguments);
-    return new Promise(function(resolve, reject) {
-      function step(key, arg) {
-        try {
-          var info = gen[key](arg);
-          var value = info.value;
-        } catch (error) {
-          reject(error);
-          return;
-        }
-        if (info.done) {
-          resolve(value);
-        } else {
-          return Promise.resolve(value).then(
-            function(value) {
-              step('next', value);
-            },
-            function(err) {
-              step('throw', err);
-            },
-          );
-        }
-      }
-      return step('next');
-    });
-  };
-}
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError('Cannot call a class as a function');
-  }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-  return call && (typeof call === 'object' || typeof call === 'function') ? call : self;
-}
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== 'function' && superClass !== null) {
-    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
-  }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: { value: subClass, enumerable: false, writable: true, configurable: true },
-  });
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : (subClass.__proto__ = superClass);
-}
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
+var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
   _inherits(WarehouseWebCrawlerService, _StoreCrawlerServiceB);
 
   function WarehouseWebCrawlerService(context) {
@@ -89,114 +40,119 @@ var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
     _classCallCheck(this, WarehouseWebCrawlerService);
 
-    var _this = _possibleConstructorReturn(
-      this,
-      (WarehouseWebCrawlerService.__proto__ || Object.getPrototypeOf(WarehouseWebCrawlerService)).call(this, 'warehouse', context),
-    );
+    var _this = _possibleConstructorReturn(this, (WarehouseWebCrawlerService.__proto__ || Object.getPrototypeOf(WarehouseWebCrawlerService)).call(this, 'warehouse', context));
 
-    _this.crawlAllProductCategories = _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee() {
-        var config, productCategories;
-        return regeneratorRuntime.wrap(
-          function _callee$(_context) {
-            while (1) {
-              switch ((_context.prev = _context.next)) {
-                case 0:
-                  _context.next = 2;
-                  return _this.getConfig();
+    _this.crawlProductsDetailsAndCurrentPrice = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+      var storeTags, lastCrawlDateTime, products, splittedProducts;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return _this.getStoreTags(false);
 
-                case 2:
-                  config = _context.sent;
-                  productCategories = void 0;
-                  return _context.abrupt(
-                    'return',
-                    new Promise(function(resolve, reject) {
-                      var crawler = new _crawler2.default({
-                        rateLimit: config.get('rateLimit'),
-                        maxConnections: config.get('maxConnections'),
-                        callback: function callback(error, res, done) {
-                          _this.logInfo(function() {
-                            return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
-                          });
-                          _this.logVerbose(function() {
-                            return 'Received response for: ' + JSON.stringify(res);
-                          });
+            case 2:
+              storeTags = _context.sent;
+              lastCrawlDateTime = new Date();
 
-                          if (error) {
-                            done();
-                            reject(
-                              'Failed to receive product categories for Url: ' +
-                                _2.StoreCrawlerServiceBase.safeGetUri(res) +
-                                ' - Error: ' +
-                                JSON.stringify(error),
-                            );
 
-                            return;
-                          }
+              lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-                          productCategories = _this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
-                          done();
-                        },
-                      });
+              _context.next = 7;
+              return _this.getStoreProducts({ lastCrawlDateTime: lastCrawlDateTime });
 
-                      crawler.on('drain', function() {
-                        return resolve(productCategories);
-                      });
-                      crawler.queue(config.get('baseUrl'));
-                    }),
-                  );
+            case 7:
+              products = _context.sent;
+              splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
+              _context.next = 11;
+              return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
+                return Promise.all(productChunk.map(function (product) {
+                  return _this.crawlProductDetails(product, storeTags);
+                }));
+              });
 
-                case 5:
-                case 'end':
-                  return _context.stop();
-              }
-            }
-          },
-          _callee,
-          _this2,
-        );
-      }),
-    );
+            case 11:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, _callee, _this2);
+    }));
+    _this.crawlAllProductCategories = _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+      var config, productCategories;
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _context2.next = 2;
+              return _this.getConfig();
 
-    _this.crawlLevelOneProductCategoriesAndSubProductCategories = function(config, $) {
+            case 2:
+              config = _context2.sent;
+              productCategories = void 0;
+              return _context2.abrupt('return', new Promise(function (resolve, reject) {
+                var crawler = new _crawler2.default({
+                  rateLimit: config.get('rateLimit'),
+                  maxConnections: config.get('maxConnections'),
+                  callback: function callback(error, res, done) {
+                    _this.logInfo(function () {
+                      return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
+                    });
+                    _this.logVerbose(function () {
+                      return 'Received response for: ' + JSON.stringify(res);
+                    });
+
+                    if (error) {
+                      done();
+                      reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+
+                      return;
+                    }
+
+                    productCategories = _this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
+                    done();
+                  }
+                });
+
+                crawler.on('drain', function () {
+                  return resolve(productCategories);
+                });
+                crawler.queue(config.get('baseUrl'));
+              }));
+
+            case 5:
+            case 'end':
+              return _context2.stop();
+          }
+        }
+      }, _callee2, _this2);
+    }));
+
+    _this.crawlLevelOneProductCategoriesAndSubProductCategories = function (config, $) {
       var self = _this;
       var productCategories = (0, _immutable.Set)();
 
       $('.menu-container .level-1 .menu-category').filter(function filterMenuItems() {
-        $(this)
-          .children()
-          .each(function onEachMenuItem() {
-            var menuItem = $(this);
-            var categoryKey = menuItem.attr('class');
+        $(this).children().each(function onEachMenuItem() {
+          var menuItem = $(this);
+          var categoryKey = menuItem.attr('class');
 
-            if (
-              config.get('categoryKeysToExclude') &&
-              config.get('categoryKeysToExclude').find(function(_) {
-                return (
-                  _.toLowerCase()
-                    .trim()
-                    .localeCompare(categoryKey.toLowerCase().trim()) === 0
-                );
-              })
-            ) {
-              return 0;
-            }
-
-            productCategories = productCategories.add(
-              (0, _immutable.Map)({
-                categoryKey: categoryKey,
-                url: menuItem.find('.level-1').attr('href'),
-                name: menuItem
-                  .find('.level-1')
-                  .text()
-                  .trim(),
-                level: 1,
-                subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey),
-              }),
-            );
-
+          if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
+            return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
+          })) {
             return 0;
-          });
+          }
+
+          productCategories = productCategories.add((0, _immutable.Map)({
+            categoryKey: categoryKey,
+            url: menuItem.find('.level-1').attr('href'),
+            name: menuItem.find('.level-1').text().trim(),
+            level: 1,
+            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey)
+          }));
+
+          return 0;
+        });
 
         return 0;
       });
@@ -204,89 +160,35 @@ var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
       return productCategories;
     };
 
-    _this.crawlLevelTwoProductCategoriesAndSubProductCategories = function(config, $, parentNode, parentCategoryKey) {
+    _this.crawlLevelTwoProductCategoriesAndSubProductCategories = function (config, $, parentNode, parentCategoryKey) {
       var self = _this;
       var productCategories = (0, _immutable.Set)();
 
       parentNode.find('.menu-navigation .menu-container-level-2 .inner').filter(function filterMenuItems() {
-        $(this)
-          .find('.category-column')
-          .each(function onEachColumn() {
-            $(this)
-              .children()
-              .each(function onEachMenuItem() {
-                var menuItem = $(this).find('.category-level-2');
-                var categoryKey = parentCategoryKey + '/' + menuItem.attr('data-gtm-cgid');
-
-                if (
-                  config.get('categoryKeysToExclude') &&
-                  config.get('categoryKeysToExclude').find(function(_) {
-                    return (
-                      _.toLowerCase()
-                        .trim()
-                        .localeCompare(categoryKey.toLowerCase().trim()) === 0
-                    );
-                  })
-                ) {
-                  return 0;
-                }
-
-                productCategories = productCategories.add(
-                  (0, _immutable.Map)({
-                    categoryKey: categoryKey,
-                    url: menuItem.attr('href'),
-                    name: menuItem.text().trim(),
-                    level: 2,
-                    subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey),
-                  }),
-                );
-
-                return 0;
-              });
-
-            return 0;
-          });
-
-        return 0;
-      });
-
-      return productCategories;
-    };
-
-    _this.crawlLevelThreeProductCategoriesAndSubProductCategories = function(config, $, parentNode, parentCategoryKey) {
-      var productCategories = (0, _immutable.Set)();
-
-      parentNode.find('.menu-container-level-3').filter(function filterMenuItems() {
-        $(this)
-          .children()
-          .each(function onEachMenuItem() {
-            var menuItem = $(this).find('.category-level-3');
+        $(this).find('.category-column').each(function onEachColumn() {
+          $(this).children().each(function onEachMenuItem() {
+            var menuItem = $(this).find('.category-level-2');
             var categoryKey = parentCategoryKey + '/' + menuItem.attr('data-gtm-cgid');
 
-            if (
-              config.get('categoryKeysToExclude') &&
-              config.get('categoryKeysToExclude').find(function(_) {
-                return (
-                  _.toLowerCase()
-                    .trim()
-                    .localeCompare(categoryKey.toLowerCase().trim()) === 0
-                );
-              })
-            ) {
+            if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
+              return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
+            })) {
               return 0;
             }
 
-            productCategories = productCategories.add(
-              (0, _immutable.Map)({
-                categoryKey: categoryKey,
-                url: menuItem.attr('href'),
-                name: menuItem.text().trim(),
-                level: 3,
-              }),
-            );
+            productCategories = productCategories.add((0, _immutable.Map)({
+              categoryKey: categoryKey,
+              url: menuItem.attr('href'),
+              name: menuItem.text().trim(),
+              level: 2,
+              subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey)
+            }));
 
             return 0;
           });
+
+          return 0;
+        });
 
         return 0;
       });
@@ -294,116 +196,119 @@ var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
       return productCategories;
     };
 
-    _this.crawlStoreTagsTotalItemsInfo = (function() {
-      var _ref2 = _asyncToGenerator(
-        regeneratorRuntime.mark(function _callee2(storeTags) {
-          var config, storeTagsWithTotalItemsInfo;
-          return regeneratorRuntime.wrap(
-            function _callee2$(_context2) {
-              while (1) {
-                switch ((_context2.prev = _context2.next)) {
-                  case 0:
-                    _context2.next = 2;
-                    return _this.getConfig();
+    _this.crawlLevelThreeProductCategoriesAndSubProductCategories = function (config, $, parentNode, parentCategoryKey) {
+      var productCategories = (0, _immutable.Set)();
 
-                  case 2:
-                    config = _context2.sent;
-                    storeTagsWithTotalItemsInfo = (0, _immutable.List)();
-                    return _context2.abrupt(
-                      'return',
-                      new Promise(function(resolve, reject) {
-                        var crawler = new _crawler2.default({
-                          rateLimit: config.get('rateLimit'),
-                          maxConnections: config.get('maxConnections'),
-                          callback: function callback(error, res, done) {
-                            _this.logInfo(function() {
-                              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
-                            });
-                            _this.logVerbose(function() {
-                              return 'Received response for: ' + JSON.stringify(res);
-                            });
+      parentNode.find('.menu-container-level-3').filter(function filterMenuItems() {
+        $(this).children().each(function onEachMenuItem() {
+          var menuItem = $(this).find('.category-level-3');
+          var categoryKey = parentCategoryKey + '/' + menuItem.attr('data-gtm-cgid');
 
-                            if (error) {
-                              done();
-                              reject(
-                                'Failed to receive product category page info for Url: ' +
-                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
-                                  ' - Error: ' +
-                                  JSON.stringify(error),
-                              );
+          if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
+            return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
+          })) {
+            return 0;
+          }
 
-                              return;
-                            }
+          productCategories = productCategories.add((0, _immutable.Map)({
+            categoryKey: categoryKey,
+            url: menuItem.attr('href'),
+            name: menuItem.text().trim(),
+            level: 3
+          }));
 
-                            var productCategory = storeTags.find(function(_) {
-                              return _.get('url').localeCompare(_2.StoreCrawlerServiceBase.safeGetUri(res)) === 0;
-                            });
+          return 0;
+        });
 
-                            if (!productCategory) {
-                              // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
-                              done();
+        return 0;
+      });
 
-                              return;
-                            }
+      return productCategories;
+    };
 
-                            storeTagsWithTotalItemsInfo = storeTagsWithTotalItemsInfo.push(
-                              productCategory.set('totalItems', _this.crawlTotalItemsInfo(res.$)),
-                            );
+    _this.crawlStoreTagsTotalItemsInfo = function () {
+      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(storeTags) {
+        var config, storeTagsWithTotalItemsInfo;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return _this.getConfig();
 
-                            done();
-                          },
-                        });
+              case 2:
+                config = _context3.sent;
+                storeTagsWithTotalItemsInfo = (0, _immutable.List)();
+                return _context3.abrupt('return', new Promise(function (resolve, reject) {
+                  var crawler = new _crawler2.default({
+                    rateLimit: config.get('rateLimit'),
+                    maxConnections: config.get('maxConnections'),
+                    callback: function callback(error, res, done) {
+                      _this.logInfo(function () {
+                        return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
+                      });
+                      _this.logVerbose(function () {
+                        return 'Received response for: ' + JSON.stringify(res);
+                      });
 
-                        crawler.on('drain', function() {
-                          return resolve(storeTagsWithTotalItemsInfo);
-                        });
-                        storeTags.forEach(function(productCategory) {
-                          return crawler.queue(productCategory.get('url'));
-                        });
-                      }),
-                    );
+                      if (error) {
+                        done();
+                        reject('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
 
-                  case 5:
-                  case 'end':
-                    return _context2.stop();
-                }
-              }
-            },
-            _callee2,
-            _this2,
-          );
-        }),
-      );
+                        return;
+                      }
 
-      return function(_x) {
-        return _ref2.apply(this, arguments);
+                      var productCategory = storeTags.find(function (_) {
+                        return _.get('url').localeCompare(_2.StoreCrawlerServiceBase.safeGetUri(res)) === 0;
+                      });
+
+                      if (!productCategory) {
+                        // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
+                        done();
+
+                        return;
+                      }
+
+                      storeTagsWithTotalItemsInfo = storeTagsWithTotalItemsInfo.push(productCategory.set('totalItems', _this.crawlTotalItemsInfo(res.$)));
+
+                      done();
+                    }
+                  });
+
+                  crawler.on('drain', function () {
+                    return resolve(storeTagsWithTotalItemsInfo);
+                  });
+                  storeTags.forEach(function (productCategory) {
+                    return crawler.queue(productCategory.get('url'));
+                  });
+                }));
+
+              case 5:
+              case 'end':
+                return _context3.stop();
+            }
+          }
+        }, _callee3, _this2);
+      }));
+
+      return function (_x) {
+        return _ref3.apply(this, arguments);
       };
-    })();
+    }();
 
-    _this.crawlTotalItemsInfo = function($) {
+    _this.crawlTotalItemsInfo = function ($) {
       var total = 0;
 
       $('.tab-content #results-products .pagination').filter(function filterPagination() {
-        $(this)
-          .children()
-          .find('.results-hits')
-          .filter(function filterResultHit() {
-            var info = $(this)
-              .text()
-              .trim();
-            var line2 = info.split('\n')[1].trim();
-            var spaceIdx = line2.indexOf(' ');
+        $(this).children().find('.results-hits').filter(function filterResultHit() {
+          var info = $(this).text().trim();
+          var line2 = info.split('\n')[1].trim();
+          var spaceIdx = line2.indexOf(' ');
 
-            total = parseInt(
-              line2
-                .substring(0, spaceIdx)
-                .replace(',', '')
-                .trim(),
-              10,
-            );
+          total = parseInt(line2.substring(0, spaceIdx).replace(',', '').trim(), 10);
 
-            return 0;
-          });
+          return 0;
+        });
 
         return 0;
       });
@@ -411,390 +316,224 @@ var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
       return total;
     };
 
-    _this.crawlProductsForEachStoreTag = (function() {
-      var _ref3 = _asyncToGenerator(
-        regeneratorRuntime.mark(function _callee3(storeTags) {
-          var config;
-          return regeneratorRuntime.wrap(
-            function _callee3$(_context3) {
-              while (1) {
-                switch ((_context3.prev = _context3.next)) {
-                  case 0:
-                    _context3.next = 2;
-                    return _this.getConfig();
+    _this.crawlProductsForEachStoreTag = function () {
+      var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(storeTags) {
+        var config;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.next = 2;
+                return _this.getConfig();
 
-                  case 2:
-                    config = _context3.sent;
-                    return _context3.abrupt(
-                      'return',
-                      new Promise(function(resolve, reject) {
-                        var crawler = new _crawler2.default({
-                          rateLimit: config.get('rateLimit'),
-                          maxConnections: config.get('maxConnections'),
-                          callback: function callback(error, res, done) {
-                            _this.logInfo(function() {
-                              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
-                            });
-                            _this.logVerbose(function() {
-                              return 'Received response for: ' + JSON.stringify(res);
-                            });
+              case 2:
+                config = _context4.sent;
+                return _context4.abrupt('return', new Promise(function (resolve, reject) {
+                  var crawler = new _crawler2.default({
+                    rateLimit: config.get('rateLimit'),
+                    maxConnections: config.get('maxConnections'),
+                    callback: function callback(error, res, done) {
+                      _this.logInfo(function () {
+                        return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
+                      });
+                      _this.logVerbose(function () {
+                        return 'Received response for: ' + JSON.stringify(res);
+                      });
 
-                            if (error) {
-                              done();
-                              reject(
-                                'Failed to receive product category page info for Url: ' +
-                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
-                                  ' - Error: ' +
-                                  JSON.stringify(error),
-                              );
+                      if (error) {
+                        done();
+                        reject('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
 
-                              return;
-                            }
+                        return;
+                      }
 
-                            var urlOffset = _2.StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
-                            var baseUrl = _2.StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
-                            var productCategory = storeTags.find(function(_) {
-                              return _.get('url').localeCompare(baseUrl) === 0;
-                            });
+                      var urlOffset = _2.StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
+                      var baseUrl = _2.StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
+                      var productCategory = storeTags.find(function (_) {
+                        return _.get('url').localeCompare(baseUrl) === 0;
+                      });
 
-                            if (!productCategory) {
-                              done();
-                              reject('Failed to find product category page info for Url: ' + baseUrl);
+                      if (!productCategory) {
+                        done();
+                        reject('Failed to find product category page info for Url: ' + baseUrl);
 
-                              return;
-                            }
+                        return;
+                      }
 
-                            var productInfos = _this.crawlProductInfo(config, res.$);
+                      var productInfos = _this.crawlProductInfo(config, res.$);
 
-                            Promise.all(
-                              productInfos
-                                .filter(function(productInfo) {
-                                  return productInfo.get('url');
-                                })
-                                .map(function(productInfo) {
-                                  return _this.createOrUpdateStoreProduct(productCategory, productInfo);
-                                }),
-                            )
-                              .then(function() {
-                                return done();
-                              })
-                              .catch(function(storeProductUpdateError) {
-                                done();
-                                reject(storeProductUpdateError);
-                              });
-                          },
-                        });
+                      Promise.all(productInfos.filter(function (productInfo) {
+                        return productInfo.get('url');
+                      }).map(function (productInfo) {
+                        return _this.createOrUpdateStoreProduct(productCategory, productInfo);
+                      })).then(function () {
+                        return done();
+                      }).catch(function (storeProductUpdateError) {
+                        done();
+                        reject(storeProductUpdateError);
+                      });
+                    }
+                  });
 
-                        crawler.on('drain', function() {
-                          return resolve();
-                        });
-                        storeTags.forEach(function(productCategory) {
-                          return (0, _immutable.Range)(0, productCategory.get('totalItems'), 24).forEach(function(offset) {
-                            return crawler.queue(productCategory.get('url') + '?sz=24&start=' + offset);
-                          });
-                        });
-                      }),
-                    );
+                  crawler.on('drain', function () {
+                    return resolve();
+                  });
+                  storeTags.forEach(function (productCategory) {
+                    return (0, _immutable.Range)(0, productCategory.get('totalItems'), 24).forEach(function (offset) {
+                      return crawler.queue(productCategory.get('url') + '?sz=24&start=' + offset);
+                    });
+                  });
+                }));
 
-                  case 4:
-                  case 'end':
-                    return _context3.stop();
-                }
-              }
-            },
-            _callee3,
-            _this2,
-          );
-        }),
-      );
+              case 4:
+              case 'end':
+                return _context4.stop();
+            }
+          }
+        }, _callee4, _this2);
+      }));
 
-      return function(_x2) {
-        return _ref3.apply(this, arguments);
+      return function (_x2) {
+        return _ref4.apply(this, arguments);
       };
-    })();
+    }();
 
-    _this.crawlProductInfo = function(config, $) {
+    _this.crawlProductInfo = function (config, $) {
       var products = (0, _immutable.List)();
-      $('.tab-content .search-result-content .search-result-items')
-        .children()
-        .filter(function filterSearchResultItems() {
-          var productPageUrl = $(this)
-            .find('.product-info-wrapper .name-link')
-            .attr('href');
+      $('.tab-content .search-result-content .search-result-items').children().filter(function filterSearchResultItems() {
+        var productPageUrl = $(this).find('.product-info-wrapper .name-link').attr('href');
 
-          products = products.push((0, _immutable.Map)({ productPageUrl: productPageUrl }));
+        products = products.push((0, _immutable.Map)({ productPageUrl: productPageUrl }));
 
-          return 0;
-        });
+        return 0;
+      });
 
       return products;
     };
 
-    _this.crawlProductsDetails = (function() {
-      var _ref4 = _asyncToGenerator(
-        regeneratorRuntime.mark(function _callee4(config, sessionToken) {
-          var finalConfig, store, storeId, storeTags, products, splittedProducts;
-          return regeneratorRuntime.wrap(
-            function _callee4$(_context4) {
-              while (1) {
-                switch ((_context4.prev = _context4.next)) {
-                  case 0:
-                    _context4.t0 = config;
+    _this.crawlProductDetails = function () {
+      var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(product, storeTags) {
+        var config;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.next = 2;
+                return _this.getConfig();
 
-                    if (_context4.t0) {
-                      _context4.next = 5;
-                      break;
+              case 2:
+                config = _context5.sent;
+                return _context5.abrupt('return', new Promise(function (resolve, reject) {
+                  var productInfo = (0, _immutable.Map)();
+                  var crawler = new _crawler2.default({
+                    rateLimit: config.get('rateLimit'),
+                    maxConnections: config.get('maxConnections'),
+                    callback: function callback(error, res, done) {
+                      _this.logInfo(function () {
+                        return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
+                      });
+                      _this.logVerbose(function () {
+                        return 'Received response for: ' + JSON.stringify(res);
+                      });
+
+                      if (error) {
+                        done();
+                        reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+
+                        return;
+                      }
+
+                      var $ = res.$;
+                      var self = _this;
+                      var tagUrls = (0, _immutable.List)();
+
+                      $('.breadcrumb').children().filter(function filterTags() {
+                        var tag = $(this).find('a').attr('href');
+
+                        tagUrls = tagUrls.push(tag);
+
+                        return 0;
+                      });
+
+                      tagUrls = tagUrls.skip(1).pop();
+
+                      productInfo = productInfo.merge({ tagUrls: tagUrls });
+
+                      $('#pdpMain').filter(function filterMainContainer() {
+                        var mainContainer = $(this);
+
+                        mainContainer.find('.row-product-details').filter(function filterDetails() {
+                          $(this).find('.product-image-container .product-primary-image .product-image .primary-image').filter(function filterImage() {
+                            productInfo = productInfo.merge({
+                              imageUrl: $(this).attr('src')
+                            });
+
+                            return 0;
+                          });
+
+                          $(this).find('.product-detail').filter(function filterDetail() {
+                            var name = $(this).find('.product-name').text().trim();
+                            var descriptionContainer = $(this).find('.product-description');
+                            var description = descriptionContainer.find('.description-text').text().trim().split('\n')[0];
+                            var barcode = descriptionContainer.find('.product-number .product-id').text().trim().split('\n')[0];
+                            var priceContainer = $(this).find('#product-content .upper-product-price .product-price');
+
+                            productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
+                            productInfo = productInfo.merge(self.crawlSalePrice($, priceContainer));
+                            productInfo = productInfo.merge(self.crawlSavingPrice($, priceContainer, productInfo));
+                            productInfo = productInfo.merge(self.crawlOfferEndDate($, priceContainer));
+
+                            productInfo = productInfo.merge({
+                              name: name,
+                              description: description,
+                              barcode: barcode
+                            });
+
+                            return 0;
+                          });
+
+                          return 0;
+                        });
+
+                        productInfo = productInfo.merge(self.crawlBenefitAndFeatures($, mainContainer));
+
+                        return 0;
+                      });
+
+                      _this.updateProductDetails(product, storeTags, productInfo).then(function () {
+                        return done();
+                      }).catch(function (internalError) {
+                        done();
+                        reject(internalError);
+                      });
                     }
+                  });
 
-                    _context4.next = 4;
-                    return _this.getConfig('Warehouse');
+                  crawler.on('drain', function () {
+                    return resolve();
+                  });
+                  crawler.queue(product.get('productPageUrl'));
+                }));
 
-                  case 4:
-                    _context4.t0 = _context4.sent;
+              case 4:
+              case 'end':
+                return _context5.stop();
+            }
+          }
+        }, _callee5, _this2);
+      }));
 
-                  case 5:
-                    finalConfig = _context4.t0;
-                    _context4.next = 8;
-                    return _this.getStore('Warehouse', sessionToken);
-
-                  case 8:
-                    store = _context4.sent;
-                    storeId = store.get('id');
-                    _context4.next = 12;
-                    return _this.getStoreTags(storeId, false, sessionToken);
-
-                  case 12:
-                    storeTags = _context4.sent;
-                    _context4.next = 15;
-                    return _this.getAllStoreMasterProducts(storeId, sessionToken);
-
-                  case 15:
-                    products = _context4.sent;
-                    splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
-                    _context4.next = 19;
-                    return _bluebird2.default.each(splittedProducts.toArray(), function(productChunk) {
-                      return Promise.all(
-                        productChunk.map(function(product) {
-                          return _this.crawlProductDetails(finalConfig, product, storeTags, false, store.get('name'), sessionToken);
-                        }),
-                      );
-                    });
-
-                  case 19:
-                  case 'end':
-                    return _context4.stop();
-                }
-              }
-            },
-            _callee4,
-            _this2,
-          );
-        }),
-      );
-
-      return function(_x3, _x4) {
-        return _ref4.apply(this, arguments);
-      };
-    })();
-
-    _this.crawlProductsPriceDetails = (function() {
-      var _ref5 = _asyncToGenerator(
-        regeneratorRuntime.mark(function _callee5(config, sessionToken) {
-          var finalConfig, store, storeId, storeTags, lastCrawlDateTime, products, splittedProducts;
-          return regeneratorRuntime.wrap(
-            function _callee5$(_context5) {
-              while (1) {
-                switch ((_context5.prev = _context5.next)) {
-                  case 0:
-                    _context5.t0 = config;
-
-                    if (_context5.t0) {
-                      _context5.next = 5;
-                      break;
-                    }
-
-                    _context5.next = 4;
-                    return _this.getConfig('Warehouse');
-
-                  case 4:
-                    _context5.t0 = _context5.sent;
-
-                  case 5:
-                    finalConfig = _context5.t0;
-                    _context5.next = 8;
-                    return _this.getStore('Warehouse', sessionToken);
-
-                  case 8:
-                    store = _context5.sent;
-                    storeId = store.get('id');
-                    _context5.next = 12;
-                    return _this.getStoreTags(storeId, false, sessionToken);
-
-                  case 12:
-                    storeTags = _context5.sent;
-                    lastCrawlDateTime = new Date();
-
-                    lastCrawlDateTime.setDate(new Date().getDate() - 1);
-
-                    _context5.next = 17;
-                    return _this.getStoreMasterProductsWithMasterProduct(storeId, lastCrawlDateTime, sessionToken);
-
-                  case 17:
-                    products = _context5.sent;
-                    splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
-                    _context5.next = 21;
-                    return _bluebird2.default.each(splittedProducts.toArray(), function(productChunk) {
-                      return Promise.all(
-                        productChunk.map(function(product) {
-                          return _this.crawlProductDetails(finalConfig, product, storeTags, true, store.get('name'), sessionToken);
-                        }),
-                      );
-                    });
-
-                  case 21:
-                  case 'end':
-                    return _context5.stop();
-                }
-              }
-            },
-            _callee5,
-            _this2,
-          );
-        }),
-      );
-
-      return function(_x5, _x6) {
+      return function (_x3, _x4) {
         return _ref5.apply(this, arguments);
       };
-    })();
+    }();
 
-    _this.crawlProductDetails = function(config, product, storeTags, updatePriceDetails, storeName, sessionToken) {
-      return new Promise(function(resolve, reject) {
-        var productInfo = (0, _immutable.Map)();
-        var crawler = new _crawler2.default({
-          rateLimit: config.get('rateLimit'),
-          maxConnections: config.get('maxConnections'),
-          callback: function callback(error, res, done) {
-            _this.logInfo(function() {
-              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
-            });
-            _this.logVerbose(function() {
-              return 'Received response for: ' + JSON.stringify(res);
-            });
-
-            if (error) {
-              done();
-              reject(
-                'Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error),
-              );
-
-              return;
-            }
-
-            var $ = res.$;
-            var self = _this;
-            var tagUrls = (0, _immutable.List)();
-
-            $('.breadcrumb')
-              .children()
-              .filter(function filterTags() {
-                var tag = $(this)
-                  .find('a')
-                  .attr('href');
-
-                tagUrls = tagUrls.push(tag);
-
-                return 0;
-              });
-
-            tagUrls = tagUrls.skip(1).pop();
-
-            productInfo = productInfo.merge({ tagUrls: tagUrls });
-
-            $('#pdpMain').filter(function filterMainContainer() {
-              var mainContainer = $(this);
-
-              mainContainer.find('.row-product-details').filter(function filterDetails() {
-                $(this)
-                  .find('.product-image-container .product-primary-image .product-image .primary-image')
-                  .filter(function filterImage() {
-                    productInfo = productInfo.merge({
-                      imageUrl: $(this).attr('src'),
-                    });
-
-                    return 0;
-                  });
-
-                $(this)
-                  .find('.product-detail')
-                  .filter(function filterDetail() {
-                    var name = $(this)
-                      .find('.product-name')
-                      .text()
-                      .trim();
-                    var descriptionContainer = $(this).find('.product-description');
-                    var description = descriptionContainer
-                      .find('.description-text')
-                      .text()
-                      .trim()
-                      .split('\r\n')[0];
-                    var barcode = descriptionContainer
-                      .find('.product-number .product-id')
-                      .text()
-                      .trim()
-                      .split('\r\n')[0];
-                    var priceContainer = $(this).find('#product-content .upper-product-price .product-price');
-
-                    productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
-                    productInfo = productInfo.merge(self.crawlSalePrice($, priceContainer));
-                    productInfo = productInfo.merge(self.crawlSavingPrice($, priceContainer, productInfo));
-                    productInfo = productInfo.merge(self.crawlOfferEndDate($, priceContainer));
-
-                    productInfo = productInfo.merge({
-                      name: name,
-                      description: description,
-                      barcode: barcode,
-                    });
-
-                    return 0;
-                  });
-
-                return 0;
-              });
-
-              productInfo = productInfo.merge(self.crawlBenefitAndFeatures($, mainContainer));
-
-              return 0;
-            });
-
-            _this
-              .updateProductDetails(product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken)
-              .then(function() {
-                return done();
-              })
-              .catch(function(internalError) {
-                done();
-                reject(internalError);
-              });
-          },
-        });
-
-        crawler.on('drain', function() {
-          return resolve();
-        });
-        crawler.queue(product.get('productPageUrl'));
-      });
-    };
-
-    _this.crawlStandardPrice = function($, priceContainer) {
-      var self = _this;
+    _this.crawlStandardPrice = function ($, priceContainer) {
       var result = (0, _immutable.Map)();
 
       priceContainer.find('.standardprice .pv-price').filter(function filterstandardPrice() {
-        var currentPriceWithDollarSign = $(this)
-          .text()
-          .trim();
-        var currentPrice = self.removeDollarSignFromPrice(currentPriceWithDollarSign);
+        var currentPriceWithDollarSign = $(this).text().trim();
+        var currentPrice = _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceWithDollarSign);
 
         result = (0, _immutable.Map)({ currentPrice: currentPrice });
 
@@ -804,15 +543,12 @@ var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
       return result;
     };
 
-    _this.crawlSalePrice = function($, priceContainer) {
-      var self = _this;
+    _this.crawlSalePrice = function ($, priceContainer) {
       var result = (0, _immutable.Map)();
 
       priceContainer.find('.price-sales .pv-price').filter(function filterStandardPrice() {
-        var currentPriceWithDollarSign = $(this)
-          .text()
-          .trim();
-        var currentPrice = self.removeDollarSignFromPrice(currentPriceWithDollarSign);
+        var currentPriceWithDollarSign = $(this).text().trim();
+        var currentPrice = _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceWithDollarSign);
 
         result = (0, _immutable.Map)({ currentPrice: currentPrice });
 
@@ -822,20 +558,17 @@ var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
       return result;
     };
 
-    _this.crawlSavingPrice = function($, priceContainer, productInfo) {
-      var self = _this;
+    _this.crawlSavingPrice = function ($, priceContainer, productInfo) {
       var result = (0, _immutable.Map)();
 
       priceContainer.find('.promotion .save-amount').filter(function filterSalePrice() {
-        var savingText = $(this)
-          .text()
-          .trim();
+        var savingText = $(this).text().trim();
         var savingWithDollarSign = savingText.substring(savingText.indexOf('$'));
-        var saving = self.removeDollarSignFromPrice(savingWithDollarSign);
+        var saving = _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(savingWithDollarSign);
 
         result = (0, _immutable.Map)({
           saving: saving,
-          wasPrice: saving ? Math.round((productInfo.get('currentPrice') + saving) * 100) / 100 : undefined,
+          wasPrice: saving ? Math.round((productInfo.get('currentPrice') + saving) * 100) / 100 : undefined
         });
 
         return 0;
@@ -844,13 +577,11 @@ var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
       return result;
     };
 
-    _this.crawlOfferEndDate = function($, priceContainer) {
+    _this.crawlOfferEndDate = function ($, priceContainer) {
       var result = (0, _immutable.Map)();
 
       priceContainer.find('.offers-end').filter(function filterOfferEndDate() {
-        var offerEndDateText = $(this)
-          .text()
-          .trim();
+        var offerEndDateText = $(this).text().trim();
         var offerEndDate = offerEndDateText.substring(offerEndDateText.lastIndexOf(' ')).trim();
 
         result = (0, _immutable.Map)({ offerEndDate: (0, _moment2.default)(offerEndDate, 'DD/MM/YYYY').toDate() });
@@ -861,150 +592,112 @@ var WarehouseWebCrawlerService = (function(_StoreCrawlerServiceB) {
       return result;
     };
 
-    _this.crawlBenefitAndFeatures = function($, mainContainer) {
+    _this.crawlBenefitAndFeatures = function ($, mainContainer) {
       var benefitsAndFeatures = (0, _immutable.List)();
 
-      mainContainer
-        .find('.row .product-features-print .product-features .featuresbenefits-text ul')
-        .children()
-        .filter(function filterFeatureBenefit() {
-          benefitsAndFeatures = benefitsAndFeatures.push(
-            $(this)
-              .text()
-              .trim(),
-          );
+      mainContainer.find('.row .product-features-print .product-features .featuresbenefits-text ul').children().filter(function filterFeatureBenefit() {
+        benefitsAndFeatures = benefitsAndFeatures.push($(this).text().trim());
 
-          return 0;
-        });
+        return 0;
+      });
 
       return (0, _immutable.Map)({ benefitsAndFeatures: benefitsAndFeatures });
     };
 
-    _this.updateProductDetails = (function() {
-      var _ref6 = _asyncToGenerator(
-        regeneratorRuntime.mark(function _callee6(product, storeTags, productInfo, updatePriceDetails, storeName, sessionToken) {
-          var masterProductId,
-            storeId,
-            priceDetails,
-            priceToDisplay,
-            currentPrice,
-            wasPrice,
-            offerEndDate,
-            saving,
-            savingPercentage,
-            temp,
-            masterProductPrice;
-          return regeneratorRuntime.wrap(
-            function _callee6$(_context6) {
-              while (1) {
-                switch ((_context6.prev = _context6.next)) {
-                  case 0:
-                    masterProductId = product.get('masterProductId');
-                    storeId = product.get('storeId');
+    _this.updateProductDetails = function () {
+      var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(product, storeTags, productInfo) {
+        var storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, offerEndDate, saving, savingPercentage, temp, storeProductId, productPrice;
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                _context6.next = 2;
+                return _this.getStoreId();
 
-                    if (!updatePriceDetails) {
-                      _context6.next = 16;
-                      break;
-                    }
+              case 2:
+                storeId = _context6.sent;
+                priceDetails = void 0;
+                priceToDisplay = void 0;
 
-                    priceDetails = void 0;
-                    priceToDisplay = void 0;
 
-                    if (
-                      (productInfo.has('wasPrice') && productInfo.get('wasPrice')) ||
-                      (productInfo.has('offerEndDate') && productInfo.get('offerEndDate'))
-                    ) {
-                      priceDetails = (0, _immutable.Map)({
-                        specialType: 'special',
-                      });
+                if (productInfo.has('wasPrice') && productInfo.get('wasPrice') || productInfo.has('offerEndDate') && productInfo.get('offerEndDate')) {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'special'
+                  });
 
-                      priceToDisplay = productInfo.get('currentPrice');
-                    } else {
-                      priceDetails = (0, _immutable.Map)({
-                        specialType: 'none',
-                      });
+                  priceToDisplay = productInfo.get('currentPrice');
+                } else {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'none'
+                  });
 
-                      priceToDisplay = productInfo.get('currentPrice');
-                    }
-
-                    currentPrice = productInfo.get('currentPrice');
-                    wasPrice = productInfo.get('wasPrice');
-                    offerEndDate = productInfo.get('offerEndDate');
-                    saving = 0;
-                    savingPercentage = 0;
-
-                    if (wasPrice && currentPrice) {
-                      saving = wasPrice - currentPrice;
-
-                      temp = saving * 100;
-
-                      savingPercentage = temp / wasPrice;
-                    }
-
-                    priceDetails = priceDetails
-                      .merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)())
-                      .merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)())
-                      .merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)())
-                      .merge((0, _immutable.Map)({ saving: saving, savingPercentage: savingPercentage }));
-
-                    masterProductPrice = (0, _immutable.Map)({
-                      masterProductId: masterProductId,
-                      storeId: storeId,
-                      name: product.getIn(['masterProduct', 'name']),
-                      description: product.getIn(['masterProduct', 'description']),
-                      storeName: storeName,
-                      status: 'A',
-                      priceDetails: priceDetails,
-                      priceToDisplay: priceToDisplay,
-                      saving: saving,
-                      savingPercentage: savingPercentage,
-                      tagIds: product.getIn(['masterProduct', 'tagIds']),
-                    }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
-                    _context6.next = 16;
-                    return _this.createOrUpdateMasterProductPrice(masterProductId, storeId, masterProductPrice, priceDetails, sessionToken);
-
-                  case 16:
-                    _trolleySmartParseServerCommon.StoreMasterProductService.update(
-                      product.merge({
-                        name: productInfo.get('name'),
-                        description: productInfo.get('name'),
-                        barcode: productInfo.get('barcode'),
-                        imageUrl: productInfo.get('imageUrl'),
-                        lastCrawlDateTime: updatePriceDetails ? new Date() : productInfo.get('lastCrawlDateTime'),
-                        storeTagIds: storeTags
-                          .filter(function(storeTag) {
-                            return productInfo.get('tagUrls').find(function(tagUrl) {
-                              return tagUrl.localeCompare(storeTag.get('url')) === 0;
-                            });
-                          })
-                          .map(function(storeTag) {
-                            return storeTag.get('id');
-                          }),
-                      }),
-                      sessionToken,
-                    );
-
-                  case 17:
-                  case 'end':
-                    return _context6.stop();
+                  priceToDisplay = productInfo.get('currentPrice');
                 }
-              }
-            },
-            _callee6,
-            _this2,
-          );
-        }),
-      );
 
-      return function(_x7, _x8, _x9, _x10, _x11, _x12) {
+                currentPrice = productInfo.get('currentPrice');
+                wasPrice = productInfo.get('wasPrice');
+                offerEndDate = productInfo.get('offerEndDate');
+                saving = 0;
+                savingPercentage = 0;
+
+
+                if (wasPrice && currentPrice) {
+                  saving = wasPrice - currentPrice;
+
+                  temp = saving * 100;
+
+
+                  savingPercentage = temp / wasPrice;
+                }
+
+                priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)()).merge((0, _immutable.Map)({ saving: saving, savingPercentage: savingPercentage }));
+
+                storeProductId = product.get('id');
+                productPrice = (0, _immutable.Map)({
+                  name: productInfo.get('name'),
+                  description: productInfo.get('description'),
+                  priceDetails: priceDetails,
+                  priceToDisplay: priceToDisplay,
+                  saving: saving,
+                  savingPercentage: savingPercentage,
+                  status: 'A',
+                  special: priceDetails.get('specialType').localeCompare('none') !== 0,
+                  storeId: storeId,
+                  /* tagIds: product.get('tagIds'), */
+                  storeProductId: storeProductId
+                }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
+                return _context6.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, priceDetails), _this.updateExistingStoreProduct(product.merge({
+                  name: productInfo.get('name'),
+                  description: productInfo.get('description'),
+                  barcode: productInfo.get('barcode'),
+                  imageUrl: productInfo.get('imageUrl'),
+                  lastCrawlDateTime: new Date(),
+                  storeTagIds: storeTags.filter(function (storeTag) {
+                    return productInfo.get('tagUrls').find(function (tagUrl) {
+                      return tagUrl.localeCompare(storeTag.get('url')) === 0;
+                    });
+                  }).map(function (storeTag) {
+                    return storeTag.get('id');
+                  })
+                }))]));
+
+              case 16:
+              case 'end':
+                return _context6.stop();
+            }
+          }
+        }, _callee6, _this2);
+      }));
+
+      return function (_x5, _x6, _x7) {
         return _ref6.apply(this, arguments);
       };
-    })();
+    }();
 
     return _this;
   }
 
   return WarehouseWebCrawlerService;
-})(_2.StoreCrawlerServiceBase);
+}(_2.StoreCrawlerServiceBase);
 
 exports.default = WarehouseWebCrawlerService;

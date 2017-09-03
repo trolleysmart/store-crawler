@@ -558,7 +558,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
                 .find('.grid-non-club-price')
                 .text()
                 .trim();
-              const wasPrice = self.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
+              const wasPrice = StoreCrawlerServiceBase.removeDollarSignFromPrice(nonClubPriceContent.substring(nonClubPriceContent.indexOf('$')));
               const unitPrice = self.getUnitPrice($(this));
 
               productInfo = productInfo.merge({
