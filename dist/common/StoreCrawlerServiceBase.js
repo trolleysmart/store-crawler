@@ -4,6 +4,10 @@ Object.defineProperty(exports, '__esModule', {
   value: true,
 });
 
+var _bluebird = require('bluebird');
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
 var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
@@ -891,79 +895,159 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     };
   })();
 
+  this.crawlAndSyncProductCategoriesToStoreTags = _asyncToGenerator(
+    regeneratorRuntime.mark(function _callee14() {
+      var productCategories,
+        storeTags,
+        splittedLevelOneProductCategories,
+        storeTagsWithUpdatedLevelOneProductCategories,
+        levelTwoProductCategories,
+        levelTwoProductCategoriesGroupedByCategoryKey,
+        splittedLevelTwoProductCategories,
+        storeTagsWithUpdatedLevelTwoProductCategories,
+        levelThreeProductCategories,
+        levelThreeProductCategoriesGroupedByCategoryKey,
+        splittedLevelThreeProductCategories;
+      return regeneratorRuntime.wrap(
+        function _callee14$(_context14) {
+          while (1) {
+            switch ((_context14.prev = _context14.next)) {
+              case 0:
+                _context14.next = 2;
+                return _this.crawlAllProductCategories();
+
+              case 2:
+                productCategories = _context14.sent;
+                _context14.next = 5;
+                return _this.getStoreTags(false);
+
+              case 5:
+                storeTags = _context14.sent;
+                splittedLevelOneProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(productCategories, 100);
+                _context14.next = 9;
+                return _bluebird2.default.each(splittedLevelOneProductCategories.toArray(), function(productCategoryChunks) {
+                  return Promise.all(
+                    productCategoryChunks.map(function(productCategory) {
+                      return _this.createOrUpdateLevelOneProductCategory(productCategory, storeTags);
+                    }),
+                  );
+                });
+
+              case 9:
+                _context14.next = 11;
+                return _this.getStoreTags(false);
+
+              case 11:
+                storeTagsWithUpdatedLevelOneProductCategories = _context14.sent;
+                levelTwoProductCategories = productCategories
+                  .map(function(productCategory) {
+                    return productCategory.update('subCategories', function(subCategories) {
+                      return subCategories.map(function(subCategory) {
+                        return subCategory.set('parent', productCategory.get('categoryKey'));
+                      });
+                    });
+                  })
+                  .flatMap(function(productCategory) {
+                    return productCategory.get('subCategories');
+                  });
+                levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(function(productCategory) {
+                  return productCategory.get('categoryKey');
+                });
+                splittedLevelTwoProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(
+                  levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(),
+                  100,
+                );
+                _context14.next = 17;
+                return _bluebird2.default.each(splittedLevelTwoProductCategories.toArray(), function(productCategoryChunks) {
+                  return Promise.all(
+                    productCategoryChunks.map(function(productCategory) {
+                      return _this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories);
+                    }),
+                  );
+                });
+
+              case 17:
+                _context14.next = 19;
+                return _this.getStoreTags(false);
+
+              case 19:
+                storeTagsWithUpdatedLevelTwoProductCategories = _context14.sent;
+                levelThreeProductCategories = productCategories
+                  .flatMap(function(productCategory) {
+                    return productCategory.get('subCategories');
+                  })
+                  .map(function(productCategory) {
+                    return productCategory.update('subCategories', function(subCategories) {
+                      return subCategories.map(function(subCategory) {
+                        return subCategory.set('parent', productCategory.get('categoryKey'));
+                      });
+                    });
+                  })
+                  .flatMap(function(productCategory) {
+                    return productCategory.get('subCategories');
+                  });
+                levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(function(productCategory) {
+                  return productCategory.get('categoryKey');
+                });
+                splittedLevelThreeProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(
+                  levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(),
+                  100,
+                );
+                _context14.next = 25;
+                return _bluebird2.default.each(splittedLevelThreeProductCategories.toArray(), function(productCategoryChunks) {
+                  return Promise.all(
+                    productCategoryChunks.map(function(productCategory) {
+                      return _this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories);
+                    }),
+                  );
+                });
+
+              case 25:
+              case 'end':
+                return _context14.stop();
+            }
+          }
+        },
+        _callee14,
+        _this,
+      );
+    }),
+  );
+  this.crawlProducts = _asyncToGenerator(
+    regeneratorRuntime.mark(function _callee15() {
+      return regeneratorRuntime.wrap(
+        function _callee15$(_context15) {
+          while (1) {
+            switch ((_context15.prev = _context15.next)) {
+              case 0:
+                _context15.t0 = _this;
+                _context15.t1 = _this;
+                _context15.next = 4;
+                return _this.getStoreTags();
+
+              case 4:
+                _context15.t2 = _context15.sent;
+                _context15.next = 7;
+                return _context15.t1.crawlStoreTagsTotalItemsInfo.call(_context15.t1, _context15.t2);
+
+              case 7:
+                _context15.t3 = _context15.sent;
+                _context15.next = 10;
+                return _context15.t0.crawlProductsForEachStoreTag.call(_context15.t0, _context15.t3);
+
+              case 10:
+              case 'end':
+                return _context15.stop();
+            }
+          }
+        },
+        _callee15,
+        _this,
+      );
+    }),
+  );
+
   this.logVerbose = (function() {
-    var _ref18 = _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee14(messageFunc) {
-        var config;
-        return regeneratorRuntime.wrap(
-          function _callee14$(_context14) {
-            while (1) {
-              switch ((_context14.prev = _context14.next)) {
-                case 0:
-                  _context14.next = 2;
-                  return _this.getConfig();
-
-                case 2:
-                  config = _context14.sent;
-
-                  if (_this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
-                    _this.logVerboseFunc(messageFunc());
-                  }
-
-                case 4:
-                case 'end':
-                  return _context14.stop();
-              }
-            }
-          },
-          _callee14,
-          _this,
-        );
-      }),
-    );
-
-    return function(_x18) {
-      return _ref18.apply(this, arguments);
-    };
-  })();
-
-  this.logInfo = (function() {
-    var _ref19 = _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee15(messageFunc) {
-        var config;
-        return regeneratorRuntime.wrap(
-          function _callee15$(_context15) {
-            while (1) {
-              switch ((_context15.prev = _context15.next)) {
-                case 0:
-                  _context15.next = 2;
-                  return _this.getConfig();
-
-                case 2:
-                  config = _context15.sent;
-
-                  if (_this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
-                    _this.logInfoFunc(messageFunc());
-                  }
-
-                case 4:
-                case 'end':
-                  return _context15.stop();
-              }
-            }
-          },
-          _callee15,
-          _this,
-        );
-      }),
-    );
-
-    return function(_x19) {
-      return _ref19.apply(this, arguments);
-    };
-  })();
-
-  this.logError = (function() {
     var _ref20 = _asyncToGenerator(
       regeneratorRuntime.mark(function _callee16(messageFunc) {
         var config;
@@ -978,8 +1062,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
                 case 2:
                   config = _context16.sent;
 
-                  if (_this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
-                    _this.logErrorFunc(messageFunc());
+                  if (_this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
+                    _this.logVerboseFunc(messageFunc());
                   }
 
                 case 4:
@@ -994,10 +1078,140 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }),
     );
 
-    return function(_x20) {
+    return function(_x18) {
       return _ref20.apply(this, arguments);
     };
   })();
+
+  this.logInfo = (function() {
+    var _ref21 = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee17(messageFunc) {
+        var config;
+        return regeneratorRuntime.wrap(
+          function _callee17$(_context17) {
+            while (1) {
+              switch ((_context17.prev = _context17.next)) {
+                case 0:
+                  _context17.next = 2;
+                  return _this.getConfig();
+
+                case 2:
+                  config = _context17.sent;
+
+                  if (_this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
+                    _this.logInfoFunc(messageFunc());
+                  }
+
+                case 4:
+                case 'end':
+                  return _context17.stop();
+              }
+            }
+          },
+          _callee17,
+          _this,
+        );
+      }),
+    );
+
+    return function(_x19) {
+      return _ref21.apply(this, arguments);
+    };
+  })();
+
+  this.logError = (function() {
+    var _ref22 = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee18(messageFunc) {
+        var config;
+        return regeneratorRuntime.wrap(
+          function _callee18$(_context18) {
+            while (1) {
+              switch ((_context18.prev = _context18.next)) {
+                case 0:
+                  _context18.next = 2;
+                  return _this.getConfig();
+
+                case 2:
+                  config = _context18.sent;
+
+                  if (_this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
+                    _this.logErrorFunc(messageFunc());
+                  }
+
+                case 4:
+                case 'end':
+                  return _context18.stop();
+              }
+            }
+          },
+          _callee18,
+          _this,
+        );
+      }),
+    );
+
+    return function(_x20) {
+      return _ref22.apply(this, arguments);
+    };
+  })();
+
+  this.crawlAllProductCategories = _asyncToGenerator(
+    regeneratorRuntime.mark(function _callee19() {
+      return regeneratorRuntime.wrap(
+        function _callee19$(_context19) {
+          while (1) {
+            switch ((_context19.prev = _context19.next)) {
+              case 0:
+                return _context19.abrupt('return', (0, _immutable.List)());
+
+              case 1:
+              case 'end':
+                return _context19.stop();
+            }
+          }
+        },
+        _callee19,
+        _this,
+      );
+    }),
+  );
+  this.crawlStoreTagsTotalItemsInfo = _asyncToGenerator(
+    regeneratorRuntime.mark(function _callee20() {
+      return regeneratorRuntime.wrap(
+        function _callee20$(_context20) {
+          while (1) {
+            switch ((_context20.prev = _context20.next)) {
+              case 0:
+                return _context20.abrupt('return', (0, _immutable.List)());
+
+              case 1:
+              case 'end':
+                return _context20.stop();
+            }
+          }
+        },
+        _callee20,
+        _this,
+      );
+    }),
+  );
+  this.crawlProductsForEachStoreTag = _asyncToGenerator(
+    regeneratorRuntime.mark(function _callee21() {
+      return regeneratorRuntime.wrap(
+        function _callee21$(_context21) {
+          while (1) {
+            switch ((_context21.prev = _context21.next)) {
+              case 0:
+              case 'end':
+                return _context21.stop();
+            }
+          }
+        },
+        _callee21,
+        _this,
+      );
+    }),
+  );
 
   this.storeKey = storeKey;
   this.sessionToken = sessionToken;
@@ -1007,6 +1221,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   this.config = null;
   this.store = null;
 };
+
+// These function must be overriden by the child classes
 
 StoreCrawlerServiceBase.removeDollarSignFromPrice = function(priceWithDollarSign) {
   return parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());

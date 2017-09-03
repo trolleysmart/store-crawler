@@ -2,7 +2,7 @@
 
 import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
-import Immutable, { List, Map, Range, Set } from 'immutable';
+import { List, Map, Range, Set } from 'immutable';
 import moment from 'moment';
 import { ImmutableEx } from 'micro-business-common-javascript';
 import { StoreMasterProductService } from 'trolley-smart-parse-server-common';
@@ -12,57 +12,6 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
   constructor(context) {
     super('warehouse', context);
   }
-
-  crawlAndSyncProductCategoriesToStoreTags = async () => {
-    const productCategories = await this.crawlAllProductCategories();
-    const storeTags = await this.getStoreTags(false);
-    const splittedLevelOneProductCategories = ImmutableEx.splitIntoChunks(productCategories, 100);
-
-    await BluebirdPromise.each(splittedLevelOneProductCategories.toArray(), productCategoryChunks =>
-      Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags))),
-    );
-
-    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(false);
-    const levelTwoProductCategories = productCategories
-      .map(productCategory =>
-        productCategory.update('subCategories', subCategories =>
-          subCategories.map(subCategory => subCategory.set('parent', productCategory.get('categoryKey'))),
-        ),
-      )
-      .flatMap(productCategory => productCategory.get('subCategories'));
-    const levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(productCategory => productCategory.get('categoryKey'));
-    const splittedLevelTwoProductCategories = ImmutableEx.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
-
-    await BluebirdPromise.each(splittedLevelTwoProductCategories.toArray(), productCategoryChunks =>
-      Promise.all(
-        productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories),
-        ),
-      ),
-    );
-
-    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags(false);
-    const levelThreeProductCategories = productCategories
-      .flatMap(productCategory => productCategory.get('subCategories'))
-      .map(productCategory =>
-        productCategory.update('subCategories', subCategories =>
-          subCategories.map(subCategory => subCategory.set('parent', productCategory.get('categoryKey'))),
-        ),
-      )
-      .flatMap(productCategory => productCategory.get('subCategories'));
-    const levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(productCategory =>
-      productCategory.get('categoryKey'),
-    );
-    const splittedLevelThreeProductCategories = ImmutableEx.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
-
-    await BluebirdPromise.each(splittedLevelThreeProductCategories.toArray(), productCategoryChunks =>
-      Promise.all(
-        productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories),
-        ),
-      ),
-    );
-  };
 
   crawlAllProductCategories = async () => {
     const config = await this.getConfig();
@@ -226,35 +175,9 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     return productCategories;
   };
 
-  crawlProducts = async (config, sessionToken) => {
-    const finalConfig = config || (await this.getConfig('Warehouse'));
-    const store = await this.getStore('Warehouse', sessionToken);
-    const storeId = store.get('id');
-    const productCategories = Immutable.fromJS(
-      (await this.getMostRecentCrawlResults(
-        'Warehouse Product Categories',
-        info => info.getIn(['resultSet', 'productCategories']),
-        sessionToken,
-      )).first(),
-    );
-    const productCategoriesLevelOne = productCategories.filter(_ => _.get('subCategories').isEmpty());
-    const productCategoriesLevelTwo = productCategories
-      .filterNot(_ => _.get('subCategories').isEmpty())
-      .flatMap(_ => _.get('subCategories'))
-      .filter(_ => _.get('subCategories').isEmpty());
-    const productCategoriesLevelThree = productCategories
-      .filterNot(_ => _.get('subCategories').isEmpty())
-      .flatMap(_ => _.get('subCategories'))
-      .filterNot(_ => _.get('subCategories').isEmpty())
-      .flatMap(_ => _.get('subCategories'));
-    const productCategoriesToCrawl = productCategoriesLevelOne.concat(productCategoriesLevelTwo).concat(productCategoriesLevelThree);
-    const productCategoriesToCrawlWithTotalItemsInfo = await this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
-
-    await this.crawlProductsForEachProductCategories(finalConfig, productCategoriesToCrawlWithTotalItemsInfo, storeId, sessionToken);
-  };
-
-  crawlProductCategoriesTotalItemsInfo = async (config, productCategories) => {
-    let productCategoriesToCrawlWithTotalItemsInfo = List();
+  crawlStoreTagsTotalItemsInfo = async (storeTags) => {
+    const config = await this.getConfig();
+    let storeTagsWithTotalItemsInfo = List();
 
     return new Promise((resolve, reject) => {
       const crawler = new Crawler({
@@ -273,7 +196,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
             return;
           }
 
-          const productCategory = productCategories.find(_ => _.get('url').localeCompare(StoreCrawlerServiceBase.safeGetUri(res)) === 0);
+          const productCategory = storeTags.find(_ => _.get('url').localeCompare(StoreCrawlerServiceBase.safeGetUri(res)) === 0);
 
           if (!productCategory) {
             // Ignoring the returned URL as looks like Warehouse forward the URL to other different categories
@@ -282,20 +205,18 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
             return;
           }
 
-          productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(
-            productCategory.set('totalItems', this.crawlTotalItemsInfo(config, res.$)),
-          );
+          storeTagsWithTotalItemsInfo = storeTagsWithTotalItemsInfo.push(productCategory.set('totalItems', this.crawlTotalItemsInfo(res.$)));
 
           done();
         },
       });
 
-      crawler.on('drain', () => resolve(productCategoriesToCrawlWithTotalItemsInfo));
-      productCategories.forEach(productCategory => crawler.queue(productCategory.get('url')));
+      crawler.on('drain', () => resolve(storeTagsWithTotalItemsInfo));
+      storeTags.forEach(productCategory => crawler.queue(productCategory.get('url')));
     });
   };
 
-  crawlTotalItemsInfo = (config, $) => {
+  crawlTotalItemsInfo = ($) => {
     let total = 0;
 
     $('.tab-content #results-products .pagination').filter(function filterPagination() {
@@ -306,7 +227,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
           const info = $(this)
             .text()
             .trim();
-          const line2 = info.split('\r\n')[1].trim();
+          const line2 = info.split('\n')[1].trim();
           const spaceIdx = line2.indexOf(' ');
 
           total = parseInt(
@@ -326,8 +247,10 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     return total;
   };
 
-  crawlProductsForEachProductCategories = (config, productCategories, storeId, sessionToken) =>
-    new Promise((resolve, reject) => {
+  crawlProductsForEachStoreTag = async (storeTags) => {
+    const config = await this.getConfig();
+
+    return new Promise((resolve, reject) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
@@ -346,7 +269,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           const urlOffset = StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
           const baseUrl = StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
-          const productCategory = productCategories.find(_ => _.get('url').localeCompare(baseUrl) === 0);
+          const productCategory = storeTags.find(_ => _.get('url').localeCompare(baseUrl) === 0);
 
           if (!productCategory) {
             done();
@@ -359,8 +282,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           Promise.all(
             productInfos
-              .filter(productInfo => productInfo.get('productPageUrl'))
-              .map(productInfo => this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId, sessionToken)),
+              .filter(productInfo => productInfo.get('url'))
+              .map(productInfo => this.createOrUpdateStoreProduct(productCategory, productInfo)),
           )
             .then(() => done())
             .catch((storeProductUpdateError) => {
@@ -371,10 +294,11 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       });
 
       crawler.on('drain', () => resolve());
-      productCategories.forEach(productCategory =>
+      storeTags.forEach(productCategory =>
         Range(0, productCategory.get('totalItems'), 24).forEach(offset => crawler.queue(`${productCategory.get('url')}?sz=24&start=${offset}`)),
       );
     });
+  };
 
   crawlProductInfo = (config, $) => {
     let products = List();

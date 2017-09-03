@@ -7,5 +7,6 @@ export default class StoreCrawlerServiceBaseMockTracker {
     this.createOrUpdateLevelOneProductCategory = jest.fn();
     this.createOrUpdateLevelTwoProductCategory = jest.fn();
     this.createOrUpdateLevelThreeProductCategory = jest.fn();
+    this.createOrUpdateStoreProduct = jest.fn();
   }
 }

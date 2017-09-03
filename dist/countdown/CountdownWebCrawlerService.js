@@ -14,8 +14,6 @@ var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
 
-var _immutable2 = _interopRequireDefault(_immutable);
-
 var _microBusinessCommonJavascript = require('micro-business-common-javascript');
 
 var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
@@ -92,114 +90,28 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
       (CountdownWebCrawlerService.__proto__ || Object.getPrototypeOf(CountdownWebCrawlerService)).call(this, 'countdown', context),
     );
 
-    _this.crawlAndSyncProductCategoriesToStoreTags = _asyncToGenerator(
+    _this.crawlAllProductCategories = _asyncToGenerator(
       regeneratorRuntime.mark(function _callee() {
-        var productCategories,
-          storeTags,
-          splittedLevelOneProductCategories,
-          storeTagsWithUpdatedLevelOneProductCategories,
-          levelTwoProductCategories,
-          levelTwoProductCategoriesGroupedByCategoryKey,
-          splittedLevelTwoProductCategories,
-          storeTagsWithUpdatedLevelTwoProductCategories,
-          levelThreeProductCategories,
-          levelThreeProductCategoriesGroupedByCategoryKey,
-          splittedLevelThreeProductCategories;
         return regeneratorRuntime.wrap(
           function _callee$(_context) {
             while (1) {
               switch ((_context.prev = _context.next)) {
                 case 0:
-                  _context.next = 2;
-                  return _this.crawlAllProductCategories();
+                  _context.t0 = _this;
+                  _context.t1 = _this;
+                  _context.next = 4;
+                  return _this.crawlLevelOneProductCategories();
 
-                case 2:
-                  productCategories = _context.sent;
-                  _context.next = 5;
-                  return _this.getStoreTags(false);
+                case 4:
+                  _context.t2 = _context.sent;
+                  _context.next = 7;
+                  return _context.t1.crawlLevelTwoProductCategories.call(_context.t1, _context.t2);
 
-                case 5:
-                  storeTags = _context.sent;
-                  splittedLevelOneProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(productCategories, 100);
-                  _context.next = 9;
-                  return _bluebird2.default.each(splittedLevelOneProductCategories.toArray(), function(productCategoryChunks) {
-                    return Promise.all(
-                      productCategoryChunks.map(function(productCategory) {
-                        return _this.createOrUpdateLevelOneProductCategory(productCategory, storeTags);
-                      }),
-                    );
-                  });
+                case 7:
+                  _context.t3 = _context.sent;
+                  return _context.abrupt('return', _context.t0.crawlLevelThreeProductCategories.call(_context.t0, _context.t3));
 
                 case 9:
-                  _context.next = 11;
-                  return _this.getStoreTags(false);
-
-                case 11:
-                  storeTagsWithUpdatedLevelOneProductCategories = _context.sent;
-                  levelTwoProductCategories = productCategories
-                    .map(function(productCategory) {
-                      return productCategory.update('subCategories', function(subCategories) {
-                        return subCategories.map(function(subCategory) {
-                          return subCategory.set('parent', productCategory.get('categoryKey'));
-                        });
-                      });
-                    })
-                    .flatMap(function(productCategory) {
-                      return productCategory.get('subCategories');
-                    });
-                  levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(function(productCategory) {
-                    return productCategory.get('categoryKey');
-                  });
-                  splittedLevelTwoProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(
-                    levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(),
-                    100,
-                  );
-                  _context.next = 17;
-                  return _bluebird2.default.each(splittedLevelTwoProductCategories.toArray(), function(productCategoryChunks) {
-                    return Promise.all(
-                      productCategoryChunks.map(function(productCategory) {
-                        return _this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories);
-                      }),
-                    );
-                  });
-
-                case 17:
-                  _context.next = 19;
-                  return _this.getStoreTags(false);
-
-                case 19:
-                  storeTagsWithUpdatedLevelTwoProductCategories = _context.sent;
-                  levelThreeProductCategories = productCategories
-                    .flatMap(function(productCategory) {
-                      return productCategory.get('subCategories');
-                    })
-                    .map(function(productCategory) {
-                      return productCategory.update('subCategories', function(subCategories) {
-                        return subCategories.map(function(subCategory) {
-                          return subCategory.set('parent', productCategory.get('categoryKey'));
-                        });
-                      });
-                    })
-                    .flatMap(function(productCategory) {
-                      return productCategory.get('subCategories');
-                    });
-                  levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(function(productCategory) {
-                    return productCategory.get('categoryKey');
-                  });
-                  splittedLevelThreeProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(
-                    levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(),
-                    100,
-                  );
-                  _context.next = 25;
-                  return _bluebird2.default.each(splittedLevelThreeProductCategories.toArray(), function(productCategoryChunks) {
-                    return Promise.all(
-                      productCategoryChunks.map(function(productCategory) {
-                        return _this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories);
-                      }),
-                    );
-                  });
-
-                case 25:
                 case 'end':
                   return _context.stop();
               }
@@ -210,52 +122,21 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
         );
       }),
     );
-    _this.crawlAllProductCategories = _asyncToGenerator(
+    _this.crawlLevelOneProductCategories = _asyncToGenerator(
       regeneratorRuntime.mark(function _callee2() {
-        var levelOneProductCategories, levelOneAndTwoProductCategories;
+        var config, productCategories;
         return regeneratorRuntime.wrap(
           function _callee2$(_context2) {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
                   _context2.next = 2;
-                  return _this.crawlLevelOneProductCategories();
-
-                case 2:
-                  levelOneProductCategories = _context2.sent;
-                  _context2.next = 5;
-                  return _this.crawlLevelTwoProductCategories(levelOneProductCategories);
-
-                case 5:
-                  levelOneAndTwoProductCategories = _context2.sent;
-                  return _context2.abrupt('return', _this.crawlLevelThreeProductCategories(levelOneAndTwoProductCategories));
-
-                case 7:
-                case 'end':
-                  return _context2.stop();
-              }
-            }
-          },
-          _callee2,
-          _this2,
-        );
-      }),
-    );
-    _this.crawlLevelOneProductCategories = _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee3() {
-        var config, productCategories;
-        return regeneratorRuntime.wrap(
-          function _callee3$(_context3) {
-            while (1) {
-              switch ((_context3.prev = _context3.next)) {
-                case 0:
-                  _context3.next = 2;
                   return _this.getConfig();
 
                 case 2:
-                  config = _context3.sent;
+                  config = _context2.sent;
                   productCategories = (0, _immutable.List)();
-                  return _context3.abrupt(
+                  return _context2.abrupt(
                     'return',
                     new Promise(function(resolve, reject) {
                       var crawler = new _crawler2.default({
@@ -337,32 +218,32 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
                 case 5:
                 case 'end':
-                  return _context3.stop();
+                  return _context2.stop();
               }
             }
           },
-          _callee3,
+          _callee2,
           _this2,
         );
       }),
     );
 
     _this.crawlLevelTwoProductCategories = (function() {
-      var _ref4 = _asyncToGenerator(
-        regeneratorRuntime.mark(function _callee4(productCategories) {
+      var _ref3 = _asyncToGenerator(
+        regeneratorRuntime.mark(function _callee3(productCategories) {
           var config, updatedProductCategories;
           return regeneratorRuntime.wrap(
-            function _callee4$(_context4) {
+            function _callee3$(_context3) {
               while (1) {
-                switch ((_context4.prev = _context4.next)) {
+                switch ((_context3.prev = _context3.next)) {
                   case 0:
-                    _context4.next = 2;
+                    _context3.next = 2;
                     return _this.getConfig();
 
                   case 2:
-                    config = _context4.sent;
+                    config = _context3.sent;
                     updatedProductCategories = productCategories;
-                    return _context4.abrupt(
+                    return _context3.abrupt(
                       'return',
                       new Promise(function(resolve, reject) {
                         var crawler = new _crawler2.default({
@@ -467,37 +348,37 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
                   case 5:
                   case 'end':
-                    return _context4.stop();
+                    return _context3.stop();
                 }
               }
             },
-            _callee4,
+            _callee3,
             _this2,
           );
         }),
       );
 
       return function(_x) {
-        return _ref4.apply(this, arguments);
+        return _ref3.apply(this, arguments);
       };
     })();
 
     _this.crawlLevelThreeProductCategories = (function() {
-      var _ref5 = _asyncToGenerator(
-        regeneratorRuntime.mark(function _callee5(productCategories) {
+      var _ref4 = _asyncToGenerator(
+        regeneratorRuntime.mark(function _callee4(productCategories) {
           var config, updatedProductCategories;
           return regeneratorRuntime.wrap(
-            function _callee5$(_context5) {
+            function _callee4$(_context4) {
               while (1) {
-                switch ((_context5.prev = _context5.next)) {
+                switch ((_context4.prev = _context4.next)) {
                   case 0:
-                    _context5.next = 2;
+                    _context4.next = 2;
                     return _this.getConfig();
 
                   case 2:
-                    config = _context5.sent;
+                    config = _context4.sent;
                     updatedProductCategories = productCategories;
-                    return _context5.abrupt(
+                    return _context4.abrupt(
                       'return',
                       new Promise(function(resolve, reject) {
                         var crawler = new _crawler2.default({
@@ -630,6 +511,91 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
 
                   case 5:
                   case 'end':
+                    return _context4.stop();
+                }
+              }
+            },
+            _callee4,
+            _this2,
+          );
+        }),
+      );
+
+      return function(_x2) {
+        return _ref4.apply(this, arguments);
+      };
+    })();
+
+    _this.crawlStoreTagsTotalItemsInfo = (function() {
+      var _ref5 = _asyncToGenerator(
+        regeneratorRuntime.mark(function _callee5(storeTags) {
+          var config, storeTagsWithTotalItemsInfo;
+          return regeneratorRuntime.wrap(
+            function _callee5$(_context5) {
+              while (1) {
+                switch ((_context5.prev = _context5.next)) {
+                  case 0:
+                    _context5.next = 2;
+                    return _this.getConfig();
+
+                  case 2:
+                    config = _context5.sent;
+                    storeTagsWithTotalItemsInfo = (0, _immutable.List)();
+                    return _context5.abrupt(
+                      'return',
+                      new Promise(function(resolve, reject) {
+                        var crawler = new _crawler2.default({
+                          rateLimit: config.get('rateLimit'),
+                          maxConnections: config.get('maxConnections'),
+                          callback: function callback(error, res, done) {
+                            _this.logInfo(function() {
+                              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
+                            });
+                            _this.logVerbose(function() {
+                              return 'Received response for: ' + JSON.stringify(res);
+                            });
+
+                            if (error) {
+                              done();
+                              reject(
+                                'Failed to receive product category page info for Url: ' +
+                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                                  ' - Error: ' +
+                                  JSON.stringify(error),
+                              );
+
+                              return;
+                            }
+
+                            var productCategory = storeTags.find(function(_) {
+                              return _.get('url').localeCompare(_2.StoreCrawlerServiceBase.safeGetUri(res)) === 0;
+                            });
+
+                            if (!productCategory) {
+                              // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
+                              done();
+
+                              return;
+                            }
+
+                            storeTagsWithTotalItemsInfo = storeTagsWithTotalItemsInfo.push(
+                              productCategory.set('totalItems', _this.crawlTotalItemsInfo(res.$)),
+                            );
+                            done();
+                          },
+                        });
+
+                        crawler.on('drain', function() {
+                          return resolve(storeTagsWithTotalItemsInfo);
+                        });
+                        storeTags.forEach(function(productCategory) {
+                          return crawler.queue(productCategory.get('url'));
+                        });
+                      }),
+                    );
+
+                  case 5:
+                  case 'end':
                     return _context5.stop();
                 }
               }
@@ -640,139 +606,12 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
         }),
       );
 
-      return function(_x2) {
+      return function(_x3) {
         return _ref5.apply(this, arguments);
       };
     })();
 
-    _this.crawlProducts = (function() {
-      var _ref6 = _asyncToGenerator(
-        regeneratorRuntime.mark(function _callee6(config, sessionToken) {
-          var finalConfig, store, storeId, productCategoriesToCrawl, productCategoriesToCrawlWithTotalItemsInfo;
-          return regeneratorRuntime.wrap(
-            function _callee6$(_context6) {
-              while (1) {
-                switch ((_context6.prev = _context6.next)) {
-                  case 0:
-                    _context6.t0 = config;
-
-                    if (_context6.t0) {
-                      _context6.next = 5;
-                      break;
-                    }
-
-                    _context6.next = 4;
-                    return _this.getConfig('Countdown');
-
-                  case 4:
-                    _context6.t0 = _context6.sent;
-
-                  case 5:
-                    finalConfig = _context6.t0;
-                    _context6.next = 8;
-                    return _this.getStore('Countdown', sessionToken);
-
-                  case 8:
-                    store = _context6.sent;
-                    storeId = store.get('id');
-                    _context6.t1 = _immutable2.default;
-                    _context6.next = 13;
-                    return _this.getMostRecentCrawlResults(
-                      'Countdown Product Categories',
-                      function(info) {
-                        return info.getIn(['resultSet', 'productCategories']);
-                      },
-                      sessionToken,
-                    );
-
-                  case 13:
-                    _context6.t2 = _context6.sent.first();
-                    productCategoriesToCrawl = _context6.t1.fromJS.call(_context6.t1, _context6.t2);
-                    _context6.next = 17;
-                    return _this.crawlProductCategoriesTotalItemsInfo(finalConfig, productCategoriesToCrawl);
-
-                  case 17:
-                    productCategoriesToCrawlWithTotalItemsInfo = _context6.sent;
-                    _context6.next = 20;
-                    return _this.crawlProductsForEachProductCategories(
-                      finalConfig,
-                      productCategoriesToCrawlWithTotalItemsInfo,
-                      storeId,
-                      sessionToken,
-                    );
-
-                  case 20:
-                  case 'end':
-                    return _context6.stop();
-                }
-              }
-            },
-            _callee6,
-            _this2,
-          );
-        }),
-      );
-
-      return function(_x3, _x4) {
-        return _ref6.apply(this, arguments);
-      };
-    })();
-
-    _this.crawlProductCategoriesTotalItemsInfo = function(config, productCategories) {
-      var productCategoriesToCrawlWithTotalItemsInfo = (0, _immutable.List)();
-
-      return new Promise(function(resolve, reject) {
-        var crawler = new _crawler2.default({
-          rateLimit: config.get('rateLimit'),
-          maxConnections: config.get('maxConnections'),
-          callback: function callback(error, res, done) {
-            _this.logInfo(function() {
-              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
-            });
-            _this.logVerbose(function() {
-              return 'Received response for: ' + JSON.stringify(res);
-            });
-
-            if (error) {
-              done();
-              reject(
-                'Failed to receive product category page info for Url: ' +
-                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
-                  ' - Error: ' +
-                  JSON.stringify(error),
-              );
-
-              return;
-            }
-
-            var productCategory = productCategories.find(function(_) {
-              return _.get('url').localeCompare(_2.StoreCrawlerServiceBase.safeGetUri(res)) === 0;
-            });
-
-            if (!productCategory) {
-              // Ignoring the returned URL as looks like Countdown forward the URL to other different categories
-              done();
-
-              return;
-            }
-
-            productCategoriesToCrawlWithTotalItemsInfo = productCategoriesToCrawlWithTotalItemsInfo.push(
-              productCategory.set('totalItems', _this.crawlTotalItemsInfo(config, res.$)),
-            );
-            done();
-          },
-        });
-
-        crawler.on('drain', function() {
-          return resolve(productCategoriesToCrawlWithTotalItemsInfo);
-        });
-        productCategories.forEach(function(productCategory) {
-          return crawler.queue(productCategory.get('url'));
-        });
-      });
-    };
-
-    _this.crawlTotalItemsInfo = function(config, $) {
+    _this.crawlTotalItemsInfo = function($) {
       var total = 0;
 
       $('#middle-panel .side-gutter #content-panel .paging-container .paging-description').filter(function filterPagingDescription() {
@@ -795,75 +634,107 @@ var CountdownWebCrawlerService = (function(_StoreCrawlerServiceB) {
       return total;
     };
 
-    _this.crawlProductsForEachProductCategories = function(config, productCategories, storeId, sessionToken) {
-      return new Promise(function(resolve, reject) {
-        var crawler = new _crawler2.default({
-          rateLimit: config.get('rateLimit'),
-          maxConnections: config.get('maxConnections'),
-          callback: function callback(error, res, done) {
-            _this.logInfo(function() {
-              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
-            });
-            _this.logVerbose(function() {
-              return 'Received response for: ' + JSON.stringify(res);
-            });
+    _this.crawlProductsForEachStoreTag = (function() {
+      var _ref6 = _asyncToGenerator(
+        regeneratorRuntime.mark(function _callee6(storeTags) {
+          var config;
+          return regeneratorRuntime.wrap(
+            function _callee6$(_context6) {
+              while (1) {
+                switch ((_context6.prev = _context6.next)) {
+                  case 0:
+                    _context6.next = 2;
+                    return _this.getConfig();
 
-            if (error) {
-              done();
-              reject(
-                'Failed to receive product category page info for Url: ' +
-                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
-                  ' - Error: ' +
-                  JSON.stringify(error),
-              );
+                  case 2:
+                    config = _context6.sent;
+                    return _context6.abrupt(
+                      'return',
+                      new Promise(function(resolve, reject) {
+                        var crawler = new _crawler2.default({
+                          rateLimit: config.get('rateLimit'),
+                          maxConnections: config.get('maxConnections'),
+                          callback: function callback(error, res, done) {
+                            _this.logInfo(function() {
+                              return 'Received response for: ' + _2.StoreCrawlerServiceBase.safeGetUri(res);
+                            });
+                            _this.logVerbose(function() {
+                              return 'Received response for: ' + JSON.stringify(res);
+                            });
 
-              return;
-            }
+                            if (error) {
+                              done();
+                              reject(
+                                'Failed to receive product category page info for Url: ' +
+                                  _2.StoreCrawlerServiceBase.safeGetUri(res) +
+                                  ' - Error: ' +
+                                  JSON.stringify(error),
+                              );
 
-            var urlOffset = _2.StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
-            var baseUrl = _2.StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
-            var productCategory = productCategories.find(function(_) {
-              return _.get('url').localeCompare(baseUrl) === 0;
-            });
+                              return;
+                            }
 
-            if (!productCategory) {
-              done();
-              reject('Failed to find product category page info for Url: ' + baseUrl);
+                            var urlOffset = _2.StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
+                            var baseUrl = _2.StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
+                            var productCategory = storeTags.find(function(_) {
+                              return _.get('url').localeCompare(baseUrl) === 0;
+                            });
 
-              return;
-            }
+                            if (!productCategory) {
+                              done();
+                              reject('Failed to find product category page info for Url: ' + baseUrl);
 
-            var productInfos = _this.crawlProductInfo(config, res.$);
+                              return;
+                            }
 
-            Promise.all(
-              productInfos
-                .filter(function(productInfo) {
-                  return productInfo.get('productPageUrl');
-                })
-                .map(function(productInfo) {
-                  return _this.createOrUpdateStoreMasterProduct(productCategory, productInfo, storeId, sessionToken);
-                }),
-            )
-              .then(function() {
-                return done();
-              })
-              .catch(function(storeProductUpdateError) {
-                done();
-                reject(storeProductUpdateError);
-              });
-          },
-        });
+                            var productInfos = _this.crawlProductInfo(config, res.$);
 
-        crawler.on('drain', function() {
-          return resolve();
-        });
-        productCategories.forEach(function(productCategory) {
-          return (0, _immutable.Range)(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(function(offset) {
-            return crawler.queue(productCategory.get('url') + '?page=' + (offset + 1));
-          });
-        });
-      });
-    };
+                            Promise.all(
+                              productInfos
+                                .filter(function(productInfo) {
+                                  return productInfo.get('productPageUrl');
+                                })
+                                .map(function(productInfo) {
+                                  return _this.createOrUpdateStoreProduct(productCategory, productInfo);
+                                }),
+                            )
+                              .then(function() {
+                                return done();
+                              })
+                              .catch(function(storeProductUpdateError) {
+                                done();
+                                reject(storeProductUpdateError);
+                              });
+                          },
+                        });
+
+                        crawler.on('drain', function() {
+                          return resolve();
+                        });
+                        storeTags.forEach(function(productCategory) {
+                          return (0, _immutable.Range)(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(function(offset) {
+                            return crawler.queue(productCategory.get('url') + '?page=' + (offset + 1));
+                          });
+                        });
+                      }),
+                    );
+
+                  case 4:
+                  case 'end':
+                    return _context6.stop();
+                }
+              }
+            },
+            _callee6,
+            _this2,
+          );
+        }),
+      );
+
+      return function(_x4) {
+        return _ref6.apply(this, arguments);
+      };
+    })();
 
     _this.crawlProductInfo = function(config, $) {
       var products = (0, _immutable.List)();

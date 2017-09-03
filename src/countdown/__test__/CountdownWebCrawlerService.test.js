@@ -8,6 +8,8 @@ const StoreCrawlerServiceBase = require('../../common/StoreCrawlerServiceBase');
 
 const createCountdownWebCrawlerService = () => new CountdownWebCrawlerService('countdown');
 
+const storeTags = List.of(Map({ id: uuid(), url: 'https://shop.countdown.co.nz/Shop/Browse/baby-care/baby-formula' }));
+
 jest.mock('../../common/StoreCrawlerServiceBase');
 
 beforeEach(() => {
@@ -20,16 +22,10 @@ beforeEach(() => {
       logLevel: 2,
       categoryKeysToExclude: List.of('restricted-items', 'christmas'),
     }),
-    sessionInfo: Map({ id: uuid() }),
+    storeTags,
   });
 });
 
-describe('crawlAndSyncProductCategoriesToStoreTags', () => {
-  it('should call getStoreTags three times for all three level product categories', async () => {});
-
-  it('should call createOrUpdateLevelOneProductCategory', async () => {});
-
-  it('should call createOrUpdateLevelTwoProductCategory', async () => {});
-
-  it('should call createOrUpdateLevelThreeProductCategory', async () => {});
+describe('crawlProducts', () => {
+  it('should crawl products for the provided store tags', async () => {});
 });

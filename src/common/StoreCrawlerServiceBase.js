@@ -1,8 +1,9 @@
 // @flow
 
+import BluebirdPromise from 'bluebird';
 import Immutable, { List, Map } from 'immutable';
 import moment from 'moment';
-import { Exception } from 'micro-business-common-javascript';
+import { Exception, ImmutableEx } from 'micro-business-common-javascript';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
 import { ProductPriceService, StoreService, StoreProductService, StoreTagService } from 'trolley-smart-parse-server-common';
 
@@ -302,6 +303,61 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
+  crawlAndSyncProductCategoriesToStoreTags = async () => {
+    const productCategories = await this.crawlAllProductCategories();
+    const storeTags = await this.getStoreTags(false);
+    const splittedLevelOneProductCategories = ImmutableEx.splitIntoChunks(productCategories, 100);
+
+    await BluebirdPromise.each(splittedLevelOneProductCategories.toArray(), productCategoryChunks =>
+      Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags))),
+    );
+
+    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(false);
+    const levelTwoProductCategories = productCategories
+      .map(productCategory =>
+        productCategory.update('subCategories', subCategories =>
+          subCategories.map(subCategory => subCategory.set('parent', productCategory.get('categoryKey'))),
+        ),
+      )
+      .flatMap(productCategory => productCategory.get('subCategories'));
+    const levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(productCategory => productCategory.get('categoryKey'));
+    const splittedLevelTwoProductCategories = ImmutableEx.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+
+    await BluebirdPromise.each(splittedLevelTwoProductCategories.toArray(), productCategoryChunks =>
+      Promise.all(
+        productCategoryChunks.map(productCategory =>
+          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneProductCategories),
+        ),
+      ),
+    );
+
+    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags(false);
+    const levelThreeProductCategories = productCategories
+      .flatMap(productCategory => productCategory.get('subCategories'))
+      .map(productCategory =>
+        productCategory.update('subCategories', subCategories =>
+          subCategories.map(subCategory => subCategory.set('parent', productCategory.get('categoryKey'))),
+        ),
+      )
+      .flatMap(productCategory => productCategory.get('subCategories'));
+    const levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(productCategory =>
+      productCategory.get('categoryKey'),
+    );
+    const splittedLevelThreeProductCategories = ImmutableEx.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+
+    await BluebirdPromise.each(splittedLevelThreeProductCategories.toArray(), productCategoryChunks =>
+      Promise.all(
+        productCategoryChunks.map(productCategory =>
+          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoProductCategories),
+        ),
+      ),
+    );
+  };
+
+  crawlProducts = async () => {
+    await this.crawlProductsForEachStoreTag(await this.crawlStoreTagsTotalItemsInfo(await this.getStoreTags()));
+  };
+
   logVerbose = async (messageFunc) => {
     const config = await this.getConfig();
 
@@ -325,4 +381,9 @@ export default class StoreCrawlerServiceBase {
       this.logErrorFunc(messageFunc());
     }
   };
+
+  // These function must be overriden by the child classes
+  crawlAllProductCategories = async () => List();
+  crawlStoreTagsTotalItemsInfo = async () => List();
+  crawlProductsForEachStoreTag = async () => {};
 }

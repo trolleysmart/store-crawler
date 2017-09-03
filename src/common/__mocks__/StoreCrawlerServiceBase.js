@@ -18,7 +18,7 @@ export const setupStoreCrawlerServiceBase = ({ config, storeTags } = {}) => {
 };
 
 export default class StoreCrawlerServiceBase {
-  static safeGetUri = res => res;
+  static safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
 
   getConfig = async () => {
     if (storeCrawlerServiceBaseMockTracker) {
@@ -51,6 +51,12 @@ export default class StoreCrawlerServiceBase {
   createOrUpdateLevelThreeProductCategory = async (productCategory, storeTags) => {
     if (storeCrawlerServiceBaseMockTracker) {
       storeCrawlerServiceBaseMockTracker.createOrUpdateLevelThreeProductCategory(productCategory, storeTags);
+    }
+  };
+
+  createOrUpdateStoreProduct = async (productCategory, productInfo) => {
+    if (storeCrawlerServiceBaseMockTracker) {
+      storeCrawlerServiceBaseMockTracker.createOrUpdateStoreProduct(productCategory, productInfo);
     }
   };
 

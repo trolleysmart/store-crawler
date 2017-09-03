@@ -48,6 +48,10 @@ var createCountdownWebCrawlerService = function createCountdownWebCrawlerService
   return new _.CountdownWebCrawlerService('countdown');
 };
 
+var storeTags = _immutable.List.of(
+  (0, _immutable.Map)({ id: (0, _v2.default)(), url: 'https://shop.countdown.co.nz/Shop/Browse/baby-care/baby-formula' }),
+);
+
 jest.mock('../../common/StoreCrawlerServiceBase');
 
 beforeEach(function() {
@@ -60,13 +64,13 @@ beforeEach(function() {
       logLevel: 2,
       categoryKeysToExclude: _immutable.List.of('restricted-items', 'christmas'),
     }),
-    sessionInfo: (0, _immutable.Map)({ id: (0, _v2.default)() }),
+    storeTags: storeTags,
   });
 });
 
-describe('crawlAndSyncProductCategoriesToStoreTags', function() {
+describe('crawlProducts', function() {
   it(
-    'should call getStoreTags three times for all three level product categories',
+    'should crawl products for the provided store tags',
     _asyncToGenerator(
       regeneratorRuntime.mark(function _callee() {
         return regeneratorRuntime.wrap(
@@ -80,69 +84,6 @@ describe('crawlAndSyncProductCategoriesToStoreTags', function() {
             }
           },
           _callee,
-          undefined,
-        );
-      }),
-    ),
-  );
-
-  it(
-    'should call createOrUpdateLevelOneProductCategory',
-    _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee2() {
-        return regeneratorRuntime.wrap(
-          function _callee2$(_context2) {
-            while (1) {
-              switch ((_context2.prev = _context2.next)) {
-                case 0:
-                case 'end':
-                  return _context2.stop();
-              }
-            }
-          },
-          _callee2,
-          undefined,
-        );
-      }),
-    ),
-  );
-
-  it(
-    'should call createOrUpdateLevelTwoProductCategory',
-    _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee3() {
-        return regeneratorRuntime.wrap(
-          function _callee3$(_context3) {
-            while (1) {
-              switch ((_context3.prev = _context3.next)) {
-                case 0:
-                case 'end':
-                  return _context3.stop();
-              }
-            }
-          },
-          _callee3,
-          undefined,
-        );
-      }),
-    ),
-  );
-
-  it(
-    'should call createOrUpdateLevelThreeProductCategory',
-    _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee4() {
-        return regeneratorRuntime.wrap(
-          function _callee4$(_context4) {
-            while (1) {
-              switch ((_context4.prev = _context4.next)) {
-                case 0:
-                case 'end':
-                  return _context4.stop();
-              }
-            }
-          },
-          _callee4,
           undefined,
         );
       }),

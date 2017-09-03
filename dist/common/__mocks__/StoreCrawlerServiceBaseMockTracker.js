@@ -1,10 +1,14 @@
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
+Object.defineProperty(exports, '__esModule', {
+  value: true,
 });
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
 
 var StoreCrawlerServiceBaseMockTracker = function StoreCrawlerServiceBaseMockTracker() {
   _classCallCheck(this, StoreCrawlerServiceBaseMockTracker);
@@ -14,6 +18,7 @@ var StoreCrawlerServiceBaseMockTracker = function StoreCrawlerServiceBaseMockTra
   this.createOrUpdateLevelOneProductCategory = jest.fn();
   this.createOrUpdateLevelTwoProductCategory = jest.fn();
   this.createOrUpdateLevelThreeProductCategory = jest.fn();
+  this.createOrUpdateStoreProduct = jest.fn();
 };
 
 exports.default = StoreCrawlerServiceBaseMockTracker;
