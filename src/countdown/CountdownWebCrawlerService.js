@@ -1,7 +1,9 @@
 // @flow
 
+import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import { List, Map, Range, Set } from 'immutable';
+import { ImmutableEx } from 'micro-business-common-javascript';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase {
@@ -10,6 +12,32 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
   constructor(context) {
     super('countdown', context);
   }
+
+  syncTags = async () => {
+    const storeTags = await this.getStoreTags();
+
+    await this.syncLevelOneTags(storeTags);
+    await this.syncLevelTwoTags(storeTags);
+    await this.syncLevelThreeTags(storeTags);
+  };
+
+  updateStoreTags = async () => {
+    const storeTags = await this.getStoreTags();
+    const tags = await this.getTags();
+    const splittedStoreTags = ImmutableEx.splitIntoChunks(storeTags, 100);
+
+    await BluebirdPromise.each(splittedStoreTags.toArray(), storeTagsChunks =>
+      Promise.all(
+        storeTagsChunks
+          .map((storeTag) => {
+            const foundTag = tags.find(tag => tag.get('key').localeCompare(storeTag.get('key')) === 0);
+
+            return this.updateExistingStoreTag(storeTag.set('tagId', foundTag ? foundTag.get('id') : null));
+          })
+          .toArray(),
+      ),
+    );
+  };
 
   crawlAllProductCategories = async () =>
     this.crawlLevelThreeProductCategories(await this.crawlLevelTwoProductCategories(await this.crawlLevelOneProductCategories()));
@@ -773,5 +801,107 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         }),
       ),
     ]);
+  };
+
+  syncLevelOneTags = async (storeTags) => {
+    const levelOneTags = await this.getTags(1);
+    const levelOneStoreTags = storeTags.filter(storeTag => storeTag.get('level') === 1);
+    const levelOneTagsToCreate = levelOneStoreTags.filterNot(storeTag =>
+      levelOneTags.find(tag => tag.get('key').localeCompare(storeTag.get('key') === 0)),
+    );
+
+    const splittedTags = ImmutableEx.splitIntoChunks(levelOneTagsToCreate, 100);
+
+    await BluebirdPromise.each(splittedTags.toArray(), tagsChunks =>
+      Promise.all(
+        tagsChunks
+          .map(tag =>
+            this.createNewTag(
+              tag
+                .delete('storeTags')
+                .delete('tag')
+                .delete('store')
+                .delete('url'),
+            ),
+          )
+          .toArray(),
+      ),
+    );
+  };
+
+  syncLevelTwoTags = async (storeTags) => {
+    const levelOneTags = await this.getTags(1);
+    const levelTwoTags = await this.getTags(2);
+    const levelOneStoreTags = storeTags.filter(storeTag => storeTag.get('level') === 1);
+    const levelTwoStoreTags = storeTags.filter(storeTag => storeTag.get('level') === 2);
+    const levelTwoTagsToCreate = levelTwoStoreTags.filterNot(storeTag =>
+      levelTwoTags.find(tag => tag.get('key').localeCompare(storeTag.get('key') === 0)),
+    );
+
+    const splittedTags = ImmutableEx.splitIntoChunks(levelTwoTagsToCreate, 100);
+
+    await BluebirdPromise.each(splittedTags.toArray(), tagsChunks =>
+      Promise.all(
+        tagsChunks
+          .map(tag =>
+            this.createNewTag(
+              tag
+                .delete('storeTags')
+                .delete('tag')
+                .delete('store')
+                .delete('url')
+                .set(
+                  'tagIds',
+                  tag
+                    .get('storeTagIds')
+                    .map(storeTagId => levelOneStoreTags.find(levelOneStoreTag => levelOneStoreTag.get('id').localeCompare(storeTagId) === 0))
+                    .map(levelOneStoreTag =>
+                      levelOneTags.find(levelOneTag => levelOneTag.get('key').localeCompare(levelOneStoreTag.get('key')) === 0),
+                    )
+                    .map(levelOneTag => levelOneTag.get('id')),
+                ),
+            ),
+          )
+          .toArray(),
+      ),
+    );
+  };
+
+  syncLevelThreeTags = async (storeTags) => {
+    const levelTwoTags = await this.getTags(2);
+    const levelThreeTags = await this.getTags(3);
+    const levelTwoStoreTags = storeTags.filter(storeTag => storeTag.get('level') === 2);
+    const levelThreeStoreTags = storeTags.filter(storeTag => storeTag.get('level') === 3);
+    const levelThreeTagsToCreate = levelThreeStoreTags.filterNot(storeTag =>
+      levelThreeTags.find(tag => tag.get('key').localeCompare(storeTag.get('key') === 0)),
+    );
+
+    const splittedTags = ImmutableEx.splitIntoChunks(levelThreeTagsToCreate, 100);
+
+    await BluebirdPromise.each(splittedTags.toArray(), tagsChunks =>
+      Promise.all(
+        tagsChunks
+          .map(tag =>
+            this.createNewTag(
+              tag
+                .delete('storeTags')
+                .delete('tag')
+                .delete('store')
+                .delete('url')
+                .set(
+                  'tagIds',
+                  tag
+                    .get('storeTagIds')
+                    .map(storeTagId => levelTwoStoreTags.find(levelTwoStoreTag => levelTwoStoreTag.get('id').localeCompare(storeTagId) === 0))
+                    .map(levelTwoStoreTag =>
+                      levelTwoTags.find(levelTwoTag => levelTwoTag.get('key').localeCompare(levelTwoStoreTag.get('key')) === 0),
+                    )
+                    .map(levelTwoTag => levelTwoTag.get('id')),
+                ),
+            ),
+          )
+          .toArray(),
+      ),
+    );
   };
 }

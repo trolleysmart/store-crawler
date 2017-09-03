@@ -5,7 +5,7 @@ import Immutable, { List, Map } from 'immutable';
 import moment from 'moment';
 import { Exception, ImmutableEx } from 'micro-business-common-javascript';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
-import { ProductPriceService, StoreService, StoreProductService, StoreTagService } from 'trolley-smart-parse-server-common';
+import { ProductPriceService, StoreService, StoreProductService, StoreTagService, TagService } from 'trolley-smart-parse-server-common';
 
 export default class StoreCrawlerServiceBase {
   static removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
@@ -70,9 +70,9 @@ export default class StoreCrawlerServiceBase {
 
   getStoreId = async () => (await this.getStore()).get('id');
 
-  getStoreTags = async (includeTag) => {
+  getStoreTags = async ({ includeTag } = {}) => {
     const storeId = await this.getStoreId();
-    const result = new StoreTagService().searchAll(Map({ includeTag, conditions: Map({ storeId }) }), this.sessionToken);
+    const result = new StoreTagService().searchAll(Map({ include_tag: !!includeTag, conditions: Map({ storeId }) }), this.sessionToken);
 
     try {
       let storeTags = List();
@@ -84,6 +84,28 @@ export default class StoreCrawlerServiceBase {
       await result.promise;
 
       return storeTags;
+    } finally {
+      result.event.unsubscribeAll();
+    }
+  };
+
+  updateExistingStoreTag = async (storeTag) => {
+    await new StoreProductService().update(storeTag, this.sessionToken);
+  };
+
+  getTags = async (level) => {
+    const result = new TagService().searchAll(Map({ conditions: Map({ level: level || undefined }) }), this.sessionToken);
+
+    try {
+      let tags = List();
+
+      result.event.subscribe((info) => {
+        tags = tags.push(info);
+      });
+
+      await result.promise;
+
+      return tags;
     } finally {
       result.event.unsubscribeAll();
     }
@@ -309,14 +331,14 @@ export default class StoreCrawlerServiceBase {
 
   crawlAndSyncProductCategoriesToStoreTags = async () => {
     const productCategories = await this.crawlAllProductCategories();
-    const storeTags = await this.getStoreTags(false);
+    const storeTags = await this.getStoreTags();
     const splittedLevelOneProductCategories = ImmutableEx.splitIntoChunks(productCategories, 100);
 
     await BluebirdPromise.each(splittedLevelOneProductCategories.toArray(), productCategoryChunks =>
       Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags))),
     );
 
-    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags(false);
+    const storeTagsWithUpdatedLevelOneProductCategories = await this.getStoreTags();
     const levelTwoProductCategories = productCategories
       .map(productCategory =>
         productCategory.update('subCategories', subCategories =>
@@ -335,7 +357,7 @@ export default class StoreCrawlerServiceBase {
       ),
     );
 
-    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags(false);
+    const storeTagsWithUpdatedLevelTwoProductCategories = await this.getStoreTags();
     const levelThreeProductCategories = productCategories
       .flatMap(productCategory => productCategory.get('subCategories'))
       .map(productCategory =>
@@ -363,7 +385,7 @@ export default class StoreCrawlerServiceBase {
   };
 
   crawlProductsDetailsAndCurrentPrice = async () => {
-    const storeTags = await this.getStoreTags(false);
+    const storeTags = await this.getStoreTags();
     const lastCrawlDateTime = new Date();
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
@@ -374,6 +396,10 @@ export default class StoreCrawlerServiceBase {
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
       Promise.all(productChunk.map(product => this.crawlProductDetails(product, storeTags))),
     );
+  };
+
+  createNewTag = async (tagInfo) => {
+    await new TagService().create(tagInfo, null, this.sessionToken);
   };
 
   logVerbose = async (messageFunc) => {
