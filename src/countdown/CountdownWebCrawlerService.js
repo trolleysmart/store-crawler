@@ -319,7 +319,9 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       });
 
       crawler.on('drain', () => resolve(storeTagsWithTotalItemsInfo));
-      storeTags.forEach(productCategory => crawler.queue(productCategory.get('url')));
+
+      // Only go through level one product categories, all items are listed under level one, no need to crawl other product categories
+      storeTags.filter(storeTag => storeTag.get('level') === 1).forEach(productCategory => crawler.queue(productCategory.get('url')));
     });
   };
 
@@ -393,11 +395,14 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       });
 
       crawler.on('drain', () => resolve());
-      storeTags.forEach(productCategory =>
-        Range(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(offset =>
-          crawler.queue(`${productCategory.get('url')}?page=${offset + 1}`),
-        ),
-      );
+      // Only go through level one product categories, all items are listed under level one, no need to crawl other product categories
+      storeTags
+        .filter(storeTag => storeTag.get('level') === 1)
+        .forEach(productCategory =>
+          Range(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(offset =>
+            crawler.queue(`${productCategory.get('url')}?page=${offset + 1}`),
+          ),
+        );
     });
   };
 

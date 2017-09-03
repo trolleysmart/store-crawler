@@ -308,7 +308,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               }
 
               _context7.next = 10;
-              return _trolleySmartParseServerCommon.StoreProductService.create(productInfo.megre((0, _immutable.Map)({
+              return _trolleySmartParseServerCommon.StoreProductService.create(productInfo.merge((0, _immutable.Map)({
                 lastCrawlDateTime: (0, _moment2.default)('01/01/1971', 'DD/MM/YYYY').toDate(),
                 storeId: storeId
               })), null, _this.sessionToken);
