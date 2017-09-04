@@ -711,8 +711,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   }();
 
   this.createOrUpdateProductPrice = function () {
-    var _ref21 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16(storeProductId, productPrice, priceDetails) {
-      var productPrices, productPriceService, notMatchedProductPrices, matchedProductPrices;
+    var _ref21 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16(storeProductId, productPrice) {
+      var productPrices, productPriceService, priceDetails, notMatchedProductPrices, matchedProductPrices;
       return regeneratorRuntime.wrap(function _callee16$(_context16) {
         while (1) {
           switch (_context16.prev = _context16.next) {
@@ -723,82 +723,83 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             case 2:
               productPrices = _context16.sent;
               productPriceService = new _trolleySmartParseServerCommon.ProductPriceService();
+              priceDetails = productPrice.get('priceDetails');
 
               if (!(!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice'))) {
-                _context16.next = 9;
+                _context16.next = 10;
                 break;
               }
 
               if (productPrices.isEmpty()) {
-                _context16.next = 8;
+                _context16.next = 9;
                 break;
               }
 
-              _context16.next = 8;
+              _context16.next = 9;
               return Promise.all(productPrices.map(function (_) {
                 return productPriceService.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
 
-            case 8:
+            case 9:
               return _context16.abrupt('return');
 
-            case 9:
+            case 10:
               if (!productPrices.isEmpty()) {
-                _context16.next = 14;
+                _context16.next = 15;
                 break;
               }
 
-              _context16.next = 12;
+              _context16.next = 13;
               return productPriceService.create(productPrice, null, _this.sessionToken);
 
-            case 12:
-              _context16.next = 27;
+            case 13:
+              _context16.next = 28;
               break;
 
-            case 14:
+            case 15:
               notMatchedProductPrices = productPrices.filterNot(function (_) {
                 return _.get('priceDetails').equals(priceDetails);
               });
 
               if (notMatchedProductPrices.isEmpty()) {
-                _context16.next = 18;
+                _context16.next = 19;
                 break;
               }
 
-              _context16.next = 18;
+              _context16.next = 19;
               return Promise.all(notMatchedProductPrices.map(function (_) {
                 return productPriceService.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
 
-            case 18:
+            case 19:
               matchedProductPrices = productPrices.filter(function (_) {
                 return _.get('priceDetails').equals(priceDetails);
               });
 
               if (!(matchedProductPrices.count() > 1)) {
-                _context16.next = 24;
+                _context16.next = 25;
                 break;
               }
 
-              _context16.next = 22;
+              _context16.next = 23;
               return Promise.all(matchedProductPrices.skip(1).map(function (_) {
                 return productPriceService.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
 
-            case 22:
-              _context16.next = 27;
+            case 23:
+              _context16.next = 28;
               break;
 
-            case 24:
+            case 25:
               if (!(matchedProductPrices.count() === 0)) {
-                _context16.next = 27;
+                _context16.next = 28;
                 break;
               }
 
-              _context16.next = 27;
+              _context16.next = 28;
               return productPriceService.create(productPrice, null, _this.sessionToken);
 
-            case 27:
+            case 28:
             case 'end':
               return _context16.stop();
           }
@@ -806,7 +807,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee16, _this);
     }));
 
-    return function (_x18, _x19, _x20) {
+    return function (_x18, _x19) {
       return _ref21.apply(this, arguments);
     };
   }();
@@ -977,7 +978,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee20, _this);
     }));
 
-    return function (_x21) {
+    return function (_x20) {
       return _ref25.apply(this, arguments);
     };
   }();
@@ -1008,7 +1009,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee21, _this);
     }));
 
-    return function (_x22) {
+    return function (_x21) {
       return _ref26.apply(this, arguments);
     };
   }();
@@ -1039,7 +1040,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee22, _this);
     }));
 
-    return function (_x23) {
+    return function (_x22) {
       return _ref27.apply(this, arguments);
     };
   }();
@@ -1070,7 +1071,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee23, _this);
     }));
 
-    return function (_x24) {
+    return function (_x23) {
       return _ref28.apply(this, arguments);
     };
   }();

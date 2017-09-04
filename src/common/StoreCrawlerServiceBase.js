@@ -293,9 +293,10 @@ export default class StoreCrawlerServiceBase {
     await new StoreProductService().update(storeProduct, this.sessionToken);
   };
 
-  createOrUpdateProductPrice = async (storeProductId, productPrice, priceDetails) => {
+  createOrUpdateProductPrice = async (storeProductId, productPrice) => {
     const productPrices = await this.getActiveProductPrices(storeProductId);
     const productPriceService = new ProductPriceService();
+    const priceDetails = productPrice.get('priceDetails');
 
     if (!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice')) {
       if (!productPrices.isEmpty()) {

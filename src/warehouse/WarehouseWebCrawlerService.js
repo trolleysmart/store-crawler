@@ -565,11 +565,13 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
       storeProductId,
-      /* tagIds: product.get('tagIds'), */
+      tagIds: storeTags
+        .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
+        .map(storeTag => storeTag.get('tagId')),
     }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
 
     return Promise.all([
-      this.createOrUpdateProductPrice(storeProductId, productPrice, priceDetails),
+      this.createOrUpdateProductPrice(storeProductId, productPrice),
       this.updateExistingStoreProduct(
         product.merge({
           name: productInfo.get('name'),

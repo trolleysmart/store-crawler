@@ -621,10 +621,16 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                   status: 'A',
                   special: priceDetails.get('specialType').localeCompare('none') !== 0,
                   storeId: storeId,
-                  storeProductId: storeProductId
-                  /* tagIds: product.get('tagIds'), */
+                  storeProductId: storeProductId,
+                  tagIds: storeTags.filter(function (storeTag) {
+                    return product.get('storeTagIds').find(function (_) {
+                      return _.localeCompare(storeTag.get('id')) === 0;
+                    });
+                  }).map(function (storeTag) {
+                    return storeTag.get('tagId');
+                  })
                 }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
-                return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, priceDetails), _this.updateExistingStoreProduct(product.merge({
+                return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),

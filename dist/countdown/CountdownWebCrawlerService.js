@@ -948,10 +948,16 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                   status: 'A',
                   special: priceDetails.get('specialType').localeCompare('none') !== 0,
                   storeId: storeId,
-                  storeProductId: storeProductId
-                  /* tagIds: product.getIn(['masterProduct', 'tagIds']), */
+                  storeProductId: storeProductId,
+                  tagIds: storeTags.filter(function (storeTag) {
+                    return product.get('storeTagIds').find(function (_) {
+                      return _.localeCompare(storeTag.get('id')) === 0;
+                    });
+                  }).map(function (storeTag) {
+                    return storeTag.get('tagId');
+                  })
                 });
-                return _context10.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, priceDetails), _this.updateExistingStoreProduct(product.merge({
+                return _context10.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
