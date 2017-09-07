@@ -786,7 +786,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       storeProductId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
-        .map(storeTag => storeTag.get('tagId')),
+        .map(storeTag => storeTag.get('tagId'))
+        .filter(storeTag => storeTag),
     });
 
     return Promise.all([

@@ -955,6 +955,8 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                     });
                   }).map(function (storeTag) {
                     return storeTag.get('tagId');
+                  }).filter(function (storeTag) {
+                    return storeTag;
                   })
                 });
                 return _context10.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({

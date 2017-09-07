@@ -628,6 +628,8 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                     });
                   }).map(function (storeTag) {
                     return storeTag.get('tagId');
+                  }).filter(function (storeTag) {
+                    return storeTag;
                   })
                 }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
                 return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
