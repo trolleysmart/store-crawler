@@ -3,7 +3,7 @@
 import BluebirdPromise from 'bluebird';
 import Immutable, { List, Map } from 'immutable';
 import moment from 'moment';
-import { Exception, ImmutableEx } from 'micro-business-common-javascript';
+import { ImmutableEx } from 'micro-business-common-javascript';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
 import { ProductPriceService, StoreService, StoreProductService, StoreTagService, TagService } from 'trolley-smart-parse-server-common';
 
@@ -36,7 +36,7 @@ export default class StoreCrawlerServiceBase {
       return this.config;
     }
 
-    throw new Exception(`Failed to retrieve configuration for ${this.storeKey} store crawler.`);
+    throw new Error(`Failed to retrieve configuration for ${this.storeKey} store crawler.`);
   };
 
   getStore = async () => {
@@ -54,7 +54,7 @@ export default class StoreCrawlerServiceBase {
     const stores = await storeService.search(criteria, this.sessionToken);
 
     if (stores.count() > 1) {
-      throw new Exception(`Multiple store found with store key: ${this.storeKey}.`);
+      throw new Error(`Multiple store found with store key: ${this.storeKey}.`);
     }
 
     this.store = stores.isEmpty()
@@ -136,7 +136,7 @@ export default class StoreCrawlerServiceBase {
         this.sessionToken,
       );
     } else if (storeProducts.count() > 1) {
-      throw new Exception(`Multiple store product found for store Id: ${storeId} and productPageUrl: ${productInfo.get('productPageUrl')}`);
+      throw new Error(`Multiple store product found for store Id: ${storeId} and productPageUrl: ${productInfo.get('productPageUrl')}`);
     } else {
       await storeProductService.update(storeProducts.first().merge(productInfo), this.sessionToken);
     }

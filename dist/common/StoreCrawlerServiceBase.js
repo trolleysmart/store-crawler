@@ -70,7 +70,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             return _context.abrupt('return', _this.config);
 
           case 9:
-            throw new _microBusinessCommonJavascript.Exception('Failed to retrieve configuration for ' + _this.storeKey + ' store crawler.');
+            throw new Error('Failed to retrieve configuration for ' + _this.storeKey + ' store crawler.');
 
           case 10:
           case 'end':
@@ -110,7 +110,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               break;
             }
 
-            throw new _microBusinessCommonJavascript.Exception('Multiple store found with store key: ' + _this.storeKey + '.');
+            throw new Error('Multiple store found with store key: ' + _this.storeKey + '.');
 
           case 9:
             if (!stores.isEmpty()) {
@@ -323,7 +323,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
                 break;
               }
 
-              throw new _microBusinessCommonJavascript.Exception('Multiple store product found for store Id: ' + storeId + ' and productPageUrl: ' + productInfo.get('productPageUrl'));
+              throw new Error('Multiple store product found for store Id: ' + storeId + ' and productPageUrl: ' + productInfo.get('productPageUrl'));
 
             case 16:
               _context7.next = 18;
