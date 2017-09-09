@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-store-crawler",
-  "version": "1.0.0-alpha.10",
+  "version": "1.0.0-alpha.11",
   "description": "Trolley Smart Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
@@ -23,9 +23,9 @@
     "crawler": "^1.0.5",
     "immutable": "^3.8.1",
     "micro-business-common-javascript": "^1.0.0-alpha.8",
-    "micro-business-parse-server-common": "^1.0.2-alpha.23",
+    "micro-business-parse-server-common": "^1.0.2-alpha.25",
     "moment": "^2.18.1",
-    "trolley-smart-parse-server-common": "^1.0.0-alpha.6",
+    "trolley-smart-parse-server-common": "^1.0.0-alpha.7",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
@@ -41,7 +41,7 @@
     "eslint-plugin-jsx-a11y": "6.0.2",
     "eslint-plugin-react": "^7.3.0",
     "flow-bin": "^0.54.1",
-    "jest": "^21.0.1",
+    "jest": "^21.0.2",
     "lint-staged": "^4.1.3",
     "parse": "^1.10.0",
     "prettier": "^1.6.1"
