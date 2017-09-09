@@ -557,6 +557,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     const productPrice = Map({
       name: productInfo.get('name'),
       description: productInfo.get('description'),
+      barcode: productInfo.get('barcode'),
+      size: productInfo.get('size'),
       priceDetails,
       priceToDisplay,
       saving,

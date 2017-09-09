@@ -941,6 +941,8 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                 productPrice = (0, _immutable.Map)({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
+                  barcode: productInfo.get('barcode'),
+                  size: productInfo.get('size'),
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
                   saving: saving,
