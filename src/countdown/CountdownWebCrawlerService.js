@@ -778,7 +778,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       description: productInfo.get('description'),
       barcode: productInfo.get('barcode'),
       size: productInfo.get('size'),
-      productPageUrl: productInfo.get('productPageUrl'),
+      productPageUrl: product.get('productPageUrl'),
       priceDetails,
       priceToDisplay,
       saving,
