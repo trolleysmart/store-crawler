@@ -616,6 +616,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
                   size: productInfo.get('size'),
+                  imageUrl: product.get('imageUrl'),
                   productPageUrl: product.get('productPageUrl'),
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
