@@ -24,7 +24,13 @@ export const setupStoreCrawlerServiceBase = ({ config, store, storeTags, storePr
 export default class StoreCrawlerServiceBase {
   static safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
 
-  static removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
+  static removeDollarSignFromPrice = priceWithDollarSign =>
+    parseFloat(
+      priceWithDollarSign
+        .substring(priceWithDollarSign.indexOf('$') + 1)
+        .trim()
+        .replace(',', ''),
+    );
 
   getConfig = async () => {
     if (storeCrawlerServiceBaseMockTracker) {

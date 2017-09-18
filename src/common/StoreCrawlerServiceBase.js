@@ -8,7 +8,13 @@ import { ParseWrapperService } from 'micro-business-parse-server-common';
 import { ProductPriceService, StoreService, StoreProductService, StoreTagService, TagService } from 'trolley-smart-parse-server-common';
 
 export default class StoreCrawlerServiceBase {
-  static removeDollarSignFromPrice = priceWithDollarSign => parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
+  static removeDollarSignFromPrice = priceWithDollarSign =>
+    parseFloat(
+      priceWithDollarSign
+        .substring(priceWithDollarSign.indexOf('$') + 1)
+        .trim()
+        .replace(',', ''),
+    );
 
   static safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
 

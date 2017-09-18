@@ -1140,7 +1140,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 ;
 
 StoreCrawlerServiceBase.removeDollarSignFromPrice = function (priceWithDollarSign) {
-  return parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim());
+  return parseFloat(priceWithDollarSign.substring(priceWithDollarSign.indexOf('$') + 1).trim().replace(',', ''));
 };
 
 StoreCrawlerServiceBase.safeGetUri = function (res) {
