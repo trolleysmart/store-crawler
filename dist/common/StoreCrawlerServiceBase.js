@@ -924,42 +924,59 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }
     }, _callee18, _this);
   }));
-  this.crawlProductsDetailsAndCurrentPrice = _asyncToGenerator(regeneratorRuntime.mark(function _callee19() {
-    var storeTags, lastCrawlDateTime, products, splittedProducts;
-    return regeneratorRuntime.wrap(function _callee19$(_context19) {
-      while (1) {
-        switch (_context19.prev = _context19.next) {
-          case 0:
-            _context19.next = 2;
-            return _this.getStoreTags();
 
-          case 2:
-            storeTags = _context19.sent;
-            lastCrawlDateTime = new Date();
+  this.crawlProductsDetailsAndCurrentPrice = function () {
+    var _ref24 = _asyncToGenerator(regeneratorRuntime.mark(function _callee19(storeTags) {
+      var finalStoreTags, lastCrawlDateTime, products, splittedProducts;
+      return regeneratorRuntime.wrap(function _callee19$(_context19) {
+        while (1) {
+          switch (_context19.prev = _context19.next) {
+            case 0:
+              _context19.t0 = storeTags;
+
+              if (_context19.t0) {
+                _context19.next = 5;
+                break;
+              }
+
+              _context19.next = 4;
+              return _this.getStoreTags();
+
+            case 4:
+              _context19.t0 = _context19.sent;
+
+            case 5:
+              finalStoreTags = _context19.t0;
+              lastCrawlDateTime = new Date();
 
 
-            lastCrawlDateTime.setDate(new Date().getDate() - 1);
+              lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-            _context19.next = 7;
-            return _this.getStoreProducts({ lastCrawlDateTime: lastCrawlDateTime });
+              _context19.next = 10;
+              return _this.getStoreProducts({ lastCrawlDateTime: lastCrawlDateTime });
 
-          case 7:
-            products = _context19.sent;
-            splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
-            _context19.next = 11;
-            return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
-              return Promise.all(productChunk.map(function (product) {
-                return _this.crawlProductDetails(product, storeTags);
-              }));
-            });
+            case 10:
+              products = _context19.sent;
+              splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
+              _context19.next = 14;
+              return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
+                return Promise.all(productChunk.map(function (product) {
+                  return _this.crawlProductDetails(product, finalStoreTags);
+                }));
+              });
 
-          case 11:
-          case 'end':
-            return _context19.stop();
+            case 14:
+            case 'end':
+              return _context19.stop();
+          }
         }
-      }
-    }, _callee19, _this);
-  }));
+      }, _callee19, _this);
+    }));
+
+    return function (_x20) {
+      return _ref24.apply(this, arguments);
+    };
+  }();
 
   this.createNewTag = function () {
     var _ref25 = _asyncToGenerator(regeneratorRuntime.mark(function _callee20(tagInfo) {
@@ -978,7 +995,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee20, _this);
     }));
 
-    return function (_x20) {
+    return function (_x21) {
       return _ref25.apply(this, arguments);
     };
   }();
@@ -1009,7 +1026,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee21, _this);
     }));
 
-    return function (_x21) {
+    return function (_x22) {
       return _ref26.apply(this, arguments);
     };
   }();
@@ -1040,7 +1057,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee22, _this);
     }));
 
-    return function (_x22) {
+    return function (_x23) {
       return _ref27.apply(this, arguments);
     };
   }();
@@ -1071,7 +1088,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee23, _this);
     }));
 
-    return function (_x23) {
+    return function (_x24) {
       return _ref28.apply(this, arguments);
     };
   }();
