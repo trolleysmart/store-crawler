@@ -117,7 +117,7 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
-  createOrUpdateStoreProduct = async (productCategory, productInfo) => {
+  createOrUpdateStoreProduct = async (productInfo) => {
     const storeId = await this.getStoreId();
     const storeProductService = new StoreProductService();
     const storeProducts = await storeProductService.search(

@@ -1,7 +1,7 @@
 // @flow
 
 import Crawler from 'crawler';
-import { List, Map, Range, Set } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import moment from 'moment';
 import { StoreCrawlerServiceBase } from '../';
 
@@ -75,77 +75,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     return productCategories;
   };
 
-  crawlStoreTagsTotalItemsInfo = async (storeTags) => {
-    const config = await this.getConfig();
-    let storeTagsWithTotalItemsInfo = List();
-
-    return new Promise((resolve, reject) => {
-      const crawler = new Crawler({
-        rateLimit: config.get('rateLimit'),
-        maxConnections: config.get('maxConnections'),
-        callback: (error, res, done) => {
-          this.logInfo(() => `Received response for: ${StoreCrawlerServiceBase.safeGetUri(res)}`);
-          this.logVerbose(() => `Received response for: ${JSON.stringify(res)}`);
-
-          if (error) {
-            done();
-            reject(
-              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`,
-            );
-
-            return;
-          }
-
-          const productCategory = storeTags.find(_ => _.get('url').localeCompare(StoreCrawlerServiceBase.safeGetUri(res)) === 0);
-
-          if (!productCategory) {
-            // Ignoring the returned URL as looks like Health2000 forward the URL to other different categories
-            done();
-
-            return;
-          }
-
-          storeTagsWithTotalItemsInfo = storeTagsWithTotalItemsInfo.push(productCategory.set('totalItems', this.crawlTotalItemsInfo(res.$)));
-
-          done();
-        },
-      });
-
-      crawler.on('drain', () => resolve(storeTagsWithTotalItemsInfo));
-      storeTags.forEach(productCategory => crawler.queue(productCategory.get('url')));
-    });
-  };
-
-  crawlTotalItemsInfo = ($) => {
-    let total = 0;
-
-    $('.tab-content #results-products .pagination').filter(function filterPagination() {
-      $(this)
-        .children()
-        .find('.results-hits')
-        .filter(function filterResultHit() {
-          const info = $(this)
-            .text()
-            .trim();
-          const line2 = info.split('\n')[1].trim();
-          const spaceIdx = line2.indexOf(' ');
-
-          total = parseInt(
-            line2
-              .substring(0, spaceIdx)
-              .replace(',', '')
-              .trim(),
-            10,
-          );
-
-          return 0;
-        });
-
-      return 0;
-    });
-
-    return total;
-  };
+  crawlStoreTagsTotalItemsInfo = storeTags => storeTags;
 
   crawlProductsForEachStoreTag = async (storeTags) => {
     const config = await this.getConfig();
@@ -166,24 +96,28 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
             return;
           }
-
-          const urlOffset = StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
-          const baseUrl = StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
-          const productCategory = storeTags.find(_ => _.get('url').localeCompare(baseUrl) === 0);
+          const url = StoreCrawlerServiceBase.safeGetUri(res);
+          const productCategory = storeTags.find(_ => _.get('url').localeCompare(url) === 0);
 
           if (!productCategory) {
             done();
-            reject(`Failed to find product category page info for Url: ${baseUrl}`);
+            reject(`Failed to find product category page info for Url: ${url}`);
 
             return;
           }
 
-          const productInfos = this.crawlProductInfo(config, res.$);
+          const $ = res.$;
+          let productInfos = List();
+
+          $('.js-productContent .row .productTitle a').each(function onEachNavigationLink() {
+            const productTitle = $(this);
+            const productPageUrl = `${config.get('baseUrl')}${productTitle.attr('href')}`;
+
+            productInfos = productInfos.push(Map({ productPageUrl }));
+          });
 
           Promise.all(
-            productInfos
-              .filter(productInfo => productInfo.get('productPageUrl'))
-              .map(productInfo => this.createOrUpdateStoreProduct(productCategory, productInfo)),
+            productInfos.filter(productInfo => productInfo.get('productPageUrl')).map(productInfo => this.createOrUpdateStoreProduct(productInfo)),
           )
             .then(() => done())
             .catch((storeProductUpdateError) => {
@@ -194,27 +128,8 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       });
 
       crawler.on('drain', () => resolve());
-      storeTags.forEach(productCategory =>
-        Range(0, productCategory.get('totalItems'), 24).forEach(offset => crawler.queue(`${productCategory.get('url')}?sz=24&start=${offset}`)),
-      );
+      storeTags.forEach(productCategory => crawler.queue(productCategory.get('url')));
     });
-  };
-
-  crawlProductInfo = (config, $) => {
-    let products = List();
-    $('.tab-content .search-result-content .search-result-items')
-      .children()
-      .filter(function filterSearchResultItems() {
-        const productPageUrl = $(this)
-          .find('.product-info-wrapper .name-link')
-          .attr('href');
-
-        products = products.push(Map({ productPageUrl }));
-
-        return 0;
-      });
-
-    return products;
   };
 
   crawlProductDetails = async (product, storeTags) => {

@@ -278,9 +278,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
           const productInfos = this.crawlProductInfo(config, res.$);
 
           Promise.all(
-            productInfos
-              .filter(productInfo => productInfo.get('productPageUrl'))
-              .map(productInfo => this.createOrUpdateStoreProduct(productCategory, productInfo)),
+            productInfos.filter(productInfo => productInfo.get('productPageUrl')).map(productInfo => this.createOrUpdateStoreProduct(productInfo)),
           )
             .then(() => done())
             .catch((storeProductUpdateError) => {
