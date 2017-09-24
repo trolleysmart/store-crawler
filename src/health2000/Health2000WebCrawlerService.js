@@ -2,7 +2,6 @@
 
 import Crawler from 'crawler';
 import { List, Map, Set } from 'immutable';
-import moment from 'moment';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase {
@@ -114,6 +113,8 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
             const productPageUrl = `${config.get('baseUrl')}${productTitle.attr('href')}`;
 
             productInfos = productInfos.push(Map({ productPageUrl }));
+
+            return 0;
           });
 
           Promise.all(
@@ -137,6 +138,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
     return new Promise((resolve, reject) => {
       let productInfo = Map();
+
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
@@ -152,77 +154,86 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
           }
 
           const $ = res.$;
-          const self = this;
           let tagUrls = List();
 
-          $('.breadcrumb')
-            .children()
-            .filter(function filterTags() {
-              const tag = $(this)
-                .find('a')
-                .attr('href');
+          $('.breadcrumb li a').each(function filterTags() {
+            const tag = $(this);
 
-              tagUrls = tagUrls.push(tag);
+            tagUrls = tagUrls.push(tag.attr('href'));
 
-              return 0;
-            });
+            return 0;
+          });
 
-          tagUrls = tagUrls.skip(1).pop();
+          tagUrls = tagUrls
+            .skip(1)
+            .take(1)
+            .map(tagUrl => config.get('baseUrl') + tagUrl);
 
           productInfo = productInfo.merge({ tagUrls });
 
-          $('#pdpMain').filter(function filterMainContainer() {
-            const mainContainer = $(this);
+          $('#ProductDisplay .js-productDetail').filter(function filterProductDetails() {
+            const productDetails = $(this);
 
-            mainContainer.find('.row-product-details').filter(function filterDetails() {
+            productDetails.find('.productDetail .productTitle').filter(function filterName() {
+              productInfo = productInfo.merge(
+                Map({
+                  name: $(this)
+                    .text()
+                    .trim(),
+                }),
+              );
+
+              return 0;
+            });
+
+            productDetails.find('.productAccordion .m0-sm').filter(function filterDescription() {
+              productInfo = productInfo.merge(
+                Map({
+                  description: $(this)
+                    .text()
+                    .trim(),
+                }),
+              );
+
+              return 0;
+            });
+
+            productDetails.find('.productImages .mainImage .productMainImage img').filter(function filterMainImage() {
+              productInfo = productInfo.merge(Map({ imageUrl: config.get('baseUrl') + $(this).attr('src') }));
+
+              return 0;
+            });
+
+            productDetails.find('.productDetail .js-price').filter(function filterPrice() {
               $(this)
-                .find('.product-image-container .product-primary-image .product-image .primary-image')
-                .filter(function filterImage() {
-                  productInfo = productInfo.merge({
-                    imageUrl: $(this).attr('src'),
-                  });
+                .find('.was')
+                .filter(function filterWasPrice() {
+                  const priceStr = $(this)
+                    .text()
+                    .trim();
+
+                  productInfo = productInfo.merge(
+                    Map({ wasPrice: StoreCrawlerServiceBase.removeDollarSignFromPrice(priceStr.substring(priceStr.lastIndexOf(' ') + 1)) }),
+                  );
 
                   return 0;
                 });
 
               $(this)
-                .find('.product-detail')
-                .filter(function filterDetail() {
-                  const name = $(this)
-                    .find('.product-name')
+                .find('.is')
+                .filter(function filterIsPrice() {
+                  const priceStr = $(this)
                     .text()
                     .trim();
-                  const descriptionContainer = $(this).find('.product-description');
-                  const description = descriptionContainer
-                    .find('.description-text')
-                    .text()
-                    .trim()
-                    .split('\n')[0];
-                  const barcode = descriptionContainer
-                    .find('.product-number .product-id')
-                    .text()
-                    .trim()
-                    .split('\n')[0];
-                  const priceContainer = $(this).find('#product-content .upper-product-price .product-price');
 
-                  productInfo = productInfo.merge(self.crawlStandardPrice($, priceContainer));
-                  productInfo = productInfo.merge(self.crawlSalePrice($, priceContainer));
-                  productInfo = productInfo.merge(self.crawlSavingPrice($, priceContainer, productInfo));
-                  productInfo = productInfo.merge(self.crawlOfferEndDate($, priceContainer));
-
-                  productInfo = productInfo.merge({
-                    name,
-                    description,
-                    barcode,
-                  });
-
+                  productInfo = productInfo.merge(
+                    Map({ currentPrice: StoreCrawlerServiceBase.removeDollarSignFromPrice(priceStr.substring(priceStr.lastIndexOf(' ') + 1)) }),
+                  );
                   return 0;
                 });
 
               return 0;
             });
-
-            productInfo = productInfo.merge(self.crawlBenefitAndFeatures($, mainContainer));
 
             return 0;
           });
@@ -241,103 +252,12 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     });
   };
 
-  crawlStandardPrice = ($, priceContainer) => {
-    let result = Map();
-
-    priceContainer.find('.standardprice .pv-price').filter(function filterstandardPrice() {
-      const currentPriceWithDollarSign = $(this)
-        .text()
-        .trim();
-      const currentPrice = StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceWithDollarSign);
-
-      result = Map({ currentPrice });
-
-      return 0;
-    });
-
-    return result;
-  };
-
-  crawlSalePrice = ($, priceContainer) => {
-    let result = Map();
-
-    priceContainer.find('.price-sales .pv-price').filter(function filterStandardPrice() {
-      const currentPriceWithDollarSign = $(this)
-        .text()
-        .trim();
-      const currentPrice = StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceWithDollarSign);
-
-      result = Map({ currentPrice });
-
-      return 0;
-    });
-
-    return result;
-  };
-
-  crawlSavingPrice = ($, priceContainer, productInfo) => {
-    let result = Map();
-
-    priceContainer.find('.promotion .save-amount').filter(function filterSalePrice() {
-      const savingText = $(this)
-        .text()
-        .trim();
-      const savingWithDollarSign = savingText.substring(savingText.indexOf('$'));
-      const saving = StoreCrawlerServiceBase.removeDollarSignFromPrice(savingWithDollarSign);
-
-      result = Map({
-        saving,
-        wasPrice: saving ? Math.round((productInfo.get('currentPrice') + saving) * 100) / 100 : undefined,
-      });
-
-      return 0;
-    });
-
-    return result;
-  };
-
-  crawlOfferEndDate = ($, priceContainer) => {
-    let result = Map();
-
-    priceContainer.find('.offers-end').filter(function filterOfferEndDate() {
-      const offerEndDateText = $(this)
-        .text()
-        .trim();
-      const offerEndDate = offerEndDateText.substring(offerEndDateText.lastIndexOf(' ')).trim();
-
-      result = Map({ offerEndDate: moment(offerEndDate, 'DD/MM/YYYY').toDate() });
-
-      return 0;
-    });
-
-    return result;
-  };
-
-  crawlBenefitAndFeatures = ($, mainContainer) => {
-    let benefitsAndFeatures = List();
-
-    mainContainer
-      .find('.row .product-features-print .product-features .featuresbenefits-text ul')
-      .children()
-      .filter(function filterFeatureBenefit() {
-        benefitsAndFeatures = benefitsAndFeatures.push(
-          $(this)
-            .text()
-            .trim(),
-        );
-
-        return 0;
-      });
-
-    return Map({ benefitsAndFeatures });
-  };
-
   updateProductDetails = async (product, storeTags, productInfo) => {
     const storeId = await this.getStoreId();
     let priceDetails;
     let priceToDisplay;
 
-    if ((productInfo.has('wasPrice') && productInfo.get('wasPrice')) || (productInfo.has('offerEndDate') && productInfo.get('offerEndDate'))) {
+    if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
       priceDetails = Map({
         specialType: 'special',
       });
@@ -353,7 +273,6 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
     const currentPrice = productInfo.get('currentPrice');
     const wasPrice = productInfo.get('wasPrice');
-    const offerEndDate = productInfo.get('offerEndDate');
     let saving = 0;
     let savingPercentage = 0;
 
@@ -368,7 +287,6 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     priceDetails = priceDetails
       .merge(currentPrice ? Map({ currentPrice }) : Map())
       .merge(wasPrice ? Map({ wasPrice }) : Map())
-      .merge(offerEndDate ? Map({ offerEndDate }) : Map())
       .merge(Map({ saving, savingPercentage }));
 
     const storeProductId = product.get('id');
@@ -391,7 +309,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
         .filter(storeTag => storeTag),
-    }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
+    });
 
     return Promise.all([
       this.createOrUpdateProductPrice(storeProductId, productPrice),

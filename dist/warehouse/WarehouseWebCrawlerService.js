@@ -323,7 +323,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                       Promise.all(productInfos.filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
                       }).map(function (productInfo) {
-                        return _this.createOrUpdateStoreProduct(productCategory, productInfo);
+                        return _this.createOrUpdateStoreProduct(productInfo);
                       })).then(function () {
                         return done();
                       }).catch(function (storeProductUpdateError) {

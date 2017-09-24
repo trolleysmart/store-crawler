@@ -22,6 +22,15 @@ Object.defineProperty(exports, 'CountdownWebCrawlerService', {
   }
 });
 
+var _health = require('./health2000');
+
+Object.defineProperty(exports, 'Health2000WebCrawlerService', {
+  enumerable: true,
+  get: function get() {
+    return _health.Health2000WebCrawlerService;
+  }
+});
+
 var _warehouse = require('./warehouse');
 
 Object.defineProperty(exports, 'WarehouseWebCrawlerService', {

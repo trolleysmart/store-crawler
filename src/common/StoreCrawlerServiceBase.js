@@ -336,6 +336,34 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
+  createNewTag = async (tagInfo) => {
+    await new TagService().create(tagInfo, null, this.sessionToken);
+  };
+
+  logVerbose = async (messageFunc) => {
+    const config = await this.getConfig();
+
+    if (this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
+      this.logVerboseFunc(messageFunc());
+    }
+  };
+
+  logInfo = async (messageFunc) => {
+    const config = await this.getConfig();
+
+    if (this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
+      this.logInfoFunc(messageFunc());
+    }
+  };
+
+  logError = async (messageFunc) => {
+    const config = await this.getConfig();
+
+    if (this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
+      this.logErrorFunc(messageFunc());
+    }
+  };
+
   crawlAndSyncProductCategoriesToStoreTags = async () => {
     const productCategories = await this.crawlAllProductCategories();
     const storeTags = await this.getStoreTags();
@@ -403,34 +431,6 @@ export default class StoreCrawlerServiceBase {
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
       Promise.all(productChunk.map(product => this.crawlProductDetails(product, finalStoreTags))),
     );
-  };
-
-  createNewTag = async (tagInfo) => {
-    await new TagService().create(tagInfo, null, this.sessionToken);
-  };
-
-  logVerbose = async (messageFunc) => {
-    const config = await this.getConfig();
-
-    if (this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
-      this.logVerboseFunc(messageFunc());
-    }
-  };
-
-  logInfo = async (messageFunc) => {
-    const config = await this.getConfig();
-
-    if (this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
-      this.logInfoFunc(messageFunc());
-    }
-  };
-
-  logError = async (messageFunc) => {
-    const config = await this.getConfig();
-
-    if (this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
-      this.logErrorFunc(messageFunc());
-    }
   };
 
   // These function must be overriden by the child classes
