@@ -65,6 +65,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
           url,
           name,
           level: 1,
+          subCategories: List(),
         }),
       );
 
