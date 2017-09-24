@@ -117,13 +117,14 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
-  createOrUpdateStoreProduct = async (productInfo) => {
+  createOrUpdateStoreProduct = async (productInfo, { productPageUrlEndInStr } = {}) => {
     const storeId = await this.getStoreId();
     const storeProductService = new StoreProductService();
     const storeProducts = await storeProductService.search(
       Map({
         conditions: Map({
-          productPageUrl: productInfo.get('productPageUrl'),
+          productPageUrl: productPageUrlEndInStr ? undefined : productInfo.get('productPageUrl'),
+          endsWith_productPageUrl: productPageUrlEndInStr || undefined,
           storeId,
         }),
       }),

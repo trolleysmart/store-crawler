@@ -119,7 +119,13 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
           });
 
           Promise.all(
-            productInfos.filter(productInfo => productInfo.get('productPageUrl')).map(productInfo => this.createOrUpdateStoreProduct(productInfo)),
+            productInfos
+              .filter(productInfo => productInfo.get('productPageUrl'))
+              .map(productInfo =>
+                this.createOrUpdateStoreProduct(productInfo, {
+                  productPageUrlEndInStr: productInfo.get('productPageUrl').substring(productInfo.get('productPageUrl').lastIndexOf('/') + 1),
+                }),
+              ),
           )
             .then(() => done())
             .catch((storeProductUpdateError) => {
