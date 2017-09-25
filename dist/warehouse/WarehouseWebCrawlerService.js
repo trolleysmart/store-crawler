@@ -616,7 +616,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
                   size: productInfo.get('size'),
-                  imageUrl: product.get('imageUrl').replace('http://', 'https://'),
+                  imageUrl: product.get('imageUrl'),
                   productPageUrl: product.get('productPageUrl'),
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
@@ -640,7 +640,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
-                  imageUrl: productInfo.get('imageUrl').replace('http://', 'https://'),
+                  imageUrl: productInfo.get('imageUrl'),
                   lastCrawlDateTime: new Date(),
                   storeTagIds: storeTags.filter(function (storeTag) {
                     return productInfo.get('tagUrls').find(function (tagUrl) {

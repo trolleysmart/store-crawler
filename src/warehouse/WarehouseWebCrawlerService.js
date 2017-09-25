@@ -557,7 +557,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       description: productInfo.get('description'),
       barcode: productInfo.get('barcode'),
       size: productInfo.get('size'),
-      imageUrl: product.get('imageUrl').replace('http://', 'https://'),
+      imageUrl: product.get('imageUrl'),
       productPageUrl: product.get('productPageUrl'),
       priceDetails,
       priceToDisplay,
@@ -580,7 +580,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
           name: productInfo.get('name'),
           description: productInfo.get('description'),
           barcode: productInfo.get('barcode'),
-          imageUrl: productInfo.get('imageUrl').replace('http://', 'https://'),
+          imageUrl: productInfo.get('imageUrl'),
           lastCrawlDateTime: new Date(),
           storeTagIds: storeTags
             .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
