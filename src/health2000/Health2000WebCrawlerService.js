@@ -2,6 +2,8 @@
 
 import Crawler from 'crawler';
 import { List, Map, Set } from 'immutable';
+import moment from 'moment';
+import { StoreProductService } from 'trolley-smart-parse-server-common';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase {
@@ -121,14 +123,10 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
           Promise.all(
             productInfos
               .filter(productInfo => productInfo.get('productPageUrl'))
-              .groupBy(productInfo => productInfo.get('productPageUrl'))
-              .map(_ => _.filter())
+              .groupBy(productInfo => productInfo.get('productPageUrl').substring(productInfo.get('productPageUrl').lastIndexOf('/') + 1))
+              .map(_ => _.first())
               .valueSeq()
-              .map(productInfo =>
-                this.createOrUpdateStoreProduct(productInfo, {
-                  productPageUrlEndInStr: productInfo.get('productPageUrl').substring(productInfo.get('productPageUrl').lastIndexOf('/') + 1),
-                }),
-              ),
+              .map(productInfo => this.createOrUpdateStoreProductForHealth2000(productInfo)),
           )
             .then(() => done())
             .catch((storeProductUpdateError) => {
@@ -141,6 +139,35 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       crawler.on('drain', () => resolve());
       storeTags.forEach(productCategory => crawler.queue(productCategory.get('url')));
     });
+  };
+
+  createOrUpdateStoreProductForHealth2000 = async (productInfo) => {
+    const storeId = await this.getStoreId();
+    const storeProductService = new StoreProductService();
+    const storeProducts = await storeProductService.search(
+      Map({
+        conditions: Map({
+          productPageUrl: productInfo.get('productPageUrl'),
+          storeId,
+        }),
+      }),
+      this.sessionToken,
+    );
+
+    if (storeProducts.isEmpty()) {
+      await storeProductService.create(
+        productInfo.merge(
+          Map({
+            lastCrawlDateTime: moment('01/01/1971', 'DD/MM/YYYY').toDate(),
+            storeId,
+          }),
+        ),
+        null,
+        this.sessionToken,
+      );
+    } else if (storeProducts.count() === 1) {
+      await storeProductService.update(storeProducts.first().merge(productInfo), this.sessionToken);
+    }
   };
 
   crawlProductDetails = async (product, storeTags) => {

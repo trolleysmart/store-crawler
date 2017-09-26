@@ -10,6 +10,12 @@ var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
 
+var _moment = require('moment');
+
+var _moment2 = _interopRequireDefault(_moment);
+
+var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
+
 var _2 = require('../');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -172,13 +178,11 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                       Promise.all(productInfos.filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
                       }).groupBy(function (productInfo) {
-                        return productInfo.get('productPageUrl');
+                        return productInfo.get('productPageUrl').substring(productInfo.get('productPageUrl').lastIndexOf('/') + 1);
                       }).map(function (_) {
-                        return _.filter();
+                        return _.first();
                       }).valueSeq().map(function (productInfo) {
-                        return _this.createOrUpdateStoreProduct(productInfo, {
-                          productPageUrlEndInStr: productInfo.get('productPageUrl').substring(productInfo.get('productPageUrl').lastIndexOf('/') + 1)
-                        });
+                        return _this.createOrUpdateStoreProductForHealth2000(productInfo);
                       })).then(function () {
                         return done();
                       }).catch(function (storeProductUpdateError) {
@@ -209,19 +213,80 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
       };
     }();
 
-    _this.crawlProductDetails = function () {
-      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(product, storeTags) {
-        var config;
+    _this.createOrUpdateStoreProductForHealth2000 = function () {
+      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(productInfo) {
+        var storeId, storeProductService, storeProducts;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
                 _context3.next = 2;
+                return _this.getStoreId();
+
+              case 2:
+                storeId = _context3.sent;
+                storeProductService = new _trolleySmartParseServerCommon.StoreProductService();
+                _context3.next = 6;
+                return storeProductService.search((0, _immutable.Map)({
+                  conditions: (0, _immutable.Map)({
+                    productPageUrl: productInfo.get('productPageUrl'),
+                    storeId: storeId
+                  })
+                }), _this.sessionToken);
+
+              case 6:
+                storeProducts = _context3.sent;
+
+                if (!storeProducts.isEmpty()) {
+                  _context3.next = 12;
+                  break;
+                }
+
+                _context3.next = 10;
+                return storeProductService.create(productInfo.merge((0, _immutable.Map)({
+                  lastCrawlDateTime: (0, _moment2.default)('01/01/1971', 'DD/MM/YYYY').toDate(),
+                  storeId: storeId
+                })), null, _this.sessionToken);
+
+              case 10:
+                _context3.next = 15;
+                break;
+
+              case 12:
+                if (!(storeProducts.count() === 1)) {
+                  _context3.next = 15;
+                  break;
+                }
+
+                _context3.next = 15;
+                return storeProductService.update(storeProducts.first().merge(productInfo), _this.sessionToken);
+
+              case 15:
+              case 'end':
+                return _context3.stop();
+            }
+          }
+        }, _callee3, _this2);
+      }));
+
+      return function (_x2) {
+        return _ref3.apply(this, arguments);
+      };
+    }();
+
+    _this.crawlProductDetails = function () {
+      var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(product, storeTags) {
+        var config;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.next = 2;
                 return _this.getConfig();
 
               case 2:
-                config = _context3.sent;
-                return _context3.abrupt('return', new Promise(function (resolve, reject) {
+                config = _context4.sent;
+                return _context4.abrupt('return', new Promise(function (resolve, reject) {
                   var productInfo = (0, _immutable.Map)();
 
                   var crawler = new _crawler2.default({
@@ -323,29 +388,29 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
               case 4:
               case 'end':
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, _this2);
+        }, _callee4, _this2);
       }));
 
-      return function (_x2, _x3) {
-        return _ref3.apply(this, arguments);
+      return function (_x3, _x4) {
+        return _ref4.apply(this, arguments);
       };
     }();
 
     _this.updateProductDetails = function () {
-      var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(product, storeTags, productInfo) {
+      var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(product, storeTags, productInfo) {
         var storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, saving, savingPercentage, temp, storeProductId, productPrice;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                _context4.next = 2;
+                _context5.next = 2;
                 return _this.getStoreId();
 
               case 2:
-                storeId = _context4.sent;
+                storeId = _context5.sent;
                 priceDetails = void 0;
                 priceToDisplay = void 0;
 
@@ -407,7 +472,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag;
                   })
                 });
-                return _context4.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
+                return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
@@ -424,14 +489,14 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
               case 15:
               case 'end':
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, _this2);
+        }, _callee5, _this2);
       }));
 
-      return function (_x4, _x5, _x6) {
-        return _ref4.apply(this, arguments);
+      return function (_x5, _x6, _x7) {
+        return _ref5.apply(this, arguments);
       };
     }();
 

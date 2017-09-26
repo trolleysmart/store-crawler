@@ -280,9 +280,6 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
   this.createOrUpdateStoreProduct = function () {
     var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(productInfo) {
-      var _ref10 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          productPageUrlEndInStr = _ref10.productPageUrlEndInStr;
-
       var storeId, storeProductService, storeProducts;
       return regeneratorRuntime.wrap(function _callee7$(_context7) {
         while (1) {
@@ -297,8 +294,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               _context7.next = 6;
               return storeProductService.search((0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
-                  productPageUrl: productPageUrlEndInStr ? undefined : productInfo.get('productPageUrl'),
-                  endsWith_productPageUrl: productPageUrlEndInStr || undefined,
+                  productPageUrl: productInfo.get('productPageUrl'),
                   storeId: storeId
                 })
               }), _this.sessionToken);
@@ -347,7 +343,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   }();
 
   this.createOrUpdateLevelOneProductCategory = function () {
-    var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(productCategory, storeTags) {
+    var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(productCategory, storeTags) {
       var storeId, storeTagService, foundStoreTag;
       return regeneratorRuntime.wrap(function _callee8$(_context8) {
         while (1) {
@@ -397,13 +393,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee8, _this);
     }));
 
-    return function (_x7, _x8) {
-      return _ref11.apply(this, arguments);
+    return function (_x6, _x7) {
+      return _ref10.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateLevelTwoProductCategory = function () {
-    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(productCategory, storeTags) {
+    var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(productCategory, storeTags) {
       var storeId, storeTagService, foundStoreTag, parentStoreTagIds;
       return regeneratorRuntime.wrap(function _callee9$(_context9) {
         while (1) {
@@ -464,13 +460,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee9, _this);
     }));
 
-    return function (_x9, _x10) {
-      return _ref12.apply(this, arguments);
+    return function (_x8, _x9) {
+      return _ref11.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateLevelThreeProductCategory = function () {
-    var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(productCategory, storeTags) {
+    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(productCategory, storeTags) {
       var storeId, storeTagService, foundStoreTag, parentStoreTagIds;
       return regeneratorRuntime.wrap(function _callee10$(_context10) {
         while (1) {
@@ -531,15 +527,15 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee10, _this);
     }));
 
-    return function (_x11, _x12) {
-      return _ref13.apply(this, arguments);
+    return function (_x10, _x11) {
+      return _ref12.apply(this, arguments);
     };
   }();
 
   this.getStoreProductsCriteria = function () {
-    var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11() {
-      var _ref15 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          lastCrawlDateTime = _ref15.lastCrawlDateTime;
+    var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11() {
+      var _ref14 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          lastCrawlDateTime = _ref14.lastCrawlDateTime;
 
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
@@ -572,14 +568,14 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     }));
 
     return function () {
-      return _ref14.apply(this, arguments);
+      return _ref13.apply(this, arguments);
     };
   }();
 
   this.getAllStoreProducts = function () {
-    var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
-      var _ref17 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          lastCrawlDateTime = _ref17.lastCrawlDateTime;
+    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
+      var _ref16 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          lastCrawlDateTime = _ref16.lastCrawlDateTime;
 
       var result, storeProducts;
       return regeneratorRuntime.wrap(function _callee12$(_context12) {
@@ -623,14 +619,14 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     }));
 
     return function () {
-      return _ref16.apply(this, arguments);
+      return _ref15.apply(this, arguments);
     };
   }();
 
   this.getStoreProducts = function () {
-    var _ref18 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13() {
-      var _ref19 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          lastCrawlDateTime = _ref19.lastCrawlDateTime;
+    var _ref17 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13() {
+      var _ref18 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          lastCrawlDateTime = _ref18.lastCrawlDateTime;
 
       return regeneratorRuntime.wrap(function _callee13$(_context13) {
         while (1) {
@@ -654,12 +650,12 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     }));
 
     return function () {
-      return _ref18.apply(this, arguments);
+      return _ref17.apply(this, arguments);
     };
   }();
 
   this.getActiveProductPrices = function () {
-    var _ref20 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(storeProductId) {
+    var _ref19 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(storeProductId) {
       var storeId, criteria;
       return regeneratorRuntime.wrap(function _callee14$(_context14) {
         while (1) {
@@ -687,13 +683,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee14, _this);
     }));
 
-    return function (_x16) {
-      return _ref20.apply(this, arguments);
+    return function (_x15) {
+      return _ref19.apply(this, arguments);
     };
   }();
 
   this.updateExistingStoreProduct = function () {
-    var _ref21 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(storeProduct) {
+    var _ref20 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(storeProduct) {
       return regeneratorRuntime.wrap(function _callee15$(_context15) {
         while (1) {
           switch (_context15.prev = _context15.next) {
@@ -709,13 +705,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee15, _this);
     }));
 
-    return function (_x17) {
-      return _ref21.apply(this, arguments);
+    return function (_x16) {
+      return _ref20.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateProductPrice = function () {
-    var _ref22 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16(storeProductId, productPrice) {
+    var _ref21 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16(storeProductId, productPrice) {
       var productPrices, productPriceService, priceDetails, notMatchedProductPrices, matchedProductPrices;
       return regeneratorRuntime.wrap(function _callee16$(_context16) {
         while (1) {
@@ -811,13 +807,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee16, _this);
     }));
 
-    return function (_x18, _x19) {
-      return _ref22.apply(this, arguments);
+    return function (_x17, _x18) {
+      return _ref21.apply(this, arguments);
     };
   }();
 
   this.createNewTag = function () {
-    var _ref23 = _asyncToGenerator(regeneratorRuntime.mark(function _callee17(tagInfo) {
+    var _ref22 = _asyncToGenerator(regeneratorRuntime.mark(function _callee17(tagInfo) {
       return regeneratorRuntime.wrap(function _callee17$(_context17) {
         while (1) {
           switch (_context17.prev = _context17.next) {
@@ -833,13 +829,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee17, _this);
     }));
 
-    return function (_x20) {
-      return _ref23.apply(this, arguments);
+    return function (_x19) {
+      return _ref22.apply(this, arguments);
     };
   }();
 
   this.logVerbose = function () {
-    var _ref24 = _asyncToGenerator(regeneratorRuntime.mark(function _callee18(messageFunc) {
+    var _ref23 = _asyncToGenerator(regeneratorRuntime.mark(function _callee18(messageFunc) {
       var config;
       return regeneratorRuntime.wrap(function _callee18$(_context18) {
         while (1) {
@@ -864,13 +860,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee18, _this);
     }));
 
-    return function (_x21) {
-      return _ref24.apply(this, arguments);
+    return function (_x20) {
+      return _ref23.apply(this, arguments);
     };
   }();
 
   this.logInfo = function () {
-    var _ref25 = _asyncToGenerator(regeneratorRuntime.mark(function _callee19(messageFunc) {
+    var _ref24 = _asyncToGenerator(regeneratorRuntime.mark(function _callee19(messageFunc) {
       var config;
       return regeneratorRuntime.wrap(function _callee19$(_context19) {
         while (1) {
@@ -895,13 +891,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee19, _this);
     }));
 
-    return function (_x22) {
-      return _ref25.apply(this, arguments);
+    return function (_x21) {
+      return _ref24.apply(this, arguments);
     };
   }();
 
   this.logError = function () {
-    var _ref26 = _asyncToGenerator(regeneratorRuntime.mark(function _callee20(messageFunc) {
+    var _ref25 = _asyncToGenerator(regeneratorRuntime.mark(function _callee20(messageFunc) {
       var config;
       return regeneratorRuntime.wrap(function _callee20$(_context20) {
         while (1) {
@@ -926,8 +922,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee20, _this);
     }));
 
-    return function (_x23) {
-      return _ref26.apply(this, arguments);
+    return function (_x22) {
+      return _ref25.apply(this, arguments);
     };
   }();
 
@@ -1045,7 +1041,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   }));
 
   this.crawlProductsDetailsAndCurrentPrice = function () {
-    var _ref29 = _asyncToGenerator(regeneratorRuntime.mark(function _callee23(storeTags) {
+    var _ref28 = _asyncToGenerator(regeneratorRuntime.mark(function _callee23(storeTags) {
       var finalStoreTags, lastCrawlDateTime, products, splittedProducts;
       return regeneratorRuntime.wrap(function _callee23$(_context23) {
         while (1) {
@@ -1092,8 +1088,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee23, _this);
     }));
 
-    return function (_x24) {
-      return _ref29.apply(this, arguments);
+    return function (_x23) {
+      return _ref28.apply(this, arguments);
     };
   }();
 
