@@ -171,7 +171,11 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       Promise.all(productInfos.filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
-                      }).map(function (productInfo) {
+                      }).groupBy(function (productInfo) {
+                        return productInfo.get('productPageUrl');
+                      }).map(function (_) {
+                        return _.filter();
+                      }).valueSeq().map(function (productInfo) {
                         return _this.createOrUpdateStoreProduct(productInfo, {
                           productPageUrlEndInStr: productInfo.get('productPageUrl').substring(productInfo.get('productPageUrl').lastIndexOf('/') + 1)
                         });
