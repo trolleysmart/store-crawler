@@ -115,7 +115,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
             const productTitle = $(this);
             const productPageUrl = `${config.get('baseUrl')}${productTitle.attr('href')}`;
 
-            productInfos = productInfos.push(Map({ productPageUrl }));
+            productInfos = productInfos.push(Map({ productPageUrl, productKey: productPageUrl.substring(productPageUrl.lastIndexOf('/') + 1) }));
 
             return 0;
           });
@@ -123,7 +123,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
           Promise.all(
             productInfos
               .filter(productInfo => productInfo.get('productPageUrl'))
-              .groupBy(productInfo => productInfo.get('productPageUrl').substring(productInfo.get('productPageUrl').lastIndexOf('/') + 1))
+              .groupBy(productInfo => productInfo.get('productKey'))
               .map(_ => _.first())
               .valueSeq()
               .map(productInfo => this.createOrUpdateStoreProductForHealth2000(productInfo)),
@@ -147,7 +147,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     const storeProducts = await storeProductService.search(
       Map({
         conditions: Map({
-          productPageUrl: productInfo.get('productPageUrl'),
+          endsWith_productPageUrl: productInfo.get('productKey'),
           storeId,
         }),
       }),

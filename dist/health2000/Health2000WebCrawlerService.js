@@ -170,7 +170,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                         var productTitle = $(this);
                         var productPageUrl = '' + config.get('baseUrl') + productTitle.attr('href');
 
-                        productInfos = productInfos.push((0, _immutable.Map)({ productPageUrl: productPageUrl }));
+                        productInfos = productInfos.push((0, _immutable.Map)({ productPageUrl: productPageUrl, productKey: productPageUrl.substring(productPageUrl.lastIndexOf('/') + 1) }));
 
                         return 0;
                       });
@@ -178,7 +178,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                       Promise.all(productInfos.filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
                       }).groupBy(function (productInfo) {
-                        return productInfo.get('productPageUrl').substring(productInfo.get('productPageUrl').lastIndexOf('/') + 1);
+                        return productInfo.get('productKey');
                       }).map(function (_) {
                         return _.first();
                       }).valueSeq().map(function (productInfo) {
@@ -229,7 +229,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 _context3.next = 6;
                 return storeProductService.search((0, _immutable.Map)({
                   conditions: (0, _immutable.Map)({
-                    productPageUrl: productInfo.get('productPageUrl'),
+                    endsWith_productPageUrl: productInfo.get('productKey'),
                     storeId: storeId
                   })
                 }), _this.sessionToken);
