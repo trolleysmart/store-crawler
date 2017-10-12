@@ -5,20 +5,20 @@ import Immutable, { List, Map } from 'immutable';
 import moment from 'moment';
 import { ImmutableEx } from 'micro-business-common-javascript';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
-import { ProductPriceService, StoreService, StoreProductService, StoreTagService, TagService } from 'trolley-smart-parse-server-common';
+import { CrawledProductPriceService, StoreService, CrawledStoreProductService, StoreTagService, TagService } from 'trolley-smart-parse-server-common';
 
 export default class StoreCrawlerServiceBase {
   static removeDollarSignFromPrice = priceWithDollarSign =>
-    parseFloat(
-      priceWithDollarSign
-        .substring(priceWithDollarSign.indexOf('$') + 1)
-        .trim()
-        .replace(',', ''),
-    );
+    parseFloat(priceWithDollarSign
+      .substring(priceWithDollarSign.indexOf('$') + 1)
+      .trim()
+      .replace(',', ''));
 
   static safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
 
-  constructor(storeKey, { sessionToken, logVerboseFunc, logInfoFunc, logErrorFunc } = {}) {
+  constructor(storeKey, {
+    sessionToken, logVerboseFunc, logInfoFunc, logErrorFunc,
+  } = {}) {
     this.storeKey = storeKey;
     this.sessionToken = sessionToken;
     this.logVerboseFunc = logVerboseFunc;
@@ -117,10 +117,10 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
-  createOrUpdateStoreProduct = async (productInfo) => {
+  createOrUpdateCrawledStoreProduct = async (productInfo) => {
     const storeId = await this.getStoreId();
-    const storeProductService = new StoreProductService();
-    const storeProducts = await storeProductService.search(
+    const crawledStoreProductService = new CrawledStoreProductService();
+    const crawledStoreProducts = await crawledStoreProductService.search(
       Map({
         conditions: Map({
           productPageUrl: productInfo.get('productPageUrl'),
@@ -130,21 +130,19 @@ export default class StoreCrawlerServiceBase {
       this.sessionToken,
     );
 
-    if (storeProducts.isEmpty()) {
-      await storeProductService.create(
-        productInfo.merge(
-          Map({
-            lastCrawlDateTime: moment('01/01/1971', 'DD/MM/YYYY').toDate(),
-            storeId,
-          }),
-        ),
+    if (crawledStoreProducts.isEmpty()) {
+      await crawledStoreProductService.create(
+        productInfo.merge(Map({
+          lastCrawlDateTime: moment('01/01/1971', 'DD/MM/YYYY').toDate(),
+          storeId,
+        })),
         null,
         this.sessionToken,
       );
-    } else if (storeProducts.count() > 1) {
-      throw new Error(`Multiple store product found for store Id: ${storeId} and productPageUrl: ${productInfo.get('productPageUrl')}`);
+    } else if (crawledStoreProducts.count() > 1) {
+      throw new Error(`Multiple crawled store product found for store Id: ${storeId} and productPageUrl: ${productInfo.get('productPageUrl')}`);
     } else {
-      await storeProductService.update(storeProducts.first().merge(productInfo), this.sessionToken);
+      await crawledStoreProductService.update(crawledStoreProducts.first().merge(productInfo), this.sessionToken);
     }
   };
 
@@ -155,13 +153,11 @@ export default class StoreCrawlerServiceBase {
 
     if (foundStoreTag) {
       await storeTagService.update(
-        foundStoreTag.merge(
-          Map({
-            name: productCategory.get('name'),
-            level: productCategory.get('level'),
-            url: productCategory.get('url'),
-          }),
-        ),
+        foundStoreTag.merge(Map({
+          name: productCategory.get('name'),
+          level: productCategory.get('level'),
+          url: productCategory.get('url'),
+        })),
         this.sessionToken,
       );
     } else {
@@ -190,14 +186,12 @@ export default class StoreCrawlerServiceBase {
 
     if (foundStoreTag) {
       await storeTagService.update(
-        foundStoreTag.merge(
-          Map({
-            parentStoreTagId: parentStoreTagIds.first(),
-            name: productCategory.first().get('name'),
-            level: productCategory.first().get('level'),
-            url: productCategory.first().get('url'),
-          }),
-        ),
+        foundStoreTag.merge(Map({
+          parentStoreTagId: parentStoreTagIds.first(),
+          name: productCategory.first().get('name'),
+          level: productCategory.first().get('level'),
+          url: productCategory.first().get('url'),
+        })),
         this.sessionToken,
       );
     } else {
@@ -227,14 +221,12 @@ export default class StoreCrawlerServiceBase {
 
     if (foundStoreTag) {
       await storeTagService.update(
-        foundStoreTag.merge(
-          Map({
-            parentStoreTagId: parentStoreTagIds.first(),
-            name: productCategory.first().get('name'),
-            level: productCategory.first().get('level'),
-            url: productCategory.first().get('url'),
-          }),
-        ),
+        foundStoreTag.merge(Map({
+          parentStoreTagId: parentStoreTagIds.first(),
+          name: productCategory.first().get('name'),
+          level: productCategory.first().get('level'),
+          url: productCategory.first().get('url'),
+        })),
         this.sessionToken,
       );
     } else {
@@ -253,7 +245,7 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
-  getStoreProductsCriteria = async ({ lastCrawlDateTime } = {}) =>
+  getCrawledStoreProductsCriteria = async ({ lastCrawlDateTime } = {}) =>
     Map({
       conditions: Map({
         storeId: await this.getStoreId(),
@@ -261,77 +253,78 @@ export default class StoreCrawlerServiceBase {
       }),
     });
 
-  getAllStoreProducts = async ({ lastCrawlDateTime } = {}) => {
-    const result = new StoreProductService().searchAll(await this.getStoreProductsCriteria({ lastCrawlDateTime }), this.sessionToken);
+  getAllCrawledStoreProducts = async ({ lastCrawlDateTime } = {}) => {
+    const result = new CrawledStoreProductService().searchAll(await this.getCrawledStoreProductsCriteria({ lastCrawlDateTime }), this.sessionToken);
 
     try {
-      let storeProducts = List();
+      let crawledStoreProducts = List();
 
       result.event.subscribe((info) => {
-        storeProducts = storeProducts.push(info);
+        crawledStoreProducts = crawledStoreProducts.push(info);
       });
 
       await result.promise;
 
-      return storeProducts;
+      return crawledStoreProducts;
     } finally {
       result.event.unsubscribeAll();
     }
   };
 
-  getStoreProducts = async ({ lastCrawlDateTime } = {}) =>
-    new StoreProductService().search((await this.getStoreProductsCriteria({ lastCrawlDateTime })).set('limit', 1000), this.sessionToken);
+  getCrawledStoreProducts = async ({ lastCrawlDateTime } = {}) =>
+    new CrawledStoreProductService().search(
+      (await this.getCrawledStoreProductsCriteria({ lastCrawlDateTime })).set('limit', 1000),
+      this.sessionToken,
+    );
 
-  getActiveProductPrices = async (storeProductId) => {
+  getActiveCrawledProductPrices = async (crawledStoreProductId) => {
     const storeId = await this.getStoreId();
     const criteria = Map({
       conditions: Map({
-        storeProductId,
+        crawledStoreProductId,
         storeId,
         status: 'A',
       }),
     });
 
-    return new ProductPriceService().search(criteria, this.sessionToken);
+    return new CrawledProductPriceService().search(criteria, this.sessionToken);
   };
 
-  updateExistingStoreProduct = async (storeProduct) => {
-    await new StoreProductService().update(storeProduct, this.sessionToken);
+  updateExistingCrawledStoreProduct = async (crawledStoreProduct) => {
+    await new CrawledStoreProductService().update(crawledStoreProduct, this.sessionToken);
   };
 
-  createOrUpdateProductPrice = async (storeProductId, productPrice) => {
-    const productPrices = await this.getActiveProductPrices(storeProductId);
-    const productPriceService = new ProductPriceService();
-    const priceDetails = productPrice.get('priceDetails');
+  createOrUpdateCrawledProductPrice = async (crawledStoreProductId, crawledProductPrice) => {
+    const crawledProductPrices = await this.getActiveCrawledProductPrices(crawledStoreProductId);
+    const crawledProductPriceService = new CrawledProductPriceService();
+    const priceDetails = crawledProductPrice.get('priceDetails');
 
     if (!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice')) {
-      if (!productPrices.isEmpty()) {
-        await Promise.all(productPrices.map(_ => productPriceService.update(_.set('status', 'I'), this.sessionToken)).toArray());
+      if (!crawledProductPrices.isEmpty()) {
+        await Promise.all(crawledProductPrices.map(_ => crawledProductPriceService.update(_.set('status', 'I'), this.sessionToken)).toArray());
       }
 
       return;
     }
 
-    if (productPrices.isEmpty()) {
-      await productPriceService.create(productPrice, null, this.sessionToken);
+    if (crawledProductPrices.isEmpty()) {
+      await crawledProductPriceService.create(crawledProductPrice, null, this.sessionToken);
     } else {
-      const notMatchedProductPrices = productPrices.filterNot(_ => _.get('priceDetails').equals(priceDetails));
+      const notMatchedCrawledProductPrices = crawledProductPrices.filterNot(_ => _.get('priceDetails').equals(priceDetails));
 
-      if (!notMatchedProductPrices.isEmpty()) {
-        await Promise.all(notMatchedProductPrices.map(_ => productPriceService.update(_.set('status', 'I'), this.sessionToken)).toArray());
+      if (!notMatchedCrawledProductPrices.isEmpty()) {
+        await Promise.all(notMatchedCrawledProductPrices.map(_ => crawledProductPriceService.update(_.set('status', 'I'), this.sessionToken)).toArray());
       }
 
-      const matchedProductPrices = productPrices.filter(_ => _.get('priceDetails').equals(priceDetails));
+      const matchedCrawledProductPrices = crawledProductPrices.filter(_ => _.get('priceDetails').equals(priceDetails));
 
-      if (matchedProductPrices.count() > 1) {
-        await Promise.all(
-          matchedProductPrices
-            .skip(1)
-            .map(_ => productPriceService.update(_.set('status', 'I'), this.sessionToken))
-            .toArray(),
-        );
-      } else if (matchedProductPrices.count() === 0) {
-        await productPriceService.create(productPrice, null, this.sessionToken);
+      if (matchedCrawledProductPrices.count() > 1) {
+        await Promise.all(matchedCrawledProductPrices
+          .skip(1)
+          .map(_ => crawledProductPriceService.update(_.set('status', 'I'), this.sessionToken))
+          .toArray());
+      } else if (matchedCrawledProductPrices.count() === 0) {
+        await crawledProductPriceService.create(crawledProductPrice, null, this.sessionToken);
       }
     }
   };
@@ -370,49 +363,35 @@ export default class StoreCrawlerServiceBase {
     const splittedLevelOneProductCategories = ImmutableEx.splitIntoChunks(productCategories, 100);
 
     await BluebirdPromise.each(splittedLevelOneProductCategories.toArray(), productCategoryChunks =>
-      Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags))),
-    );
+      Promise.all(productCategoryChunks.map(productCategory => this.createOrUpdateLevelOneProductCategory(productCategory, storeTags))));
 
     const storeTagsWithUpdatedLevelOneStoreTags = await this.getStoreTags();
     const levelTwoProductCategories = productCategories
       .map(productCategory =>
         productCategory.update('subCategories', subCategories =>
-          subCategories.map(subCategory => subCategory.set('parent', productCategory.get('categoryKey'))),
-        ),
-      )
+          subCategories.map(subCategory => subCategory.set('parent', productCategory.get('categoryKey')))))
       .flatMap(productCategory => productCategory.get('subCategories'));
     const levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(productCategory => productCategory.get('categoryKey'));
     const splittedLevelTwoProductCategories = ImmutableEx.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
 
     await BluebirdPromise.each(splittedLevelTwoProductCategories.toArray(), productCategoryChunks =>
-      Promise.all(
-        productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneStoreTags),
-        ),
-      ),
-    );
+      Promise.all(productCategoryChunks.map(productCategory =>
+        this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneStoreTags))));
 
     const storeTagsWithUpdatedLevelTwoStoreTags = await this.getStoreTags();
     const levelThreeProductCategories = productCategories
       .flatMap(productCategory => productCategory.get('subCategories'))
       .map(productCategory =>
         productCategory.update('subCategories', subCategories =>
-          subCategories.map(subCategory => subCategory.set('parent', productCategory.get('categoryKey'))),
-        ),
-      )
+          subCategories.map(subCategory => subCategory.set('parent', productCategory.get('categoryKey')))))
       .flatMap(productCategory => productCategory.get('subCategories'));
     const levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(productCategory =>
-      productCategory.get('categoryKey'),
-    );
+      productCategory.get('categoryKey'));
     const splittedLevelThreeProductCategories = ImmutableEx.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
 
     await BluebirdPromise.each(splittedLevelThreeProductCategories.toArray(), productCategoryChunks =>
-      Promise.all(
-        productCategoryChunks.map(productCategory =>
-          this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoStoreTags),
-        ),
-      ),
-    );
+      Promise.all(productCategoryChunks.map(productCategory =>
+        this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoStoreTags))));
   };
 
   crawlProducts = async () => {
@@ -425,12 +404,11 @@ export default class StoreCrawlerServiceBase {
 
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-    const products = await this.getStoreProducts({ lastCrawlDateTime });
+    const products = await this.getCrawledStoreProducts({ lastCrawlDateTime });
     const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
-      Promise.all(productChunk.map(product => this.crawlProductDetails(product, finalStoreTags))),
-    );
+      Promise.all(productChunk.map(product => this.crawlProductDetails(product, finalStoreTags))));
   };
 
   // These function must be overriden by the child classes

@@ -154,12 +154,13 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                     if (error) {
                       done();
-                      reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                      reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                       return;
                     }
 
                     var $ = res.$;
+
 
                     $('#BrowseSlideBox .row-fluid').children().filter(function filterCategoriesColumns() {
                       $(this).find('.toolbar-slidebox-item').each(function filterProductCategory() {
@@ -232,7 +233,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                        reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                         return;
                       }
@@ -252,6 +253,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       var levelOneProductCategory = productCategories.get(levelOneProductCategoryIdx);
                       var $ = res.$;
+
                       var levelTwoProductCategories = (0, _immutable.List)();
 
                       $('#left-navigation #navigation-panel .single-level-navigation .navigation-toggle-children .clearfix').children().filter(function filterLeftNavigationPanel() {
@@ -266,7 +268,12 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                             return 0;
                           }
 
-                          levelTwoProductCategories = levelTwoProductCategories.push((0, _immutable.Map)({ categoryKey: categoryKey, name: menuItem.text().trim(), url: '' + config.get('baseUrl') + url, level: 2 }));
+                          levelTwoProductCategories = levelTwoProductCategories.push((0, _immutable.Map)({
+                            categoryKey: categoryKey,
+                            name: menuItem.text().trim(),
+                            url: '' + config.get('baseUrl') + url,
+                            level: 2
+                          }));
 
                           return 0;
                         });
@@ -328,7 +335,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                        reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                         return;
                       }
@@ -363,6 +370,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       var levelTwoProductCategory = levelOneProductSubCategoriesCategory.get(levelTwoProductCategoryIdx);
                       var $ = res.$;
+
                       var levelThreeProductCategories = (0, _immutable.List)();
 
                       $('#left-navigation #navigation-panel .single-level-navigation .navigation-toggle-children .clearfix').children().filter(function filterLeftNavigationPanel() {
@@ -377,7 +385,12 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                             return 0;
                           }
 
-                          levelThreeProductCategories = levelThreeProductCategories.push((0, _immutable.Map)({ categoryKey: categoryKey, name: menuItem.text().trim(), url: '' + config.get('baseUrl') + url, level: 3 }));
+                          levelThreeProductCategories = levelThreeProductCategories.push((0, _immutable.Map)({
+                            categoryKey: categoryKey,
+                            name: menuItem.text().trim(),
+                            url: '' + config.get('baseUrl') + url,
+                            level: 3
+                          }));
 
                           return 0;
                         });
@@ -443,7 +456,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                        reject(new Error('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                         return;
                       }
@@ -530,7 +543,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                        reject(new Error('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                         return;
                       }
@@ -543,7 +556,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (!productCategory) {
                         done();
-                        reject('Failed to find product category page info for Url: ' + baseUrl);
+                        reject(new Error('Failed to find product category page info for Url: ' + baseUrl));
 
                         return;
                       }
@@ -553,12 +566,12 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                       Promise.all(productInfos.filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
                       }).map(function (productInfo) {
-                        return _this.createOrUpdateStoreProduct(productInfo);
+                        return _this.createOrUpdateCrawledStoreProduct(productInfo);
                       })).then(function () {
                         return done();
-                      }).catch(function (storeProductUpdateError) {
+                      }).catch(function (crawledStoreProductUpdateError) {
                         done();
-                        reject(storeProductUpdateError);
+                        reject(new Error(crawledStoreProductUpdateError));
                       });
                     }
                   });
@@ -630,12 +643,13 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                        reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                         return;
                       }
 
                       var $ = res.$;
+
                       var self = _this;
                       var tagUrls = (0, _immutable.Set)();
 
@@ -742,7 +756,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                         return done();
                       }).catch(function (internalError) {
                         done();
-                        reject(internalError);
+                        reject(new Error(internalError));
                       });
                     }
                   });
@@ -766,16 +780,16 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
       };
     }();
 
-    _this.getCurrentPrice = function (productPriceContent) {
-      var currentPriceContent = productPriceContent.find('.price').text().trim();
-      var currentPriceTails = productPriceContent.find('.price .visible-phone').text().trim();
+    _this.getCurrentPrice = function (crawledProductPriceContent) {
+      var currentPriceContent = crawledProductPriceContent.find('.price').text().trim();
+      var currentPriceTails = crawledProductPriceContent.find('.price .visible-phone').text().trim();
       var currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
       return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
     };
 
-    _this.getWasPrice = function (productPriceContent) {
-      var wasPriceContent = productPriceContent.find('.was-price').text().trim();
+    _this.getWasPrice = function (crawledProductPriceContent) {
+      var wasPriceContent = crawledProductPriceContent.find('.was-price').text().trim();
 
       return parseFloat(wasPriceContent.substring(wasPriceContent.indexOf('$') + 1));
     };
@@ -847,9 +861,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
       return (0, _immutable.Map)();
     };
 
-    _this.getClubPrice = function (productPriceContent) {
-      var currentPriceContent = productPriceContent.text().trim();
-      var currentPriceTails = productPriceContent.find('.visible-phone').text().trim();
+    _this.getClubPrice = function (crawledProductPriceContent) {
+      var currentPriceContent = crawledProductPriceContent.text().trim();
+      var currentPriceTails = crawledProductPriceContent.find('.visible-phone').text().trim();
       var currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
 
       return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
@@ -880,7 +894,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
     _this.updateProductDetails = function () {
       var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(product, storeTags, originalProductInfo) {
-        var storeId, productInfo, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, storeProductId, productPrice;
+        var storeId, productInfo, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, crawledStoreProductId, crawledProductPrice;
         return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
             switch (_context10.prev = _context10.next) {
@@ -937,8 +951,8 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                 priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(multiBuyInfo ? (0, _immutable.Map)({ multiBuyInfo: multiBuyInfo }) : (0, _immutable.Map)()).merge(unitPrice ? (0, _immutable.Map)({ unitPrice: unitPrice }) : (0, _immutable.Map)()).merge((0, _immutable.Map)({ saving: saving, savingPercentage: savingPercentage }));
 
-                storeProductId = product.get('id');
-                productPrice = (0, _immutable.Map)({
+                crawledStoreProductId = product.get('id');
+                crawledProductPrice = (0, _immutable.Map)({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
@@ -952,7 +966,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                   status: 'A',
                   special: priceDetails.get('specialType').localeCompare('none') !== 0,
                   storeId: storeId,
-                  storeProductId: storeProductId,
+                  crawledStoreProductId: crawledStoreProductId,
                   tagIds: storeTags.filter(function (storeTag) {
                     return product.get('storeTagIds').find(function (_) {
                       return _.localeCompare(storeTag.get('id')) === 0;
@@ -963,7 +977,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag;
                   })
                 });
-                return _context10.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
+                return _context10.abrupt('return', Promise.all([_this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice), _this.updateExistingCrawledStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),

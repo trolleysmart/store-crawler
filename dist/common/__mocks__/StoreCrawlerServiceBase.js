@@ -19,7 +19,7 @@ var storeCrawlerServiceBaseMockTracker = void 0;
 var finalConfig = void 0;
 var finalStore = void 0;
 var finalStoreTags = void 0;
-var finalStoreProducts = void 0;
+var finalCrawledStoreProducts = void 0;
 
 var resetAllMockTrackers = exports.resetAllMockTrackers = function resetAllMockTrackers() {
   storeCrawlerServiceBaseMockTracker = new _StoreCrawlerServiceBaseMockTracker2.default();
@@ -34,12 +34,12 @@ var setupStoreCrawlerServiceBase = exports.setupStoreCrawlerServiceBase = functi
       config = _ref.config,
       store = _ref.store,
       storeTags = _ref.storeTags,
-      storeProducts = _ref.storeProducts;
+      crawledStoreProducts = _ref.crawledStoreProducts;
 
   finalConfig = config;
   finalStore = store;
   finalStoreTags = storeTags;
-  finalStoreProducts = storeProducts;
+  finalCrawledStoreProducts = crawledStoreProducts;
 };
 
 var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
@@ -196,14 +196,14 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
     };
   }();
 
-  this.createOrUpdateStoreProduct = function () {
+  this.createOrUpdateCrawledStoreProduct = function () {
     var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(productCategory, productInfo) {
       return regeneratorRuntime.wrap(function _callee8$(_context8) {
         while (1) {
           switch (_context8.prev = _context8.next) {
             case 0:
               if (storeCrawlerServiceBaseMockTracker) {
-                storeCrawlerServiceBaseMockTracker.createOrUpdateStoreProduct(productCategory, productInfo);
+                storeCrawlerServiceBaseMockTracker.createOrUpdateCrawledStoreProduct(productCategory, productInfo);
               }
 
             case 1:
@@ -219,17 +219,17 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
     };
   }();
 
-  this.getStoreProducts = function () {
+  this.getCrawledStoreProducts = function () {
     var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(inputArgument) {
       return regeneratorRuntime.wrap(function _callee9$(_context9) {
         while (1) {
           switch (_context9.prev = _context9.next) {
             case 0:
               if (storeCrawlerServiceBaseMockTracker) {
-                storeCrawlerServiceBaseMockTracker.getStoreProducts(inputArgument);
+                storeCrawlerServiceBaseMockTracker.getCrawledStoreProducts(inputArgument);
               }
 
-              return _context9.abrupt('return', finalStoreProducts);
+              return _context9.abrupt('return', finalCrawledStoreProducts);
 
             case 2:
             case 'end':
@@ -244,14 +244,14 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
     };
   }();
 
-  this.createOrUpdateProductPrice = function () {
-    var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(storeProductId, productPrice, priceDetails) {
+  this.createOrUpdateCrawledProductPrice = function () {
+    var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(crawledStoreProductId, crawledProductPrice, priceDetails) {
       return regeneratorRuntime.wrap(function _callee10$(_context10) {
         while (1) {
           switch (_context10.prev = _context10.next) {
             case 0:
               if (storeCrawlerServiceBaseMockTracker) {
-                storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice(storeProductId, productPrice, priceDetails);
+                storeCrawlerServiceBaseMockTracker.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice, priceDetails);
               }
 
             case 1:
@@ -267,14 +267,14 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase() {
     };
   }();
 
-  this.updateExistingStoreProduct = function () {
-    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(storeProduct) {
+  this.updateExistingCrawledStoreProduct = function () {
+    var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(crawledStoreProduct) {
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
           switch (_context11.prev = _context11.next) {
             case 0:
               if (storeCrawlerServiceBaseMockTracker) {
-                storeCrawlerServiceBaseMockTracker.updateExistingStoreProduct(storeProduct);
+                storeCrawlerServiceBaseMockTracker.updateExistingCrawledStoreProduct(crawledStoreProduct);
               }
 
             case 1:

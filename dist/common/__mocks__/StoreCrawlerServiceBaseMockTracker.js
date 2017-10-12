@@ -16,10 +16,10 @@ var StoreCrawlerServiceBaseMockTracker = function StoreCrawlerServiceBaseMockTra
   this.createOrUpdateLevelOneProductCategory = jest.fn();
   this.createOrUpdateLevelTwoProductCategory = jest.fn();
   this.createOrUpdateLevelThreeProductCategory = jest.fn();
-  this.createOrUpdateStoreProduct = jest.fn();
-  this.getStoreProducts = jest.fn();
-  this.createOrUpdateProductPrice = jest.fn();
-  this.updateExistingStoreProduct = jest.fn();
+  this.createOrUpdateCrawledStoreProduct = jest.fn();
+  this.getCrawledStoreProducts = jest.fn();
+  this.createOrUpdateCrawledProductPrice = jest.fn();
+  this.updateExistingCrawledStoreProduct = jest.fn();
 };
 
 exports.default = StoreCrawlerServiceBaseMockTracker;

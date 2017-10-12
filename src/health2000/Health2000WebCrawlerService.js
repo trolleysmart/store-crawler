@@ -3,7 +3,7 @@
 import Crawler from 'crawler';
 import { List, Map, Set } from 'immutable';
 import moment from 'moment';
-import { StoreProductService } from 'trolley-smart-parse-server-common';
+import { CrawledStoreProductService } from 'trolley-smart-parse-server-common';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase {
@@ -25,7 +25,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(new Error(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
 
             return;
           }
@@ -51,25 +51,21 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
       if (
         config.get('categoryKeysToExclude') &&
-        config.get('categoryKeysToExclude').find(
-          _ =>
-            _.toLowerCase()
-              .trim()
-              .localeCompare(categoryKey.toLowerCase().trim()) === 0,
-        )
+        config.get('categoryKeysToExclude').find(_ =>
+          _.toLowerCase()
+            .trim()
+            .localeCompare(categoryKey.toLowerCase().trim()) === 0)
       ) {
         return 0;
       }
 
-      productCategories = productCategories.add(
-        Map({
-          categoryKey,
-          url,
-          name,
-          level: 1,
-          subCategories: List(),
-        }),
-      );
+      productCategories = productCategories.add(Map({
+        categoryKey,
+        url,
+        name,
+        level: 1,
+        subCategories: List(),
+      }));
 
       return 0;
     });
@@ -92,9 +88,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
           if (error) {
             done();
-            reject(
-              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`,
-            );
+            reject(new Error(`Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
 
             return;
           }
@@ -103,12 +97,12 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
           if (!productCategory) {
             done();
-            reject(`Failed to find product category page info for Url: ${url}`);
+            reject(new Error(`Failed to find product category page info for Url: ${url}`));
 
             return;
           }
 
-          const $ = res.$;
+          const { $ } = res;
           let productInfos = List();
 
           $('.js-productContent .row .productTitle a').each(function onEachNavigationLink() {
@@ -120,18 +114,16 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
             return 0;
           });
 
-          Promise.all(
-            productInfos
-              .filter(productInfo => productInfo.get('productPageUrl'))
-              .groupBy(productInfo => productInfo.get('productKey'))
-              .map(_ => _.first())
-              .valueSeq()
-              .map(productInfo => this.createOrUpdateStoreProductForHealth2000(productInfo)),
-          )
+          Promise.all(productInfos
+            .filter(productInfo => productInfo.get('productPageUrl'))
+            .groupBy(productInfo => productInfo.get('productKey'))
+            .map(_ => _.first())
+            .valueSeq()
+            .map(productInfo => this.createOrUpdateCrawledStoreProductForHealth2000(productInfo)))
             .then(() => done())
-            .catch((storeProductUpdateError) => {
+            .catch((crawledStoreProductUpdateError) => {
               done();
-              reject(storeProductUpdateError);
+              reject(new Error(crawledStoreProductUpdateError));
             });
         },
       });
@@ -141,10 +133,10 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     });
   };
 
-  createOrUpdateStoreProductForHealth2000 = async (productInfo) => {
+  createOrUpdateCrawledStoreProductForHealth2000 = async (productInfo) => {
     const storeId = await this.getStoreId();
-    const storeProductService = new StoreProductService();
-    const storeProducts = await storeProductService.search(
+    const crawledStoreProductService = new CrawledStoreProductService();
+    const crawledStoreProducts = await crawledStoreProductService.search(
       Map({
         conditions: Map({
           endsWith_productPageUrl: productInfo.get('productKey'),
@@ -154,19 +146,17 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       this.sessionToken,
     );
 
-    if (storeProducts.isEmpty()) {
-      await storeProductService.create(
-        productInfo.merge(
-          Map({
-            lastCrawlDateTime: moment('01/01/1971', 'DD/MM/YYYY').toDate(),
-            storeId,
-          }),
-        ),
+    if (crawledStoreProducts.isEmpty()) {
+      await crawledStoreProductService.create(
+        productInfo.merge(Map({
+          lastCrawlDateTime: moment('01/01/1971', 'DD/MM/YYYY').toDate(),
+          storeId,
+        })),
         null,
         this.sessionToken,
       );
-    } else if (storeProducts.count() === 1) {
-      await storeProductService.update(storeProducts.first().merge(productInfo), this.sessionToken);
+    } else if (crawledStoreProducts.count() === 1) {
+      await crawledStoreProductService.update(crawledStoreProducts.first().merge(productInfo), this.sessionToken);
     }
   };
 
@@ -185,12 +175,12 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(new Error(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
 
             return;
           }
 
-          const $ = res.$;
+          const { $ } = res;
           let tagUrls = List();
 
           $('.breadcrumb li a').each(function filterTags() {
@@ -212,25 +202,21 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
             const productDetails = $(this);
 
             productDetails.find('.productDetail .productTitle').filter(function filterName() {
-              productInfo = productInfo.merge(
-                Map({
-                  name: $(this)
-                    .text()
-                    .trim(),
-                }),
-              );
+              productInfo = productInfo.merge(Map({
+                name: $(this)
+                  .text()
+                  .trim(),
+              }));
 
               return 0;
             });
 
             productDetails.find('.productAccordion .m0-sm').filter(function filterDescription() {
-              productInfo = productInfo.merge(
-                Map({
-                  description: $(this)
-                    .text()
-                    .trim(),
-                }),
-              );
+              productInfo = productInfo.merge(Map({
+                description: $(this)
+                  .text()
+                  .trim(),
+              }));
 
               return 0;
             });
@@ -249,9 +235,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
                     .text()
                     .trim();
 
-                  productInfo = productInfo.merge(
-                    Map({ wasPrice: StoreCrawlerServiceBase.removeDollarSignFromPrice(priceStr.substring(priceStr.lastIndexOf(' ') + 1)) }),
-                  );
+                  productInfo = productInfo.merge(Map({ wasPrice: StoreCrawlerServiceBase.removeDollarSignFromPrice(priceStr.substring(priceStr.lastIndexOf(' ') + 1)) }));
 
                   return 0;
                 });
@@ -263,9 +247,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
                     .text()
                     .trim();
 
-                  productInfo = productInfo.merge(
-                    Map({ currentPrice: StoreCrawlerServiceBase.removeDollarSignFromPrice(priceStr.substring(priceStr.lastIndexOf(' ') + 1)) }),
-                  );
+                  productInfo = productInfo.merge(Map({ currentPrice: StoreCrawlerServiceBase.removeDollarSignFromPrice(priceStr.substring(priceStr.lastIndexOf(' ') + 1)) }));
                   return 0;
                 });
 
@@ -279,7 +261,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
             .then(() => done())
             .catch((internalError) => {
               done();
-              reject(internalError);
+              reject(new Error(internalError));
             });
         },
       });
@@ -326,8 +308,8 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       .merge(wasPrice ? Map({ wasPrice }) : Map())
       .merge(Map({ saving, savingPercentage }));
 
-    const storeProductId = product.get('id');
-    const productPrice = Map({
+    const crawledStoreProductId = product.get('id');
+    const crawledProductPrice = Map({
       name: productInfo.get('name'),
       description: productInfo.get('description'),
       barcode: productInfo.get('barcode'),
@@ -341,7 +323,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
-      storeProductId,
+      crawledStoreProductId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
@@ -349,19 +331,17 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     });
 
     return Promise.all([
-      this.createOrUpdateProductPrice(storeProductId, productPrice),
-      this.updateExistingStoreProduct(
-        product.merge({
-          name: productInfo.get('name'),
-          description: productInfo.get('description'),
-          barcode: productInfo.get('barcode'),
-          imageUrl: productInfo.get('imageUrl'),
-          lastCrawlDateTime: new Date(),
-          storeTagIds: storeTags
-            .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-            .map(storeTag => storeTag.get('id')),
-        }),
-      ),
+      this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice),
+      this.updateExistingCrawledStoreProduct(product.merge({
+        name: productInfo.get('name'),
+        description: productInfo.get('description'),
+        barcode: productInfo.get('barcode'),
+        imageUrl: productInfo.get('imageUrl'),
+        lastCrawlDateTime: new Date(),
+        storeTagIds: storeTags
+          .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+          .map(storeTag => storeTag.get('id')),
+      })),
     ]);
   };
 }

@@ -24,7 +24,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(new Error(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
 
             return;
           }
@@ -52,28 +52,24 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (
             config.get('categoryKeysToExclude') &&
-            config.get('categoryKeysToExclude').find(
-              _ =>
-                _.toLowerCase()
-                  .trim()
-                  .localeCompare(categoryKey.toLowerCase().trim()) === 0,
-            )
+            config.get('categoryKeysToExclude').find(_ =>
+              _.toLowerCase()
+                .trim()
+                .localeCompare(categoryKey.toLowerCase().trim()) === 0)
           ) {
             return 0;
           }
 
-          productCategories = productCategories.add(
-            Map({
-              categoryKey,
-              url: menuItem.find('.level-1').attr('href'),
-              name: menuItem
-                .find('.level-1')
-                .text()
-                .trim(),
-              level: 1,
-              subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey),
-            }),
-          );
+          productCategories = productCategories.add(Map({
+            categoryKey,
+            url: menuItem.find('.level-1').attr('href'),
+            name: menuItem
+              .find('.level-1')
+              .text()
+              .trim(),
+            level: 1,
+            subCategories: self.crawlLevelTwoProductCategoriesAndSubProductCategories(config, $, menuItem, categoryKey),
+          }));
 
           return 0;
         });
@@ -100,25 +96,21 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
               if (
                 config.get('categoryKeysToExclude') &&
-                config.get('categoryKeysToExclude').find(
-                  _ =>
-                    _.toLowerCase()
-                      .trim()
-                      .localeCompare(categoryKey.toLowerCase().trim()) === 0,
-                )
+                config.get('categoryKeysToExclude').find(_ =>
+                  _.toLowerCase()
+                    .trim()
+                    .localeCompare(categoryKey.toLowerCase().trim()) === 0)
               ) {
                 return 0;
               }
 
-              productCategories = productCategories.add(
-                Map({
-                  categoryKey,
-                  url: menuItem.attr('href'),
-                  name: menuItem.text().trim(),
-                  level: 2,
-                  subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey),
-                }),
-              );
+              productCategories = productCategories.add(Map({
+                categoryKey,
+                url: menuItem.attr('href'),
+                name: menuItem.text().trim(),
+                level: 2,
+                subCategories: self.crawlLevelThreeProductCategoriesAndSubProductCategories(config, $, $(this), categoryKey),
+              }));
 
               return 0;
             });
@@ -144,24 +136,20 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (
             config.get('categoryKeysToExclude') &&
-            config.get('categoryKeysToExclude').find(
-              _ =>
-                _.toLowerCase()
-                  .trim()
-                  .localeCompare(categoryKey.toLowerCase().trim()) === 0,
-            )
+            config.get('categoryKeysToExclude').find(_ =>
+              _.toLowerCase()
+                .trim()
+                .localeCompare(categoryKey.toLowerCase().trim()) === 0)
           ) {
             return 0;
           }
 
-          productCategories = productCategories.add(
-            Map({
-              categoryKey,
-              url: menuItem.attr('href'),
-              name: menuItem.text().trim(),
-              level: 3,
-            }),
-          );
+          productCategories = productCategories.add(Map({
+            categoryKey,
+            url: menuItem.attr('href'),
+            name: menuItem.text().trim(),
+            level: 3,
+          }));
 
           return 0;
         });
@@ -186,9 +174,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (error) {
             done();
-            reject(
-              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`,
-            );
+            reject(new Error(`Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
 
             return;
           }
@@ -257,9 +243,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (error) {
             done();
-            reject(
-              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`,
-            );
+            reject(new Error(`Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
 
             return;
           }
@@ -270,28 +254,27 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (!productCategory) {
             done();
-            reject(`Failed to find product category page info for Url: ${baseUrl}`);
+            reject(new Error(`Failed to find product category page info for Url: ${baseUrl}`));
 
             return;
           }
 
           const productInfos = this.crawlProductInfo(config, res.$);
 
-          Promise.all(
-            productInfos.filter(productInfo => productInfo.get('productPageUrl')).map(productInfo => this.createOrUpdateStoreProduct(productInfo)),
-          )
+          Promise.all(productInfos
+            .filter(productInfo => productInfo.get('productPageUrl'))
+            .map(productInfo => this.createOrUpdateCrawledStoreProduct(productInfo)))
             .then(() => done())
-            .catch((storeProductUpdateError) => {
+            .catch((crawledCrawledStoreProductUpdateError) => {
               done();
-              reject(storeProductUpdateError);
+              reject(new Error(crawledCrawledStoreProductUpdateError));
             });
         },
       });
 
       crawler.on('drain', () => resolve());
       storeTags.forEach(productCategory =>
-        Range(0, productCategory.get('totalItems'), 24).forEach(offset => crawler.queue(`${productCategory.get('url')}?sz=24&start=${offset}`)),
-      );
+        Range(0, productCategory.get('totalItems'), 24).forEach(offset => crawler.queue(`${productCategory.get('url')}?sz=24&start=${offset}`)));
     });
   };
 
@@ -326,12 +309,12 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (error) {
             done();
-            reject(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
+            reject(new Error(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
 
             return;
           }
 
-          const $ = res.$;
+          const { $ } = res;
           const self = this;
           let tagUrls = List();
 
@@ -411,7 +394,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
             .then(() => done())
             .catch((internalError) => {
               done();
-              reject(internalError);
+              reject(new Error(internalError));
             });
         },
       });
@@ -500,11 +483,9 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       .find('.row .product-features-print .product-features .featuresbenefits-text ul')
       .children()
       .filter(function filterFeatureBenefit() {
-        benefitsAndFeatures = benefitsAndFeatures.push(
-          $(this)
-            .text()
-            .trim(),
-        );
+        benefitsAndFeatures = benefitsAndFeatures.push($(this)
+          .text()
+          .trim());
 
         return 0;
       });
@@ -551,8 +532,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       .merge(offerEndDate ? Map({ offerEndDate }) : Map())
       .merge(Map({ saving, savingPercentage }));
 
-    const storeProductId = product.get('id');
-    const productPrice = Map({
+    const crawledCrawledStoreProductId = product.get('id');
+    const crawledProductPrice = Map({
       name: productInfo.get('name'),
       description: productInfo.get('description'),
       barcode: productInfo.get('barcode'),
@@ -566,7 +547,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
-      storeProductId,
+      crawledCrawledStoreProductId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
@@ -574,19 +555,17 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
 
     return Promise.all([
-      this.createOrUpdateProductPrice(storeProductId, productPrice),
-      this.updateExistingStoreProduct(
-        product.merge({
-          name: productInfo.get('name'),
-          description: productInfo.get('description'),
-          barcode: productInfo.get('barcode'),
-          imageUrl: productInfo.get('imageUrl'),
-          lastCrawlDateTime: new Date(),
-          storeTagIds: storeTags
-            .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-            .map(storeTag => storeTag.get('id')),
-        }),
-      ),
+      this.createOrUpdateCrawledProductPrice(crawledCrawledStoreProductId, crawledProductPrice),
+      this.updateExistingCrawledStoreProduct(product.merge({
+        name: productInfo.get('name'),
+        description: productInfo.get('description'),
+        barcode: productInfo.get('barcode'),
+        imageUrl: productInfo.get('imageUrl'),
+        lastCrawlDateTime: new Date(),
+        storeTagIds: storeTags
+          .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+          .map(storeTag => storeTag.get('id')),
+      })),
     ]);
   };
 }

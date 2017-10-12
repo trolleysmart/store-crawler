@@ -64,7 +64,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
                     if (error) {
                       done();
-                      reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                      reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                       return;
                     }
@@ -147,7 +147,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                        reject(new Error('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                         return;
                       }
@@ -158,12 +158,13 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (!productCategory) {
                         done();
-                        reject('Failed to find product category page info for Url: ' + url);
+                        reject(new Error('Failed to find product category page info for Url: ' + url));
 
                         return;
                       }
 
                       var $ = res.$;
+
                       var productInfos = (0, _immutable.List)();
 
                       $('.js-productContent .row .productTitle a').each(function onEachNavigationLink() {
@@ -182,12 +183,12 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                       }).map(function (_) {
                         return _.first();
                       }).valueSeq().map(function (productInfo) {
-                        return _this.createOrUpdateStoreProductForHealth2000(productInfo);
+                        return _this.createOrUpdateCrawledStoreProductForHealth2000(productInfo);
                       })).then(function () {
                         return done();
-                      }).catch(function (storeProductUpdateError) {
+                      }).catch(function (crawledStoreProductUpdateError) {
                         done();
-                        reject(storeProductUpdateError);
+                        reject(new Error(crawledStoreProductUpdateError));
                       });
                     }
                   });
@@ -213,9 +214,9 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
       };
     }();
 
-    _this.createOrUpdateStoreProductForHealth2000 = function () {
+    _this.createOrUpdateCrawledStoreProductForHealth2000 = function () {
       var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(productInfo) {
-        var storeId, storeProductService, storeProducts;
+        var storeId, crawledStoreProductService, crawledStoreProducts;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
@@ -225,9 +226,9 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
               case 2:
                 storeId = _context3.sent;
-                storeProductService = new _trolleySmartParseServerCommon.StoreProductService();
+                crawledStoreProductService = new _trolleySmartParseServerCommon.CrawledStoreProductService();
                 _context3.next = 6;
-                return storeProductService.search((0, _immutable.Map)({
+                return crawledStoreProductService.search((0, _immutable.Map)({
                   conditions: (0, _immutable.Map)({
                     endsWith_productPageUrl: productInfo.get('productKey'),
                     storeId: storeId
@@ -235,15 +236,15 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 }), _this.sessionToken);
 
               case 6:
-                storeProducts = _context3.sent;
+                crawledStoreProducts = _context3.sent;
 
-                if (!storeProducts.isEmpty()) {
+                if (!crawledStoreProducts.isEmpty()) {
                   _context3.next = 12;
                   break;
                 }
 
                 _context3.next = 10;
-                return storeProductService.create(productInfo.merge((0, _immutable.Map)({
+                return crawledStoreProductService.create(productInfo.merge((0, _immutable.Map)({
                   lastCrawlDateTime: (0, _moment2.default)('01/01/1971', 'DD/MM/YYYY').toDate(),
                   storeId: storeId
                 })), null, _this.sessionToken);
@@ -253,13 +254,13 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 break;
 
               case 12:
-                if (!(storeProducts.count() === 1)) {
+                if (!(crawledStoreProducts.count() === 1)) {
                   _context3.next = 15;
                   break;
                 }
 
                 _context3.next = 15;
-                return storeProductService.update(storeProducts.first().merge(productInfo), _this.sessionToken);
+                return crawledStoreProductService.update(crawledStoreProducts.first().merge(productInfo), _this.sessionToken);
 
               case 15:
               case 'end':
@@ -302,12 +303,13 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error));
+                        reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
 
                         return;
                       }
 
                       var $ = res.$;
+
                       var tagUrls = (0, _immutable.List)();
 
                       $('.breadcrumb li a').each(function filterTags() {
@@ -375,7 +377,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                         return done();
                       }).catch(function (internalError) {
                         done();
-                        reject(internalError);
+                        reject(new Error(internalError));
                       });
                     }
                   });
@@ -401,7 +403,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
     _this.updateProductDetails = function () {
       var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(product, storeTags, productInfo) {
-        var storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, saving, savingPercentage, temp, storeProductId, productPrice;
+        var storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, saving, savingPercentage, temp, crawledStoreProductId, crawledProductPrice;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
@@ -446,8 +448,8 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
                 priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge((0, _immutable.Map)({ saving: saving, savingPercentage: savingPercentage }));
 
-                storeProductId = product.get('id');
-                productPrice = (0, _immutable.Map)({
+                crawledStoreProductId = product.get('id');
+                crawledProductPrice = (0, _immutable.Map)({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
@@ -461,7 +463,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                   status: 'A',
                   special: priceDetails.get('specialType').localeCompare('none') !== 0,
                   storeId: storeId,
-                  storeProductId: storeProductId,
+                  crawledStoreProductId: crawledStoreProductId,
                   tagIds: storeTags.filter(function (storeTag) {
                     return product.get('storeTagIds').find(function (_) {
                       return _.localeCompare(storeTag.get('id')) === 0;
@@ -472,7 +474,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag;
                   })
                 });
-                return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
+                return _context5.abrupt('return', Promise.all([_this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice), _this.updateExistingCrawledStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),

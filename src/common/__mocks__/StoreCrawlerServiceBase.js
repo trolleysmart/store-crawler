@@ -6,7 +6,7 @@ let storeCrawlerServiceBaseMockTracker;
 let finalConfig;
 let finalStore;
 let finalStoreTags;
-let finalStoreProducts;
+let finalCrawledStoreProducts;
 
 export const resetAllMockTrackers = () => {
   storeCrawlerServiceBaseMockTracker = new StoreCrawlerServiceBaseMockTracker();
@@ -14,23 +14,23 @@ export const resetAllMockTrackers = () => {
 
 export const getAllMockTrackers = () => ({ storeCrawlerServiceBaseMockTracker });
 
-export const setupStoreCrawlerServiceBase = ({ config, store, storeTags, storeProducts } = {}) => {
+export const setupStoreCrawlerServiceBase = ({
+  config, store, storeTags, crawledStoreProducts,
+} = {}) => {
   finalConfig = config;
   finalStore = store;
   finalStoreTags = storeTags;
-  finalStoreProducts = storeProducts;
+  finalCrawledStoreProducts = crawledStoreProducts;
 };
 
 export default class StoreCrawlerServiceBase {
   static safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
 
   static removeDollarSignFromPrice = priceWithDollarSign =>
-    parseFloat(
-      priceWithDollarSign
-        .substring(priceWithDollarSign.indexOf('$') + 1)
-        .trim()
-        .replace(',', ''),
-    );
+    parseFloat(priceWithDollarSign
+      .substring(priceWithDollarSign.indexOf('$') + 1)
+      .trim()
+      .replace(',', ''));
 
   getConfig = async () => {
     if (storeCrawlerServiceBaseMockTracker) {
@@ -82,29 +82,29 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
-  createOrUpdateStoreProduct = async (productCategory, productInfo) => {
+  createOrUpdateCrawledStoreProduct = async (productCategory, productInfo) => {
     if (storeCrawlerServiceBaseMockTracker) {
-      storeCrawlerServiceBaseMockTracker.createOrUpdateStoreProduct(productCategory, productInfo);
+      storeCrawlerServiceBaseMockTracker.createOrUpdateCrawledStoreProduct(productCategory, productInfo);
     }
   };
 
-  getStoreProducts = async (inputArgument) => {
+  getCrawledStoreProducts = async (inputArgument) => {
     if (storeCrawlerServiceBaseMockTracker) {
-      storeCrawlerServiceBaseMockTracker.getStoreProducts(inputArgument);
+      storeCrawlerServiceBaseMockTracker.getCrawledStoreProducts(inputArgument);
     }
 
-    return finalStoreProducts;
+    return finalCrawledStoreProducts;
   };
 
-  createOrUpdateProductPrice = async (storeProductId, productPrice, priceDetails) => {
+  createOrUpdateCrawledProductPrice = async (crawledStoreProductId, crawledProductPrice, priceDetails) => {
     if (storeCrawlerServiceBaseMockTracker) {
-      storeCrawlerServiceBaseMockTracker.createOrUpdateProductPrice(storeProductId, productPrice, priceDetails);
+      storeCrawlerServiceBaseMockTracker.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice, priceDetails);
     }
   };
 
-  updateExistingStoreProduct = async (storeProduct) => {
+  updateExistingCrawledStoreProduct = async (crawledStoreProduct) => {
     if (storeCrawlerServiceBaseMockTracker) {
-      storeCrawlerServiceBaseMockTracker.updateExistingStoreProduct(storeProduct);
+      storeCrawlerServiceBaseMockTracker.updateExistingCrawledStoreProduct(crawledStoreProduct);
     }
   };
 
