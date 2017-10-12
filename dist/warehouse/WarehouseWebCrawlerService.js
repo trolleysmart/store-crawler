@@ -326,9 +326,9 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                         return _this.createOrUpdateCrawledStoreProduct(productInfo);
                       })).then(function () {
                         return done();
-                      }).catch(function (crawledCrawledStoreProductUpdateError) {
+                      }).catch(function (crawledStoreProductUpdateError) {
                         done();
-                        reject(new Error(crawledCrawledStoreProductUpdateError));
+                        reject(new Error(crawledStoreProductUpdateError));
                       });
                     }
                   });
@@ -565,7 +565,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
 
     _this.updateProductDetails = function () {
       var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(product, storeTags, productInfo) {
-        var storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, offerEndDate, saving, savingPercentage, temp, crawledCrawledStoreProductId, crawledProductPrice;
+        var storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, offerEndDate, saving, savingPercentage, temp, crawledStoreProductId, crawledProductPrice;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
@@ -611,7 +611,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                 priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)()).merge((0, _immutable.Map)({ saving: saving, savingPercentage: savingPercentage }));
 
-                crawledCrawledStoreProductId = product.get('id');
+                crawledStoreProductId = product.get('id');
                 crawledProductPrice = (0, _immutable.Map)({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
@@ -626,7 +626,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                   status: 'A',
                   special: priceDetails.get('specialType').localeCompare('none') !== 0,
                   storeId: storeId,
-                  crawledCrawledStoreProductId: crawledCrawledStoreProductId,
+                  crawledStoreProductId: crawledStoreProductId,
                   tagIds: storeTags.filter(function (storeTag) {
                     return product.get('storeTagIds').find(function (_) {
                       return _.localeCompare(storeTag.get('id')) === 0;
@@ -637,7 +637,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag;
                   })
                 }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
-                return _context5.abrupt('return', Promise.all([_this.createOrUpdateCrawledProductPrice(crawledCrawledStoreProductId, crawledProductPrice), _this.updateExistingCrawledStoreProduct(product.merge({
+                return _context5.abrupt('return', Promise.all([_this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice), _this.updateExistingCrawledStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),

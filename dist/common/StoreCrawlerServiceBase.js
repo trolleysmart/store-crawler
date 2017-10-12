@@ -532,34 +532,60 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     };
   }();
 
-  this.getCrawledStoreProductsCriteria = function () {
+  this.getCrawledStoreProducts = function () {
     var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11() {
       var _ref14 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
           lastCrawlDateTime = _ref14.lastCrawlDateTime;
 
+      var crawledStoreProductsWithLastCrawledDateSet, crawledStoreProductsWithoutLastCrawledDateSet;
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
           switch (_context11.prev = _context11.next) {
             case 0:
-              _context11.t0 = _immutable.Map;
+              _context11.t0 = new _trolleySmartParseServerCommon.CrawledStoreProductService();
               _context11.t1 = _immutable.Map;
-              _context11.next = 4;
+              _context11.t2 = _immutable.Map;
+              _context11.next = 5;
               return _this.getStoreId();
 
-            case 4:
-              _context11.t2 = _context11.sent;
-              _context11.t3 = lastCrawlDateTime || undefined;
-              _context11.t4 = {
-                storeId: _context11.t2,
-                lessThanOrEqualTo_lastCrawlDateTime: _context11.t3
+            case 5:
+              _context11.t3 = _context11.sent;
+              _context11.t4 = lastCrawlDateTime || undefined;
+              _context11.t5 = {
+                storeId: _context11.t3,
+                lessThanOrEqualTo_lastCrawlDateTime: _context11.t4
               };
-              _context11.t5 = (0, _context11.t1)(_context11.t4);
-              _context11.t6 = {
-                conditions: _context11.t5
+              _context11.t6 = (0, _context11.t2)(_context11.t5);
+              _context11.t7 = {
+                limit: 1000,
+                conditions: _context11.t6
               };
-              return _context11.abrupt('return', (0, _context11.t0)(_context11.t6));
+              _context11.t8 = (0, _context11.t1)(_context11.t7);
+              _context11.t9 = _this.sessionToken;
+              crawledStoreProductsWithLastCrawledDateSet = _context11.t0.search.call(_context11.t0, _context11.t8, _context11.t9);
+              _context11.t10 = new _trolleySmartParseServerCommon.CrawledStoreProductService();
+              _context11.t11 = _immutable.Map;
+              _context11.t12 = _immutable.Map;
+              _context11.next = 18;
+              return _this.getStoreId();
 
-            case 10:
+            case 18:
+              _context11.t13 = _context11.sent;
+              _context11.t14 = {
+                storeId: _context11.t13,
+                doesNotExist_lastCrawlDateTime: true
+              };
+              _context11.t15 = (0, _context11.t12)(_context11.t14);
+              _context11.t16 = {
+                limit: 1000,
+                conditions: _context11.t15
+              };
+              _context11.t17 = (0, _context11.t11)(_context11.t16);
+              _context11.t18 = _this.sessionToken;
+              crawledStoreProductsWithoutLastCrawledDateSet = _context11.t10.search.call(_context11.t10, _context11.t17, _context11.t18);
+              return _context11.abrupt('return', crawledStoreProductsWithLastCrawledDateSet.concat(crawledStoreProductsWithoutLastCrawledDateSet));
+
+            case 26:
             case 'end':
               return _context11.stop();
           }
@@ -572,100 +598,18 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     };
   }();
 
-  this.getAllCrawledStoreProducts = function () {
-    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
-      var _ref16 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          lastCrawlDateTime = _ref16.lastCrawlDateTime;
-
-      var result, crawledStoreProducts;
+  this.getActiveCrawledProductPrices = function () {
+    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(crawledStoreProductId) {
+      var storeId, criteria;
       return regeneratorRuntime.wrap(function _callee12$(_context12) {
         while (1) {
           switch (_context12.prev = _context12.next) {
             case 0:
-              _context12.t0 = new _trolleySmartParseServerCommon.CrawledStoreProductService();
-              _context12.next = 3;
-              return _this.getCrawledStoreProductsCriteria({ lastCrawlDateTime: lastCrawlDateTime });
-
-            case 3:
-              _context12.t1 = _context12.sent;
-              _context12.t2 = _this.sessionToken;
-              result = _context12.t0.searchAll.call(_context12.t0, _context12.t1, _context12.t2);
-              _context12.prev = 6;
-              crawledStoreProducts = (0, _immutable.List)();
-
-
-              result.event.subscribe(function (info) {
-                crawledStoreProducts = crawledStoreProducts.push(info);
-              });
-
-              _context12.next = 11;
-              return result.promise;
-
-            case 11:
-              return _context12.abrupt('return', crawledStoreProducts);
-
-            case 12:
-              _context12.prev = 12;
-
-              result.event.unsubscribeAll();
-              return _context12.finish(12);
-
-            case 15:
-            case 'end':
-              return _context12.stop();
-          }
-        }
-      }, _callee12, _this, [[6,, 12, 15]]);
-    }));
-
-    return function () {
-      return _ref15.apply(this, arguments);
-    };
-  }();
-
-  this.getCrawledStoreProducts = function () {
-    var _ref17 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13() {
-      var _ref18 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          lastCrawlDateTime = _ref18.lastCrawlDateTime;
-
-      return regeneratorRuntime.wrap(function _callee13$(_context13) {
-        while (1) {
-          switch (_context13.prev = _context13.next) {
-            case 0:
-              _context13.t0 = new _trolleySmartParseServerCommon.CrawledStoreProductService();
-              _context13.next = 3;
-              return _this.getCrawledStoreProductsCriteria({ lastCrawlDateTime: lastCrawlDateTime });
-
-            case 3:
-              _context13.t1 = _context13.sent.set('limit', 1000);
-              _context13.t2 = _this.sessionToken;
-              return _context13.abrupt('return', _context13.t0.search.call(_context13.t0, _context13.t1, _context13.t2));
-
-            case 6:
-            case 'end':
-              return _context13.stop();
-          }
-        }
-      }, _callee13, _this);
-    }));
-
-    return function () {
-      return _ref17.apply(this, arguments);
-    };
-  }();
-
-  this.getActiveCrawledProductPrices = function () {
-    var _ref19 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(crawledStoreProductId) {
-      var storeId, criteria;
-      return regeneratorRuntime.wrap(function _callee14$(_context14) {
-        while (1) {
-          switch (_context14.prev = _context14.next) {
-            case 0:
-              _context14.next = 2;
+              _context12.next = 2;
               return _this.getStoreId();
 
             case 2:
-              storeId = _context14.sent;
+              storeId = _context12.sent;
               criteria = (0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   crawledStoreProductId: crawledStoreProductId,
@@ -673,87 +617,87 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
                   status: 'A'
                 })
               });
-              return _context14.abrupt('return', new _trolleySmartParseServerCommon.CrawledProductPriceService().search(criteria, _this.sessionToken));
+              return _context12.abrupt('return', new _trolleySmartParseServerCommon.CrawledProductPriceService().search(criteria, _this.sessionToken));
 
             case 5:
             case 'end':
-              return _context14.stop();
+              return _context12.stop();
           }
         }
-      }, _callee14, _this);
+      }, _callee12, _this);
     }));
 
-    return function (_x15) {
-      return _ref19.apply(this, arguments);
+    return function (_x13) {
+      return _ref15.apply(this, arguments);
     };
   }();
 
   this.updateExistingCrawledStoreProduct = function () {
-    var _ref20 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(crawledStoreProduct) {
-      return regeneratorRuntime.wrap(function _callee15$(_context15) {
+    var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(crawledStoreProduct) {
+      return regeneratorRuntime.wrap(function _callee13$(_context13) {
         while (1) {
-          switch (_context15.prev = _context15.next) {
+          switch (_context13.prev = _context13.next) {
             case 0:
-              _context15.next = 2;
+              _context13.next = 2;
               return new _trolleySmartParseServerCommon.CrawledStoreProductService().update(crawledStoreProduct, _this.sessionToken);
 
             case 2:
             case 'end':
-              return _context15.stop();
+              return _context13.stop();
           }
         }
-      }, _callee15, _this);
+      }, _callee13, _this);
     }));
 
-    return function (_x16) {
-      return _ref20.apply(this, arguments);
+    return function (_x14) {
+      return _ref16.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateCrawledProductPrice = function () {
-    var _ref21 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16(crawledStoreProductId, crawledProductPrice) {
+    var _ref17 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(crawledStoreProductId, crawledProductPrice) {
       var crawledProductPrices, crawledProductPriceService, priceDetails, notMatchedCrawledProductPrices, matchedCrawledProductPrices;
-      return regeneratorRuntime.wrap(function _callee16$(_context16) {
+      return regeneratorRuntime.wrap(function _callee14$(_context14) {
         while (1) {
-          switch (_context16.prev = _context16.next) {
+          switch (_context14.prev = _context14.next) {
             case 0:
-              _context16.next = 2;
+              _context14.next = 2;
               return _this.getActiveCrawledProductPrices(crawledStoreProductId);
 
             case 2:
-              crawledProductPrices = _context16.sent;
+              crawledProductPrices = _context14.sent;
               crawledProductPriceService = new _trolleySmartParseServerCommon.CrawledProductPriceService();
               priceDetails = crawledProductPrice.get('priceDetails');
 
               if (!(!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice'))) {
-                _context16.next = 10;
+                _context14.next = 10;
                 break;
               }
 
               if (crawledProductPrices.isEmpty()) {
-                _context16.next = 9;
+                _context14.next = 9;
                 break;
               }
 
-              _context16.next = 9;
+              _context14.next = 9;
               return Promise.all(crawledProductPrices.map(function (_) {
                 return crawledProductPriceService.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
 
             case 9:
-              return _context16.abrupt('return');
+              return _context14.abrupt('return');
 
             case 10:
               if (!crawledProductPrices.isEmpty()) {
-                _context16.next = 15;
+                _context14.next = 15;
                 break;
               }
 
-              _context16.next = 13;
+              _context14.next = 13;
               return crawledProductPriceService.create(crawledProductPrice, null, _this.sessionToken);
 
             case 13:
-              _context16.next = 28;
+              _context14.next = 28;
               break;
 
             case 15:
@@ -762,11 +706,11 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               });
 
               if (notMatchedCrawledProductPrices.isEmpty()) {
-                _context16.next = 19;
+                _context14.next = 19;
                 break;
               }
 
-              _context16.next = 19;
+              _context14.next = 19;
               return Promise.all(notMatchedCrawledProductPrices.map(function (_) {
                 return crawledProductPriceService.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
@@ -777,29 +721,82 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               });
 
               if (!(matchedCrawledProductPrices.count() > 1)) {
-                _context16.next = 25;
+                _context14.next = 25;
                 break;
               }
 
-              _context16.next = 23;
+              _context14.next = 23;
               return Promise.all(matchedCrawledProductPrices.skip(1).map(function (_) {
                 return crawledProductPriceService.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
 
             case 23:
-              _context16.next = 28;
+              _context14.next = 28;
               break;
 
             case 25:
               if (!(matchedCrawledProductPrices.count() === 0)) {
-                _context16.next = 28;
+                _context14.next = 28;
                 break;
               }
 
-              _context16.next = 28;
+              _context14.next = 28;
               return crawledProductPriceService.create(crawledProductPrice, null, _this.sessionToken);
 
             case 28:
+            case 'end':
+              return _context14.stop();
+          }
+        }
+      }, _callee14, _this);
+    }));
+
+    return function (_x15, _x16) {
+      return _ref17.apply(this, arguments);
+    };
+  }();
+
+  this.createNewTag = function () {
+    var _ref18 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(tagInfo) {
+      return regeneratorRuntime.wrap(function _callee15$(_context15) {
+        while (1) {
+          switch (_context15.prev = _context15.next) {
+            case 0:
+              _context15.next = 2;
+              return new _trolleySmartParseServerCommon.TagService().create(tagInfo, null, _this.sessionToken);
+
+            case 2:
+            case 'end':
+              return _context15.stop();
+          }
+        }
+      }, _callee15, _this);
+    }));
+
+    return function (_x17) {
+      return _ref18.apply(this, arguments);
+    };
+  }();
+
+  this.logVerbose = function () {
+    var _ref19 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16(messageFunc) {
+      var config;
+      return regeneratorRuntime.wrap(function _callee16$(_context16) {
+        while (1) {
+          switch (_context16.prev = _context16.next) {
+            case 0:
+              _context16.next = 2;
+              return _this.getConfig();
+
+            case 2:
+              config = _context16.sent;
+
+
+              if (_this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
+                _this.logVerboseFunc(messageFunc());
+              }
+
+            case 4:
             case 'end':
               return _context16.stop();
           }
@@ -807,21 +804,30 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee16, _this);
     }));
 
-    return function (_x17, _x18) {
-      return _ref21.apply(this, arguments);
+    return function (_x18) {
+      return _ref19.apply(this, arguments);
     };
   }();
 
-  this.createNewTag = function () {
-    var _ref22 = _asyncToGenerator(regeneratorRuntime.mark(function _callee17(tagInfo) {
+  this.logInfo = function () {
+    var _ref20 = _asyncToGenerator(regeneratorRuntime.mark(function _callee17(messageFunc) {
+      var config;
       return regeneratorRuntime.wrap(function _callee17$(_context17) {
         while (1) {
           switch (_context17.prev = _context17.next) {
             case 0:
               _context17.next = 2;
-              return new _trolleySmartParseServerCommon.TagService().create(tagInfo, null, _this.sessionToken);
+              return _this.getConfig();
 
             case 2:
+              config = _context17.sent;
+
+
+              if (_this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
+                _this.logInfoFunc(messageFunc());
+              }
+
+            case 4:
             case 'end':
               return _context17.stop();
           }
@@ -830,12 +836,12 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     }));
 
     return function (_x19) {
-      return _ref22.apply(this, arguments);
+      return _ref20.apply(this, arguments);
     };
   }();
 
-  this.logVerbose = function () {
-    var _ref23 = _asyncToGenerator(regeneratorRuntime.mark(function _callee18(messageFunc) {
+  this.logError = function () {
+    var _ref21 = _asyncToGenerator(regeneratorRuntime.mark(function _callee18(messageFunc) {
       var config;
       return regeneratorRuntime.wrap(function _callee18$(_context18) {
         while (1) {
@@ -848,8 +854,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               config = _context18.sent;
 
 
-              if (_this.logVerboseFunc && config.get('logLevel') && config.get('logLevel') >= 3 && messageFunc) {
-                _this.logVerboseFunc(messageFunc());
+              if (_this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
+                _this.logErrorFunc(messageFunc());
               }
 
             case 4:
@@ -861,90 +867,28 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     }));
 
     return function (_x20) {
-      return _ref23.apply(this, arguments);
+      return _ref21.apply(this, arguments);
     };
   }();
 
-  this.logInfo = function () {
-    var _ref24 = _asyncToGenerator(regeneratorRuntime.mark(function _callee19(messageFunc) {
-      var config;
-      return regeneratorRuntime.wrap(function _callee19$(_context19) {
-        while (1) {
-          switch (_context19.prev = _context19.next) {
-            case 0:
-              _context19.next = 2;
-              return _this.getConfig();
-
-            case 2:
-              config = _context19.sent;
-
-
-              if (_this.logInfoFunc && config.get('logLevel') && config.get('logLevel') >= 2 && messageFunc) {
-                _this.logInfoFunc(messageFunc());
-              }
-
-            case 4:
-            case 'end':
-              return _context19.stop();
-          }
-        }
-      }, _callee19, _this);
-    }));
-
-    return function (_x21) {
-      return _ref24.apply(this, arguments);
-    };
-  }();
-
-  this.logError = function () {
-    var _ref25 = _asyncToGenerator(regeneratorRuntime.mark(function _callee20(messageFunc) {
-      var config;
-      return regeneratorRuntime.wrap(function _callee20$(_context20) {
-        while (1) {
-          switch (_context20.prev = _context20.next) {
-            case 0:
-              _context20.next = 2;
-              return _this.getConfig();
-
-            case 2:
-              config = _context20.sent;
-
-
-              if (_this.logErrorFunc && config.get('logLevel') && config.get('logLevel') >= 1 && messageFunc) {
-                _this.logErrorFunc(messageFunc());
-              }
-
-            case 4:
-            case 'end':
-              return _context20.stop();
-          }
-        }
-      }, _callee20, _this);
-    }));
-
-    return function (_x22) {
-      return _ref25.apply(this, arguments);
-    };
-  }();
-
-  this.crawlAndSyncProductCategoriesToStoreTags = _asyncToGenerator(regeneratorRuntime.mark(function _callee21() {
+  this.crawlAndSyncProductCategoriesToStoreTags = _asyncToGenerator(regeneratorRuntime.mark(function _callee19() {
     var productCategories, storeTags, splittedLevelOneProductCategories, storeTagsWithUpdatedLevelOneStoreTags, levelTwoProductCategories, levelTwoProductCategoriesGroupedByCategoryKey, splittedLevelTwoProductCategories, storeTagsWithUpdatedLevelTwoStoreTags, levelThreeProductCategories, levelThreeProductCategoriesGroupedByCategoryKey, splittedLevelThreeProductCategories;
-    return regeneratorRuntime.wrap(function _callee21$(_context21) {
+    return regeneratorRuntime.wrap(function _callee19$(_context19) {
       while (1) {
-        switch (_context21.prev = _context21.next) {
+        switch (_context19.prev = _context19.next) {
           case 0:
-            _context21.next = 2;
+            _context19.next = 2;
             return _this.crawlAllProductCategories();
 
           case 2:
-            productCategories = _context21.sent;
-            _context21.next = 5;
+            productCategories = _context19.sent;
+            _context19.next = 5;
             return _this.getStoreTags();
 
           case 5:
-            storeTags = _context21.sent;
+            storeTags = _context19.sent;
             splittedLevelOneProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(productCategories, 100);
-            _context21.next = 9;
+            _context19.next = 9;
             return _bluebird2.default.each(splittedLevelOneProductCategories.toArray(), function (productCategoryChunks) {
               return Promise.all(productCategoryChunks.map(function (productCategory) {
                 return _this.createOrUpdateLevelOneProductCategory(productCategory, storeTags);
@@ -952,11 +896,11 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             });
 
           case 9:
-            _context21.next = 11;
+            _context19.next = 11;
             return _this.getStoreTags();
 
           case 11:
-            storeTagsWithUpdatedLevelOneStoreTags = _context21.sent;
+            storeTagsWithUpdatedLevelOneStoreTags = _context19.sent;
             levelTwoProductCategories = productCategories.map(function (productCategory) {
               return productCategory.update('subCategories', function (subCategories) {
                 return subCategories.map(function (subCategory) {
@@ -970,7 +914,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               return productCategory.get('categoryKey');
             });
             splittedLevelTwoProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
-            _context21.next = 17;
+            _context19.next = 17;
             return _bluebird2.default.each(splittedLevelTwoProductCategories.toArray(), function (productCategoryChunks) {
               return Promise.all(productCategoryChunks.map(function (productCategory) {
                 return _this.createOrUpdateLevelTwoProductCategory(productCategory, storeTagsWithUpdatedLevelOneStoreTags);
@@ -978,11 +922,11 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             });
 
           case 17:
-            _context21.next = 19;
+            _context19.next = 19;
             return _this.getStoreTags();
 
           case 19:
-            storeTagsWithUpdatedLevelTwoStoreTags = _context21.sent;
+            storeTagsWithUpdatedLevelTwoStoreTags = _context19.sent;
             levelThreeProductCategories = productCategories.flatMap(function (productCategory) {
               return productCategory.get('subCategories');
             }).map(function (productCategory) {
@@ -998,7 +942,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               return productCategory.get('categoryKey');
             });
             splittedLevelThreeProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
-            _context21.next = 25;
+            _context19.next = 25;
             return _bluebird2.default.each(splittedLevelThreeProductCategories.toArray(), function (productCategoryChunks) {
               return Promise.all(productCategoryChunks.map(function (productCategory) {
                 return _this.createOrUpdateLevelThreeProductCategory(productCategory, storeTagsWithUpdatedLevelTwoStoreTags);
@@ -1007,73 +951,73 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
           case 25:
           case 'end':
-            return _context21.stop();
+            return _context19.stop();
         }
       }
-    }, _callee21, _this);
+    }, _callee19, _this);
   }));
-  this.crawlProducts = _asyncToGenerator(regeneratorRuntime.mark(function _callee22() {
-    return regeneratorRuntime.wrap(function _callee22$(_context22) {
+  this.crawlProducts = _asyncToGenerator(regeneratorRuntime.mark(function _callee20() {
+    return regeneratorRuntime.wrap(function _callee20$(_context20) {
       while (1) {
-        switch (_context22.prev = _context22.next) {
+        switch (_context20.prev = _context20.next) {
           case 0:
-            _context22.t0 = _this;
-            _context22.t1 = _this;
-            _context22.next = 4;
+            _context20.t0 = _this;
+            _context20.t1 = _this;
+            _context20.next = 4;
             return _this.getStoreTags();
 
           case 4:
-            _context22.t2 = _context22.sent;
-            _context22.next = 7;
-            return _context22.t1.crawlStoreTagsTotalItemsInfo.call(_context22.t1, _context22.t2);
+            _context20.t2 = _context20.sent;
+            _context20.next = 7;
+            return _context20.t1.crawlStoreTagsTotalItemsInfo.call(_context20.t1, _context20.t2);
 
           case 7:
-            _context22.t3 = _context22.sent;
-            _context22.next = 10;
-            return _context22.t0.crawlProductsForEachStoreTag.call(_context22.t0, _context22.t3);
+            _context20.t3 = _context20.sent;
+            _context20.next = 10;
+            return _context20.t0.crawlProductsForEachStoreTag.call(_context20.t0, _context20.t3);
 
           case 10:
           case 'end':
-            return _context22.stop();
+            return _context20.stop();
         }
       }
-    }, _callee22, _this);
+    }, _callee20, _this);
   }));
 
   this.crawlProductsDetailsAndCurrentPrice = function () {
-    var _ref28 = _asyncToGenerator(regeneratorRuntime.mark(function _callee23(storeTags) {
+    var _ref24 = _asyncToGenerator(regeneratorRuntime.mark(function _callee21(storeTags) {
       var finalStoreTags, lastCrawlDateTime, products, splittedProducts;
-      return regeneratorRuntime.wrap(function _callee23$(_context23) {
+      return regeneratorRuntime.wrap(function _callee21$(_context21) {
         while (1) {
-          switch (_context23.prev = _context23.next) {
+          switch (_context21.prev = _context21.next) {
             case 0:
-              _context23.t0 = storeTags;
+              _context21.t0 = storeTags;
 
-              if (_context23.t0) {
-                _context23.next = 5;
+              if (_context21.t0) {
+                _context21.next = 5;
                 break;
               }
 
-              _context23.next = 4;
+              _context21.next = 4;
               return _this.getStoreTags();
 
             case 4:
-              _context23.t0 = _context23.sent;
+              _context21.t0 = _context21.sent;
 
             case 5:
-              finalStoreTags = _context23.t0;
+              finalStoreTags = _context21.t0;
               lastCrawlDateTime = new Date();
 
 
               lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
-              _context23.next = 10;
+              _context21.next = 10;
               return _this.getCrawledStoreProducts({ lastCrawlDateTime: lastCrawlDateTime });
 
             case 10:
-              products = _context23.sent;
+              products = _context21.sent;
               splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
-              _context23.next = 14;
+              _context21.next = 14;
               return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                 return Promise.all(productChunk.map(function (product) {
                   return _this.crawlProductDetails(product, finalStoreTags);
@@ -1082,66 +1026,66 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 14:
             case 'end':
-              return _context23.stop();
+              return _context21.stop();
           }
         }
-      }, _callee23, _this);
+      }, _callee21, _this);
     }));
 
-    return function (_x23) {
-      return _ref28.apply(this, arguments);
+    return function (_x21) {
+      return _ref24.apply(this, arguments);
     };
   }();
 
-  this.crawlAllProductCategories = _asyncToGenerator(regeneratorRuntime.mark(function _callee24() {
+  this.crawlAllProductCategories = _asyncToGenerator(regeneratorRuntime.mark(function _callee22() {
+    return regeneratorRuntime.wrap(function _callee22$(_context22) {
+      while (1) {
+        switch (_context22.prev = _context22.next) {
+          case 0:
+            return _context22.abrupt('return', (0, _immutable.List)());
+
+          case 1:
+          case 'end':
+            return _context22.stop();
+        }
+      }
+    }, _callee22, _this);
+  }));
+  this.crawlStoreTagsTotalItemsInfo = _asyncToGenerator(regeneratorRuntime.mark(function _callee23() {
+    return regeneratorRuntime.wrap(function _callee23$(_context23) {
+      while (1) {
+        switch (_context23.prev = _context23.next) {
+          case 0:
+            return _context23.abrupt('return', (0, _immutable.List)());
+
+          case 1:
+          case 'end':
+            return _context23.stop();
+        }
+      }
+    }, _callee23, _this);
+  }));
+  this.crawlProductsForEachStoreTag = _asyncToGenerator(regeneratorRuntime.mark(function _callee24() {
     return regeneratorRuntime.wrap(function _callee24$(_context24) {
       while (1) {
         switch (_context24.prev = _context24.next) {
           case 0:
-            return _context24.abrupt('return', (0, _immutable.List)());
-
-          case 1:
           case 'end':
             return _context24.stop();
         }
       }
     }, _callee24, _this);
   }));
-  this.crawlStoreTagsTotalItemsInfo = _asyncToGenerator(regeneratorRuntime.mark(function _callee25() {
+  this.crawlProductDetails = _asyncToGenerator(regeneratorRuntime.mark(function _callee25() {
     return regeneratorRuntime.wrap(function _callee25$(_context25) {
       while (1) {
         switch (_context25.prev = _context25.next) {
           case 0:
-            return _context25.abrupt('return', (0, _immutable.List)());
-
-          case 1:
           case 'end':
             return _context25.stop();
         }
       }
     }, _callee25, _this);
-  }));
-  this.crawlProductsForEachStoreTag = _asyncToGenerator(regeneratorRuntime.mark(function _callee26() {
-    return regeneratorRuntime.wrap(function _callee26$(_context26) {
-      while (1) {
-        switch (_context26.prev = _context26.next) {
-          case 0:
-          case 'end':
-            return _context26.stop();
-        }
-      }
-    }, _callee26, _this);
-  }));
-  this.crawlProductDetails = _asyncToGenerator(regeneratorRuntime.mark(function _callee27() {
-    return regeneratorRuntime.wrap(function _callee27$(_context27) {
-      while (1) {
-        switch (_context27.prev = _context27.next) {
-          case 0:
-          case 'end':
-            return _context27.stop();
-        }
-      }
-    }, _callee27, _this);
   }));
 
   this.storeKey = storeKey;
