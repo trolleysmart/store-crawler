@@ -245,37 +245,31 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
-  getCrawledStoreProductsCriteria = async ({ lastCrawlDateTime } = {}) =>
-    Map({
-      conditions: Map({
-        storeId: await this.getStoreId(),
-        lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime || undefined,
+  getCrawledStoreProducts = async ({ lastCrawlDateTime } = {}) => {
+    const crawledStoreProductsWithLastCrawledDateSet = new CrawledStoreProductService().search(
+      Map({
+        limit: 1000,
+        conditions: Map({
+          storeId: await this.getStoreId(),
+          lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime || undefined,
+        }),
       }),
-    });
-
-  getAllCrawledStoreProducts = async ({ lastCrawlDateTime } = {}) => {
-    const result = new CrawledStoreProductService().searchAll(await this.getCrawledStoreProductsCriteria({ lastCrawlDateTime }), this.sessionToken);
-
-    try {
-      let crawledStoreProducts = List();
-
-      result.event.subscribe((info) => {
-        crawledStoreProducts = crawledStoreProducts.push(info);
-      });
-
-      await result.promise;
-
-      return crawledStoreProducts;
-    } finally {
-      result.event.unsubscribeAll();
-    }
-  };
-
-  getCrawledStoreProducts = async ({ lastCrawlDateTime } = {}) =>
-    new CrawledStoreProductService().search(
-      (await this.getCrawledStoreProductsCriteria({ lastCrawlDateTime })).set('limit', 1000),
       this.sessionToken,
     );
+
+    const crawledStoreProductsWithoutLastCrawledDateSet = new CrawledStoreProductService().search(
+      Map({
+        limit: 1000,
+        conditions: Map({
+          storeId: await this.getStoreId(),
+          doesNotExist_lastCrawlDateTime: true,
+        }),
+      }),
+      this.sessionToken,
+    );
+
+    return crawledStoreProductsWithLastCrawledDateSet.concat(crawledStoreProductsWithoutLastCrawledDateSet);
+  };
 
   getActiveCrawledProductPrices = async (crawledStoreProductId) => {
     const storeId = await this.getStoreId();

@@ -265,9 +265,9 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
             .filter(productInfo => productInfo.get('productPageUrl'))
             .map(productInfo => this.createOrUpdateCrawledStoreProduct(productInfo)))
             .then(() => done())
-            .catch((crawledCrawledStoreProductUpdateError) => {
+            .catch((crawledStoreProductUpdateError) => {
               done();
-              reject(new Error(crawledCrawledStoreProductUpdateError));
+              reject(new Error(crawledStoreProductUpdateError));
             });
         },
       });
@@ -532,7 +532,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       .merge(offerEndDate ? Map({ offerEndDate }) : Map())
       .merge(Map({ saving, savingPercentage }));
 
-    const crawledCrawledStoreProductId = product.get('id');
+    const crawledStoreProductId = product.get('id');
     const crawledProductPrice = Map({
       name: productInfo.get('name'),
       description: productInfo.get('description'),
@@ -547,7 +547,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
-      crawledCrawledStoreProductId,
+      crawledStoreProductId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
@@ -555,7 +555,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
 
     return Promise.all([
-      this.createOrUpdateCrawledProductPrice(crawledCrawledStoreProductId, crawledProductPrice),
+      this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice),
       this.updateExistingCrawledStoreProduct(product.merge({
         name: productInfo.get('name'),
         description: productInfo.get('description'),
