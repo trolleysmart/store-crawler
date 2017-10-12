@@ -246,7 +246,7 @@ export default class StoreCrawlerServiceBase {
   };
 
   getCrawledStoreProducts = async ({ lastCrawlDateTime } = {}) => {
-    const crawledStoreProductsWithLastCrawledDateSet = new CrawledStoreProductService().search(
+    const promise1 = new CrawledStoreProductService().search(
       Map({
         limit: 1000,
         conditions: Map({
@@ -257,7 +257,7 @@ export default class StoreCrawlerServiceBase {
       this.sessionToken,
     );
 
-    const crawledStoreProductsWithoutLastCrawledDateSet = new CrawledStoreProductService().search(
+    const promise2 = new CrawledStoreProductService().search(
       Map({
         limit: 1000,
         conditions: Map({
@@ -268,7 +268,9 @@ export default class StoreCrawlerServiceBase {
       this.sessionToken,
     );
 
-    return crawledStoreProductsWithLastCrawledDateSet.concat(crawledStoreProductsWithoutLastCrawledDateSet);
+    const results = await Promise.all([promise1, promise2]);
+
+    return results[0].concat(results[1]);
   };
 
   getActiveCrawledProductPrices = async (crawledStoreProductId) => {

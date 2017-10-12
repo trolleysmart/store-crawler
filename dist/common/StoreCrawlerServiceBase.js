@@ -537,7 +537,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       var _ref14 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
           lastCrawlDateTime = _ref14.lastCrawlDateTime;
 
-      var crawledStoreProductsWithLastCrawledDateSet, crawledStoreProductsWithoutLastCrawledDateSet;
+      var promise1, promise2, results;
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
           switch (_context11.prev = _context11.next) {
@@ -562,7 +562,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               };
               _context11.t8 = (0, _context11.t1)(_context11.t7);
               _context11.t9 = _this.sessionToken;
-              crawledStoreProductsWithLastCrawledDateSet = _context11.t0.search.call(_context11.t0, _context11.t8, _context11.t9);
+              promise1 = _context11.t0.search.call(_context11.t0, _context11.t8, _context11.t9);
               _context11.t10 = new _trolleySmartParseServerCommon.CrawledStoreProductService();
               _context11.t11 = _immutable.Map;
               _context11.t12 = _immutable.Map;
@@ -582,10 +582,15 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               };
               _context11.t17 = (0, _context11.t11)(_context11.t16);
               _context11.t18 = _this.sessionToken;
-              crawledStoreProductsWithoutLastCrawledDateSet = _context11.t10.search.call(_context11.t10, _context11.t17, _context11.t18);
-              return _context11.abrupt('return', crawledStoreProductsWithLastCrawledDateSet.concat(crawledStoreProductsWithoutLastCrawledDateSet));
+              promise2 = _context11.t10.search.call(_context11.t10, _context11.t17, _context11.t18);
+              _context11.next = 27;
+              return Promise.all([promise1, promise2]);
 
-            case 26:
+            case 27:
+              results = _context11.sent;
+              return _context11.abrupt('return', results[0].concat(results[1]));
+
+            case 29:
             case 'end':
               return _context11.stop();
           }
