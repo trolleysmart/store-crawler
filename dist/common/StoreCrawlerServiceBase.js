@@ -535,11 +535,11 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   }();
 
   this.getCrawledStoreProductService = function () {
-    return _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.CRAWLED_SPECIFIC_DESIGNED_TABLES ? new _trolleySmartParseServerCommon.CrawledStoreProductService() : new _trolleySmartParseServerCommon.StoreProductService();
+    return _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES ? new _trolleySmartParseServerCommon.StoreProductService() : new _trolleySmartParseServerCommon.CrawledStoreProductService();
   };
 
   this.getCrawledProductPriceService = function () {
-    return _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.CRAWLED_SPECIFIC_DESIGNED_TABLES ? new _trolleySmartParseServerCommon.CrawledProductPriceService() : new _trolleySmartParseServerCommon.ProductPriceService();
+    return _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES ? new _trolleySmartParseServerCommon.ProductPriceService() : new _trolleySmartParseServerCommon.CrawledProductPriceService();
   };
 
   this.getCrawledStoreProducts = function () {

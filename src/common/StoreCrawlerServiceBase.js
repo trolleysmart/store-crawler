@@ -259,14 +259,14 @@ export default class StoreCrawlerServiceBase {
   };
 
   getCrawledStoreProductService = () =>
-    (this.targetCrawledDataStoreType === TargetCrawledDataStoreType.CRAWLED_SPECIFIC_DESIGNED_TABLES
-      ? new CrawledStoreProductService()
-      : new StoreProductService());
+    (this.targetCrawledDataStoreType === TargetCrawledDataStoreType.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES
+      ? new StoreProductService()
+      : new CrawledStoreProductService());
 
   getCrawledProductPriceService = () =>
-    (this.targetCrawledDataStoreType === TargetCrawledDataStoreType.CRAWLED_SPECIFIC_DESIGNED_TABLES
-      ? new CrawledProductPriceService()
-      : new ProductPriceService());
+    (this.targetCrawledDataStoreType === TargetCrawledDataStoreType.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES
+      ? new ProductPriceService()
+      : new CrawledProductPriceService());
 
   getCrawledStoreProducts = async ({ lastCrawlDateTime } = {}) => {
     const service = this.getCrawledStoreProductService();
