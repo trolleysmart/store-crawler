@@ -2,8 +2,6 @@
 
 import Crawler from 'crawler';
 import { List, Map, Set } from 'immutable';
-import moment from 'moment';
-import { CrawledStoreProductService } from 'trolley-smart-parse-server-common';
 import { StoreCrawlerServiceBase } from '../';
 
 export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase {
@@ -135,8 +133,8 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
 
   createOrUpdateCrawledStoreProductForHealth2000 = async (productInfo) => {
     const storeId = await this.getStoreId();
-    const crawledStoreProductService = new CrawledStoreProductService();
-    const crawledStoreProducts = await crawledStoreProductService.search(
+    const service = this.getCrawledStoreProductService();
+    const crawledStoreProducts = await service.search(
       Map({
         conditions: Map({
           endsWith_productPageUrl: productInfo.get('productKey'),
@@ -147,16 +145,15 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     );
 
     if (crawledStoreProducts.isEmpty()) {
-      await crawledStoreProductService.create(
+      await service.create(
         productInfo.merge(Map({
-          lastCrawlDateTime: moment('01/01/1971', 'DD/MM/YYYY').toDate(),
           storeId,
         })),
         null,
         this.sessionToken,
       );
     } else if (crawledStoreProducts.count() === 1) {
-      await crawledStoreProductService.update(crawledStoreProducts.first().merge(productInfo), this.sessionToken);
+      await service.update(crawledStoreProducts.first().merge(productInfo), this.sessionToken);
     }
   };
 

@@ -12,15 +12,15 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
-var _moment = require('moment');
-
-var _moment2 = _interopRequireDefault(_moment);
-
 var _microBusinessCommonJavascript = require('micro-business-common-javascript');
 
 var _microBusinessParseServerCommon = require('micro-business-parse-server-common');
 
 var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
+
+var _TargetCrawledDataStoreType = require('./TargetCrawledDataStoreType');
+
+var _TargetCrawledDataStoreType2 = _interopRequireDefault(_TargetCrawledDataStoreType);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31,11 +31,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   var _this = this;
 
-  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+    targetCrawledDataStoreType: _TargetCrawledDataStoreType2.default.CRAWLED_SPECIFIC_DESIGNED_TABLES
+  },
       sessionToken = _ref.sessionToken,
       logVerboseFunc = _ref.logVerboseFunc,
       logInfoFunc = _ref.logInfoFunc,
-      logErrorFunc = _ref.logErrorFunc;
+      logErrorFunc = _ref.logErrorFunc,
+      targetCrawledDataStoreType = _ref.targetCrawledDataStoreType;
 
   _classCallCheck(this, StoreCrawlerServiceBase);
 
@@ -280,7 +283,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
   this.createOrUpdateCrawledStoreProduct = function () {
     var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(productInfo) {
-      var storeId, crawledStoreProductService, crawledStoreProducts;
+      var storeId, service, crawledStoreProducts;
       return regeneratorRuntime.wrap(function _callee7$(_context7) {
         while (1) {
           switch (_context7.prev = _context7.next) {
@@ -290,9 +293,9 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               storeId = _context7.sent;
-              crawledStoreProductService = new _trolleySmartParseServerCommon.CrawledStoreProductService();
+              service = _this.getCrawledStoreProductService();
               _context7.next = 6;
-              return crawledStoreProductService.search((0, _immutable.Map)({
+              return service.search((0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   productPageUrl: productInfo.get('productPageUrl'),
                   storeId: storeId
@@ -308,8 +311,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               }
 
               _context7.next = 10;
-              return crawledStoreProductService.create(productInfo.merge((0, _immutable.Map)({
-                lastCrawlDateTime: (0, _moment2.default)('01/01/1971', 'DD/MM/YYYY').toDate(),
+              return service.create(productInfo.merge((0, _immutable.Map)({
                 storeId: storeId
               })), null, _this.sessionToken);
 
@@ -327,7 +329,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 16:
               _context7.next = 18;
-              return crawledStoreProductService.update(crawledStoreProducts.first().merge(productInfo), _this.sessionToken);
+              return service.update(crawledStoreProducts.first().merge(productInfo), _this.sessionToken);
 
             case 18:
             case 'end':
@@ -532,23 +534,32 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
     };
   }();
 
+  this.getCrawledStoreProductService = function () {
+    return _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.CRAWLED_SPECIFIC_DESIGNED_TABLES ? new _trolleySmartParseServerCommon.CrawledStoreProductService() : new _trolleySmartParseServerCommon.StoreProductService();
+  };
+
+  this.getCrawledProductPriceService = function () {
+    return _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.CRAWLED_SPECIFIC_DESIGNED_TABLES ? new _trolleySmartParseServerCommon.CrawledProductPriceService() : new _trolleySmartParseServerCommon.ProductPriceService();
+  };
+
   this.getCrawledStoreProducts = function () {
     var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11() {
       var _ref14 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
           lastCrawlDateTime = _ref14.lastCrawlDateTime;
 
-      var promise1, promise2, results;
+      var service, promise1, promise2, results;
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
           switch (_context11.prev = _context11.next) {
             case 0:
-              _context11.t0 = new _trolleySmartParseServerCommon.CrawledStoreProductService();
+              service = _this.getCrawledStoreProductService();
+              _context11.t0 = service;
               _context11.t1 = _immutable.Map;
               _context11.t2 = _immutable.Map;
-              _context11.next = 5;
+              _context11.next = 6;
               return _this.getStoreId();
 
-            case 5:
+            case 6:
               _context11.t3 = _context11.sent;
               _context11.t4 = lastCrawlDateTime || undefined;
               _context11.t5 = {
@@ -563,13 +574,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               _context11.t8 = (0, _context11.t1)(_context11.t7);
               _context11.t9 = _this.sessionToken;
               promise1 = _context11.t0.search.call(_context11.t0, _context11.t8, _context11.t9);
-              _context11.t10 = new _trolleySmartParseServerCommon.CrawledStoreProductService();
+              _context11.t10 = service;
               _context11.t11 = _immutable.Map;
               _context11.t12 = _immutable.Map;
-              _context11.next = 18;
+              _context11.next = 19;
               return _this.getStoreId();
 
-            case 18:
+            case 19:
               _context11.t13 = _context11.sent;
               _context11.t14 = {
                 storeId: _context11.t13,
@@ -583,14 +594,14 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               _context11.t17 = (0, _context11.t11)(_context11.t16);
               _context11.t18 = _this.sessionToken;
               promise2 = _context11.t10.search.call(_context11.t10, _context11.t17, _context11.t18);
-              _context11.next = 27;
+              _context11.next = 28;
               return Promise.all([promise1, promise2]);
 
-            case 27:
+            case 28:
               results = _context11.sent;
               return _context11.abrupt('return', results[0].concat(results[1]));
 
-            case 29:
+            case 30:
             case 'end':
               return _context11.stop();
           }
@@ -622,7 +633,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
                   status: 'A'
                 })
               });
-              return _context12.abrupt('return', new _trolleySmartParseServerCommon.CrawledProductPriceService().search(criteria, _this.sessionToken));
+              return _context12.abrupt('return', _this.getCrawledProductPriceService().search(criteria, _this.sessionToken));
 
             case 5:
             case 'end':
@@ -644,7 +655,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
           switch (_context13.prev = _context13.next) {
             case 0:
               _context13.next = 2;
-              return new _trolleySmartParseServerCommon.CrawledStoreProductService().update(crawledStoreProduct, _this.sessionToken);
+              return _this.getCrawledStoreProductService().update(crawledStoreProduct, _this.sessionToken);
 
             case 2:
             case 'end':
@@ -661,7 +672,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
   this.createOrUpdateCrawledProductPrice = function () {
     var _ref17 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(crawledStoreProductId, crawledProductPrice) {
-      var crawledProductPrices, crawledProductPriceService, priceDetails, notMatchedCrawledProductPrices, matchedCrawledProductPrices;
+      var crawledProductPrices, service, priceDetails, notMatchedCrawledProductPrices, matchedCrawledProductPrices;
       return regeneratorRuntime.wrap(function _callee14$(_context14) {
         while (1) {
           switch (_context14.prev = _context14.next) {
@@ -671,7 +682,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               crawledProductPrices = _context14.sent;
-              crawledProductPriceService = new _trolleySmartParseServerCommon.CrawledProductPriceService();
+              service = _this.getCrawledProductPriceService();
               priceDetails = crawledProductPrice.get('priceDetails');
 
               if (!(!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice'))) {
@@ -686,7 +697,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
               _context14.next = 9;
               return Promise.all(crawledProductPrices.map(function (_) {
-                return crawledProductPriceService.update(_.set('status', 'I'), _this.sessionToken);
+                return service.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
 
             case 9:
@@ -699,7 +710,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               }
 
               _context14.next = 13;
-              return crawledProductPriceService.create(crawledProductPrice, null, _this.sessionToken);
+              return service.create(crawledProductPrice, null, _this.sessionToken);
 
             case 13:
               _context14.next = 28;
@@ -717,7 +728,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
               _context14.next = 19;
               return Promise.all(notMatchedCrawledProductPrices.map(function (_) {
-                return crawledProductPriceService.update(_.set('status', 'I'), _this.sessionToken);
+                return service.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
 
             case 19:
@@ -732,7 +743,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
               _context14.next = 23;
               return Promise.all(matchedCrawledProductPrices.skip(1).map(function (_) {
-                return crawledProductPriceService.update(_.set('status', 'I'), _this.sessionToken);
+                return service.update(_.set('status', 'I'), _this.sessionToken);
               }).toArray());
 
             case 23:
@@ -746,7 +757,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               }
 
               _context14.next = 28;
-              return crawledProductPriceService.create(crawledProductPrice, null, _this.sessionToken);
+              return service.create(crawledProductPrice, null, _this.sessionToken);
 
             case 28:
             case 'end':
@@ -1098,6 +1109,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   this.logVerboseFunc = logVerboseFunc;
   this.logInfoFunc = logInfoFunc;
   this.logErrorFunc = logErrorFunc;
+  this.targetCrawledDataStoreType = targetCrawledDataStoreType;
   this.config = null;
   this.store = null;
 }

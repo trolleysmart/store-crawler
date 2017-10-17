@@ -10,12 +10,6 @@ var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
 
-var _moment = require('moment');
-
-var _moment2 = _interopRequireDefault(_moment);
-
-var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
-
 var _2 = require('../');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -216,7 +210,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
     _this.createOrUpdateCrawledStoreProductForHealth2000 = function () {
       var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(productInfo) {
-        var storeId, crawledStoreProductService, crawledStoreProducts;
+        var storeId, service, crawledStoreProducts;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
@@ -226,9 +220,9 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
               case 2:
                 storeId = _context3.sent;
-                crawledStoreProductService = new _trolleySmartParseServerCommon.CrawledStoreProductService();
+                service = _this.getCrawledStoreProductService();
                 _context3.next = 6;
-                return crawledStoreProductService.search((0, _immutable.Map)({
+                return service.search((0, _immutable.Map)({
                   conditions: (0, _immutable.Map)({
                     endsWith_productPageUrl: productInfo.get('productKey'),
                     storeId: storeId
@@ -244,8 +238,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 }
 
                 _context3.next = 10;
-                return crawledStoreProductService.create(productInfo.merge((0, _immutable.Map)({
-                  lastCrawlDateTime: (0, _moment2.default)('01/01/1971', 'DD/MM/YYYY').toDate(),
+                return service.create(productInfo.merge((0, _immutable.Map)({
                   storeId: storeId
                 })), null, _this.sessionToken);
 
@@ -260,7 +253,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 }
 
                 _context3.next = 15;
-                return crawledStoreProductService.update(crawledStoreProducts.first().merge(productInfo), _this.sessionToken);
+                return service.update(crawledStoreProducts.first().merge(productInfo), _this.sessionToken);
 
               case 15:
               case 'end':

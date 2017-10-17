@@ -2,10 +2,18 @@
 
 import BluebirdPromise from 'bluebird';
 import Immutable, { List, Map } from 'immutable';
-import moment from 'moment';
 import { ImmutableEx } from 'micro-business-common-javascript';
 import { ParseWrapperService } from 'micro-business-parse-server-common';
-import { CrawledProductPriceService, StoreService, CrawledStoreProductService, StoreTagService, TagService } from 'trolley-smart-parse-server-common';
+import {
+  CrawledProductPriceService,
+  CrawledStoreProductService,
+  ProductPriceService,
+  StoreProductService,
+  StoreService,
+  StoreTagService,
+  TagService,
+} from 'trolley-smart-parse-server-common';
+import TargetCrawledDataStoreType from './TargetCrawledDataStoreType';
 
 export default class StoreCrawlerServiceBase {
   static removeDollarSignFromPrice = priceWithDollarSign =>
@@ -16,14 +24,20 @@ export default class StoreCrawlerServiceBase {
 
   static safeGetUri = res => (res && res.request && res.request.uri ? res.request.uri.href : '');
 
-  constructor(storeKey, {
-    sessionToken, logVerboseFunc, logInfoFunc, logErrorFunc,
-  } = {}) {
+  constructor(
+    storeKey,
+    {
+      sessionToken, logVerboseFunc, logInfoFunc, logErrorFunc, targetCrawledDataStoreType,
+    } = {
+      targetCrawledDataStoreType: TargetCrawledDataStoreType.CRAWLED_SPECIFIC_DESIGNED_TABLES,
+    },
+  ) {
     this.storeKey = storeKey;
     this.sessionToken = sessionToken;
     this.logVerboseFunc = logVerboseFunc;
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
+    this.targetCrawledDataStoreType = targetCrawledDataStoreType;
     this.config = null;
     this.store = null;
   }
@@ -119,8 +133,8 @@ export default class StoreCrawlerServiceBase {
 
   createOrUpdateCrawledStoreProduct = async (productInfo) => {
     const storeId = await this.getStoreId();
-    const crawledStoreProductService = new CrawledStoreProductService();
-    const crawledStoreProducts = await crawledStoreProductService.search(
+    const service = this.getCrawledStoreProductService();
+    const crawledStoreProducts = await service.search(
       Map({
         conditions: Map({
           productPageUrl: productInfo.get('productPageUrl'),
@@ -131,9 +145,8 @@ export default class StoreCrawlerServiceBase {
     );
 
     if (crawledStoreProducts.isEmpty()) {
-      await crawledStoreProductService.create(
+      await service.create(
         productInfo.merge(Map({
-          lastCrawlDateTime: moment('01/01/1971', 'DD/MM/YYYY').toDate(),
           storeId,
         })),
         null,
@@ -142,7 +155,7 @@ export default class StoreCrawlerServiceBase {
     } else if (crawledStoreProducts.count() > 1) {
       throw new Error(`Multiple crawled store product found for store Id: ${storeId} and productPageUrl: ${productInfo.get('productPageUrl')}`);
     } else {
-      await crawledStoreProductService.update(crawledStoreProducts.first().merge(productInfo), this.sessionToken);
+      await service.update(crawledStoreProducts.first().merge(productInfo), this.sessionToken);
     }
   };
 
@@ -245,8 +258,19 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
+  getCrawledStoreProductService = () =>
+    (this.targetCrawledDataStoreType === TargetCrawledDataStoreType.CRAWLED_SPECIFIC_DESIGNED_TABLES
+      ? new CrawledStoreProductService()
+      : new StoreProductService());
+
+  getCrawledProductPriceService = () =>
+    (this.targetCrawledDataStoreType === TargetCrawledDataStoreType.CRAWLED_SPECIFIC_DESIGNED_TABLES
+      ? new CrawledProductPriceService()
+      : new ProductPriceService());
+
   getCrawledStoreProducts = async ({ lastCrawlDateTime } = {}) => {
-    const promise1 = new CrawledStoreProductService().search(
+    const service = this.getCrawledStoreProductService();
+    const promise1 = service.search(
       Map({
         limit: 1000,
         conditions: Map({
@@ -256,8 +280,7 @@ export default class StoreCrawlerServiceBase {
       }),
       this.sessionToken,
     );
-
-    const promise2 = new CrawledStoreProductService().search(
+    const promise2 = service.search(
       Map({
         limit: 1000,
         conditions: Map({
@@ -267,7 +290,6 @@ export default class StoreCrawlerServiceBase {
       }),
       this.sessionToken,
     );
-
     const results = await Promise.all([promise1, promise2]);
 
     return results[0].concat(results[1]);
@@ -283,33 +305,33 @@ export default class StoreCrawlerServiceBase {
       }),
     });
 
-    return new CrawledProductPriceService().search(criteria, this.sessionToken);
+    return this.getCrawledProductPriceService().search(criteria, this.sessionToken);
   };
 
   updateExistingCrawledStoreProduct = async (crawledStoreProduct) => {
-    await new CrawledStoreProductService().update(crawledStoreProduct, this.sessionToken);
+    await this.getCrawledStoreProductService().update(crawledStoreProduct, this.sessionToken);
   };
 
   createOrUpdateCrawledProductPrice = async (crawledStoreProductId, crawledProductPrice) => {
     const crawledProductPrices = await this.getActiveCrawledProductPrices(crawledStoreProductId);
-    const crawledProductPriceService = new CrawledProductPriceService();
+    const service = this.getCrawledProductPriceService();
     const priceDetails = crawledProductPrice.get('priceDetails');
 
     if (!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice')) {
       if (!crawledProductPrices.isEmpty()) {
-        await Promise.all(crawledProductPrices.map(_ => crawledProductPriceService.update(_.set('status', 'I'), this.sessionToken)).toArray());
+        await Promise.all(crawledProductPrices.map(_ => service.update(_.set('status', 'I'), this.sessionToken)).toArray());
       }
 
       return;
     }
 
     if (crawledProductPrices.isEmpty()) {
-      await crawledProductPriceService.create(crawledProductPrice, null, this.sessionToken);
+      await service.create(crawledProductPrice, null, this.sessionToken);
     } else {
       const notMatchedCrawledProductPrices = crawledProductPrices.filterNot(_ => _.get('priceDetails').equals(priceDetails));
 
       if (!notMatchedCrawledProductPrices.isEmpty()) {
-        await Promise.all(notMatchedCrawledProductPrices.map(_ => crawledProductPriceService.update(_.set('status', 'I'), this.sessionToken)).toArray());
+        await Promise.all(notMatchedCrawledProductPrices.map(_ => service.update(_.set('status', 'I'), this.sessionToken)).toArray());
       }
 
       const matchedCrawledProductPrices = crawledProductPrices.filter(_ => _.get('priceDetails').equals(priceDetails));
@@ -317,10 +339,10 @@ export default class StoreCrawlerServiceBase {
       if (matchedCrawledProductPrices.count() > 1) {
         await Promise.all(matchedCrawledProductPrices
           .skip(1)
-          .map(_ => crawledProductPriceService.update(_.set('status', 'I'), this.sessionToken))
+          .map(_ => service.update(_.set('status', 'I'), this.sessionToken))
           .toArray());
       } else if (matchedCrawledProductPrices.count() === 0) {
-        await crawledProductPriceService.create(crawledProductPrice, null, this.sessionToken);
+        await service.create(crawledProductPrice, null, this.sessionToken);
       }
     }
   };

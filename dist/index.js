@@ -12,6 +12,12 @@ Object.defineProperty(exports, 'StoreCrawlerServiceBase', {
     return _common.StoreCrawlerServiceBase;
   }
 });
+Object.defineProperty(exports, 'TargetCrawledDataStoreType', {
+  enumerable: true,
+  get: function get() {
+    return _common.TargetCrawledDataStoreType;
+  }
+});
 
 var _countdown = require('./countdown');
 
