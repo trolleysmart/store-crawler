@@ -427,6 +427,8 @@ export default class StoreCrawlerServiceBase {
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
       Promise.all(productChunk.map(product => this.crawlProductDetails(product, finalStoreTags))));
+
+    return products.count();
   };
 
   // These function must be overriden by the child classes

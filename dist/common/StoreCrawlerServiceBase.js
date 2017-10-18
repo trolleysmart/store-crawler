@@ -1041,6 +1041,9 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               });
 
             case 14:
+              return _context21.abrupt('return', products.count());
+
+            case 15:
             case 'end':
               return _context21.stop();
           }
