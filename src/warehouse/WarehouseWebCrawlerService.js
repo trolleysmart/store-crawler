@@ -14,7 +14,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     const config = await this.getConfig();
     let productCategories;
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
@@ -24,7 +24,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (error) {
             done();
-            reject(new Error(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
+            this.logError(() => `Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -164,7 +164,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
     const config = await this.getConfig();
     let storeTagsWithTotalItemsInfo = List();
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
@@ -174,7 +174,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (error) {
             done();
-            reject(new Error(`Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
+            this.logError(() =>
+              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -233,7 +234,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
   crawlProductsForEachStoreTag = async (storeTags) => {
     const config = await this.getConfig();
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
         maxConnections: config.get('maxConnections'),
@@ -243,7 +244,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (error) {
             done();
-            reject(new Error(`Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
+            this.logError(() =>
+              `Failed to receive product category page info for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -254,7 +256,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (!productCategory) {
             done();
-            reject(new Error(`Failed to find product category page info for Url: ${baseUrl}`));
+            this.logError(() => `Failed to find product category page info for Url: ${baseUrl}`);
 
             return;
           }
@@ -267,7 +269,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
             .then(() => done())
             .catch((crawledStoreProductUpdateError) => {
               done();
-              reject(new Error(crawledStoreProductUpdateError));
+              this.logError(() => crawledStoreProductUpdateError);
             });
         },
       });
@@ -298,7 +300,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
   crawlProductDetails = async (product, storeTags) => {
     const config = await this.getConfig();
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       let productInfo = Map();
       const crawler = new Crawler({
         rateLimit: config.get('rateLimit'),
@@ -309,7 +311,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
 
           if (error) {
             done();
-            reject(new Error(`Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`));
+            this.logError(() => `Failed to receive product categories for Url: ${StoreCrawlerServiceBase.safeGetUri(res)} - Error: ${JSON.stringify(error)}`);
 
             return;
           }
@@ -394,7 +396,7 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
             .then(() => done())
             .catch((internalError) => {
               done();
-              reject(new Error(internalError));
+              this.logError(() => internalError);
             });
         },
       });

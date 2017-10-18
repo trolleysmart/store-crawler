@@ -140,7 +140,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
             case 2:
               config = _context4.sent;
               productCategories = (0, _immutable.List)();
-              return _context4.abrupt('return', new Promise(function (resolve, reject) {
+              return _context4.abrupt('return', new Promise(function (resolve) {
                 var crawler = new _crawler2.default({
                   rateLimit: config.get('rateLimit'),
                   maxConnections: config.get('maxConnections'),
@@ -154,7 +154,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                     if (error) {
                       done();
-                      reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
+                      _this.logError(function () {
+                        return 'Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error);
+                      });
 
                       return;
                     }
@@ -219,7 +221,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
               case 2:
                 config = _context5.sent;
                 updatedProductCategories = productCategories;
-                return _context5.abrupt('return', new Promise(function (resolve, reject) {
+                return _context5.abrupt('return', new Promise(function (resolve) {
                   var crawler = new _crawler2.default({
                     rateLimit: config.get('rateLimit'),
                     maxConnections: config.get('maxConnections'),
@@ -233,7 +235,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
+                        _this.logError(function () {
+                          return 'Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error);
+                        });
 
                         return;
                       }
@@ -321,7 +325,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
               case 2:
                 config = _context6.sent;
                 updatedProductCategories = productCategories;
-                return _context6.abrupt('return', new Promise(function (resolve, reject) {
+                return _context6.abrupt('return', new Promise(function (resolve) {
                   var crawler = new _crawler2.default({
                     rateLimit: config.get('rateLimit'),
                     maxConnections: config.get('maxConnections'),
@@ -335,7 +339,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
+                        _this.logError(function () {
+                          return 'Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error);
+                        });
 
                         return;
                       }
@@ -442,7 +448,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
               case 2:
                 config = _context7.sent;
                 storeTagsWithTotalItemsInfo = (0, _immutable.List)();
-                return _context7.abrupt('return', new Promise(function (resolve, reject) {
+                return _context7.abrupt('return', new Promise(function (resolve) {
                   var crawler = new _crawler2.default({
                     rateLimit: config.get('rateLimit'),
                     maxConnections: config.get('maxConnections'),
@@ -456,7 +462,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject(new Error('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
+                        _this.logError(function () {
+                          return 'Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error);
+                        });
 
                         return;
                       }
@@ -529,7 +537,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
               case 2:
                 config = _context8.sent;
-                return _context8.abrupt('return', new Promise(function (resolve, reject) {
+                return _context8.abrupt('return', new Promise(function (resolve) {
                   var crawler = new _crawler2.default({
                     rateLimit: config.get('rateLimit'),
                     maxConnections: config.get('maxConnections'),
@@ -543,7 +551,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject(new Error('Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
+                        _this.logError(function () {
+                          return 'Failed to receive product category page info for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error);
+                        });
 
                         return;
                       }
@@ -556,7 +566,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (!productCategory) {
                         done();
-                        reject(new Error('Failed to find product category page info for Url: ' + baseUrl));
+                        _this.logError(function () {
+                          return 'Failed to find product category page info for Url: ' + baseUrl;
+                        });
 
                         return;
                       }
@@ -571,7 +583,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                         return done();
                       }).catch(function (crawledStoreProductUpdateError) {
                         done();
-                        reject(new Error(crawledStoreProductUpdateError));
+                        _this.logError(function () {
+                          return crawledStoreProductUpdateError;
+                        });
                       });
                     }
                   });
@@ -627,7 +641,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
               case 2:
                 config = _context9.sent;
-                return _context9.abrupt('return', new Promise(function (resolve, reject) {
+                return _context9.abrupt('return', new Promise(function (resolve) {
                   var productInfo = (0, _immutable.Map)();
 
                   var crawler = new _crawler2.default({
@@ -643,7 +657,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       if (error) {
                         done();
-                        reject(new Error('Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error)));
+                        _this.logError(function () {
+                          return 'Failed to receive product categories for Url: ' + _2.StoreCrawlerServiceBase.safeGetUri(res) + ' - Error: ' + JSON.stringify(error);
+                        });
 
                         return;
                       }
@@ -756,7 +772,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                         return done();
                       }).catch(function (internalError) {
                         done();
-                        reject(new Error(internalError));
+                        _this.logError(function () {
+                          return internalError;
+                        });
                       });
                     }
                   });

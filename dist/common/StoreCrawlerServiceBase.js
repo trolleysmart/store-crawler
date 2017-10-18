@@ -32,13 +32,15 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   var _this = this;
 
   var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
-    targetCrawledDataStoreType: _TargetCrawledDataStoreType2.default.CRAWLED_SPECIFIC_DESIGNED_TABLES
+    targetCrawledDataStoreType: _TargetCrawledDataStoreType2.default.CRAWLED_SPECIFIC_DESIGNED_TABLES,
+    concurrentCrawlingCount: 20
   },
       sessionToken = _ref.sessionToken,
       logVerboseFunc = _ref.logVerboseFunc,
       logInfoFunc = _ref.logInfoFunc,
       logErrorFunc = _ref.logErrorFunc,
-      targetCrawledDataStoreType = _ref.targetCrawledDataStoreType;
+      targetCrawledDataStoreType = _ref.targetCrawledDataStoreType,
+      concurrentCrawlingCount = _ref.concurrentCrawlingCount;
 
   _classCallCheck(this, StoreCrawlerServiceBase);
 
@@ -1032,7 +1034,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 10:
               products = _context21.sent;
-              splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, 20);
+              splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, _this.concurrentCrawlingCount);
               _context21.next = 14;
               return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                 return Promise.all(productChunk.map(function (product) {
@@ -1112,7 +1114,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   this.logVerboseFunc = logVerboseFunc;
   this.logInfoFunc = logInfoFunc;
   this.logErrorFunc = logErrorFunc;
-  this.targetCrawledDataStoreType = targetCrawledDataStoreType;
+  this.targetCrawledDataStoreType = targetCrawledDataStoreType || _TargetCrawledDataStoreType2.default.CRAWLED_SPECIFIC_DESIGNED_TABLES;
+  this.concurrentCrawlingCount = concurrentCrawlingCount || 20;
   this.config = null;
   this.store = null;
 }

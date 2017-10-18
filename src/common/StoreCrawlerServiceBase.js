@@ -27,9 +27,10 @@ export default class StoreCrawlerServiceBase {
   constructor(
     storeKey,
     {
-      sessionToken, logVerboseFunc, logInfoFunc, logErrorFunc, targetCrawledDataStoreType,
+      sessionToken, logVerboseFunc, logInfoFunc, logErrorFunc, targetCrawledDataStoreType, concurrentCrawlingCount,
     } = {
       targetCrawledDataStoreType: TargetCrawledDataStoreType.CRAWLED_SPECIFIC_DESIGNED_TABLES,
+      concurrentCrawlingCount: 20,
     },
   ) {
     this.storeKey = storeKey;
@@ -37,7 +38,8 @@ export default class StoreCrawlerServiceBase {
     this.logVerboseFunc = logVerboseFunc;
     this.logInfoFunc = logInfoFunc;
     this.logErrorFunc = logErrorFunc;
-    this.targetCrawledDataStoreType = targetCrawledDataStoreType;
+    this.targetCrawledDataStoreType = targetCrawledDataStoreType || TargetCrawledDataStoreType.CRAWLED_SPECIFIC_DESIGNED_TABLES;
+    this.concurrentCrawlingCount = concurrentCrawlingCount || 20;
     this.config = null;
     this.store = null;
   }
@@ -423,7 +425,7 @@ export default class StoreCrawlerServiceBase {
     lastCrawlDateTime.setDate(new Date().getDate() - 1);
 
     const products = await this.getCrawledStoreProducts({ lastCrawlDateTime });
-    const splittedProducts = ImmutableEx.splitIntoChunks(products, 20);
+    const splittedProducts = ImmutableEx.splitIntoChunks(products, this.concurrentCrawlingCount);
 
     await BluebirdPromise.each(splittedProducts.toArray(), productChunk =>
       Promise.all(productChunk.map(product => this.crawlProductDetails(product, finalStoreTags))));
