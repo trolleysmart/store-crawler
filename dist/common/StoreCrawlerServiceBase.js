@@ -628,7 +628,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               storeId = _context12.sent;
-              criteria = (0, _immutable.Map)({
+              criteria = _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES ? (0, _immutable.Map)({
+                conditions: (0, _immutable.Map)({
+                  storeProductId: crawledStoreProductId,
+                  storeId: storeId,
+                  status: 'A'
+                })
+              }) : (0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
                   crawledStoreProductId: crawledStoreProductId,
                   storeId: storeId,

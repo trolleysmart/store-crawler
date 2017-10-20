@@ -299,13 +299,22 @@ export default class StoreCrawlerServiceBase {
 
   getActiveCrawledProductPrices = async (crawledStoreProductId) => {
     const storeId = await this.getStoreId();
-    const criteria = Map({
-      conditions: Map({
-        crawledStoreProductId,
-        storeId,
-        status: 'A',
-      }),
-    });
+    const criteria =
+      this.targetCrawledDataStoreType === TargetCrawledDataStoreType.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES
+        ? Map({
+          conditions: Map({
+            storeProductId: crawledStoreProductId,
+            storeId,
+            status: 'A',
+          }),
+        })
+        : Map({
+          conditions: Map({
+            crawledStoreProductId,
+            storeId,
+            status: 'A',
+          }),
+        });
 
     return this.getCrawledProductPriceService().search(criteria, this.sessionToken);
   };
