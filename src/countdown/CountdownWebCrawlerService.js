@@ -4,7 +4,7 @@ import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import { List, Map, Range, Set } from 'immutable';
 import { ImmutableEx } from 'micro-business-common-javascript';
-import { TargetCrawledDataStoreType, StoreCrawlerServiceBase } from '../';
+import { StoreCrawlerServiceBase } from '../';
 
 export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase {
   static urlPrefix = '/Shop/Browse/';
@@ -367,13 +367,11 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
 
           const productInfos = this.crawlProductInfo(config, res.$);
 
-          Promise.all(productInfos
-            .filter(productInfo => productInfo.get('productPageUrl'))
-            .map(productInfo => this.createOrUpdateCrawledStoreProduct(productInfo)))
+          Promise.all(productInfos.filter(productInfo => productInfo.get('productPageUrl')).map(productInfo => this.createOrUpdateStoreProduct(productInfo)))
             .then(() => done())
-            .catch((crawledStoreProductUpdateError) => {
+            .catch((storeProductUpdateError) => {
               done();
-              this.logError(() => crawledStoreProductUpdateError);
+              this.logError(() => storeProductUpdateError);
             });
         },
       });
@@ -566,12 +564,12 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     });
   };
 
-  getCurrentPrice = (crawledProductPriceContent) => {
-    const currentPriceContent = crawledProductPriceContent
+  getCurrentPrice = (productPriceContent) => {
+    const currentPriceContent = productPriceContent
       .find('.price')
       .text()
       .trim();
-    const currentPriceTails = crawledProductPriceContent
+    const currentPriceTails = productPriceContent
       .find('.price .visible-phone')
       .text()
       .trim();
@@ -580,8 +578,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
   };
 
-  getWasPrice = (crawledProductPriceContent) => {
-    const wasPriceContent = crawledProductPriceContent
+  getWasPrice = (productPriceContent) => {
+    const wasPriceContent = productPriceContent
       .find('.was-price')
       .text()
       .trim();
@@ -662,9 +660,9 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     return Map();
   };
 
-  getClubPrice = (crawledProductPriceContent) => {
-    const currentPriceContent = crawledProductPriceContent.text().trim();
-    const currentPriceTails = crawledProductPriceContent
+  getClubPrice = (productPriceContent) => {
+    const currentPriceContent = productPriceContent.text().trim();
+    const currentPriceTails = productPriceContent
       .find('.visible-phone')
       .text()
       .trim();
@@ -752,8 +750,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       .merge(unitPrice ? Map({ unitPrice }) : Map())
       .merge(Map({ saving, savingPercentage }));
 
-    const crawledStoreProductId = product.get('id');
-    const crawledProductPrice = Map({
+    const storeProductId = product.get('id');
+    const productPrice = Map({
       name: productInfo.get('name'),
       description: productInfo.get('description'),
       barcode: productInfo.get('barcode'),
@@ -766,21 +764,17 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       savingPercentage,
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
+      storeProductId,
       storeId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
         .filter(storeTag => storeTag),
-    }).set(
-      this.targetCrawledDataStoreType === TargetCrawledDataStoreType.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES
-        ? 'storeProductId'
-        : 'crawledStoreProductId',
-      crawledStoreProductId,
-    );
+    });
 
     return Promise.all([
-      this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice),
-      this.updateExistingCrawledStoreProduct(product.merge({
+      this.createOrUpdateProductPrice(storeProductId, productPrice),
+      this.updateExistingStoreProduct(product.merge({
         name: productInfo.get('name'),
         description: productInfo.get('description'),
         barcode: productInfo.get('barcode'),

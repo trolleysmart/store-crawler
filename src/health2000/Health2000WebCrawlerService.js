@@ -2,7 +2,8 @@
 
 import Crawler from 'crawler';
 import { List, Map, Set } from 'immutable';
-import { TargetCrawledDataStoreType, StoreCrawlerServiceBase } from '../';
+import { StoreProductService } from 'trolley-smart-parse-server-common';
+import { StoreCrawlerServiceBase } from '../';
 
 export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase {
   constructor(context) {
@@ -118,11 +119,11 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
             .groupBy(productInfo => productInfo.get('productKey'))
             .map(_ => _.first())
             .valueSeq()
-            .map(productInfo => this.createOrUpdateCrawledStoreProductForHealth2000(productInfo)))
+            .map(productInfo => this.createOrUpdateStoreProductForHealth2000(productInfo)))
             .then(() => done())
-            .catch((crawledStoreProductUpdateError) => {
+            .catch((storeProductUpdateError) => {
               done();
-              this.logError(() => crawledStoreProductUpdateError);
+              this.logError(() => storeProductUpdateError);
             });
         },
       });
@@ -132,10 +133,10 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     });
   };
 
-  createOrUpdateCrawledStoreProductForHealth2000 = async (productInfo) => {
+  createOrUpdateStoreProductForHealth2000 = async (productInfo) => {
     const storeId = await this.getStoreId();
-    const service = this.getCrawledStoreProductService();
-    const crawledStoreProducts = await service.search(
+    const service = new StoreProductService();
+    const storeProducts = await service.search(
       Map({
         conditions: Map({
           endsWith_productPageUrl: productInfo.get('productKey'),
@@ -145,16 +146,23 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       this.sessionToken,
     );
 
-    if (crawledStoreProducts.isEmpty()) {
+    if (storeProducts.isEmpty()) {
       await service.create(
         productInfo.merge(Map({
           storeId,
+          createdByCrawler: true,
         })),
         null,
         this.sessionToken,
       );
-    } else if (crawledStoreProducts.count() === 1) {
-      await service.update(crawledStoreProducts.first().merge(productInfo), this.sessionToken);
+    } else if (storeProducts.count() === 1) {
+      await service.update(
+        storeProducts
+          .first()
+          .merge(productInfo)
+          .set('createdByCrawler', true),
+        this.sessionToken,
+      );
     }
   };
 
@@ -306,8 +314,8 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       .merge(wasPrice ? Map({ wasPrice }) : Map())
       .merge(Map({ saving, savingPercentage }));
 
-    const crawledStoreProductId = product.get('id');
-    const crawledProductPrice = Map({
+    const storeProductId = product.get('id');
+    const productPrice = Map({
       name: productInfo.get('name'),
       description: productInfo.get('description'),
       barcode: productInfo.get('barcode'),
@@ -321,20 +329,16 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
+      storeProductId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
         .filter(storeTag => storeTag),
-    }).set(
-      this.targetCrawledDataStoreType === TargetCrawledDataStoreType.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES
-        ? 'storeProductId'
-        : 'crawledStoreProductId',
-      crawledStoreProductId,
-    );
+    });
 
     return Promise.all([
-      this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice),
-      this.updateExistingCrawledStoreProduct(product.merge({
+      this.createOrUpdateProductPrice(storeProductId, productPrice),
+      this.updateExistingStoreProduct(product.merge({
         name: productInfo.get('name'),
         description: productInfo.get('description'),
         barcode: productInfo.get('barcode'),

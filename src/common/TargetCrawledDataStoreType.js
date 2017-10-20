@@ -1,6 +1,0 @@
-// @flow
-
-export default {
-  CRAWLED_SPECIFIC_DESIGNED_TABLES: 0,
-  STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES: 1,
-};
