@@ -618,32 +618,32 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
   this.getActiveCrawledProductPrices = function () {
     var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(crawledStoreProductId) {
-      var storeId, criteria;
+      var criteria;
       return regeneratorRuntime.wrap(function _callee12$(_context12) {
         while (1) {
           switch (_context12.prev = _context12.next) {
             case 0:
-              _context12.next = 2;
+              _context12.t0 = _immutable.Map;
+              _context12.t1 = _immutable.Map;
+              _context12.next = 4;
               return _this.getStoreId();
 
-            case 2:
-              storeId = _context12.sent;
-              criteria = _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES ? (0, _immutable.Map)({
-                conditions: (0, _immutable.Map)({
-                  storeProductId: crawledStoreProductId,
-                  storeId: storeId,
-                  status: 'A'
-                })
-              }) : (0, _immutable.Map)({
-                conditions: (0, _immutable.Map)({
-                  crawledStoreProductId: crawledStoreProductId,
-                  storeId: storeId,
-                  status: 'A'
-                })
-              });
+            case 4:
+              _context12.t2 = _context12.sent;
+              _context12.t3 = {
+                storeId: _context12.t2,
+                status: 'A'
+              };
+              _context12.t4 = (0, _context12.t1)(_context12.t3);
+              _context12.t5 = {
+                conditions: _context12.t4
+              };
+              _context12.t6 = _this.targetCrawledDataStoreType === _TargetCrawledDataStoreType2.default.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES ? ['conditions', 'storeProductId'] : ['conditions', 'crawledStoreProductId'];
+              _context12.t7 = crawledStoreProductId;
+              criteria = (0, _context12.t0)(_context12.t5).setIn(_context12.t6, _context12.t7);
               return _context12.abrupt('return', _this.getCrawledProductPriceService().search(criteria, _this.sessionToken));
 
-            case 5:
+            case 12:
             case 'end':
               return _context12.stop();
           }

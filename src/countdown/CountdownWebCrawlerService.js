@@ -4,7 +4,7 @@ import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import { List, Map, Range, Set } from 'immutable';
 import { ImmutableEx } from 'micro-business-common-javascript';
-import { StoreCrawlerServiceBase } from '../';
+import { TargetCrawledDataStoreType, StoreCrawlerServiceBase } from '../';
 
 export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase {
   static urlPrefix = '/Shop/Browse/';
@@ -767,12 +767,16 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
-      crawledStoreProductId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
         .filter(storeTag => storeTag),
-    });
+    }).set(
+      this.targetCrawledDataStoreType === TargetCrawledDataStoreType.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES
+        ? 'storeProductId'
+        : 'crawledStoreProductId',
+      crawledStoreProductId,
+    );
 
     return Promise.all([
       this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice),
@@ -795,7 +799,6 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     const levelOneStoreTags = storeTags.filter(storeTag => storeTag.get('level') === 1);
     const levelOneTagsToCreate = levelOneStoreTags.filterNot(storeTag =>
       levelOneTags.find(tag => tag.get('key').localeCompare(storeTag.get('key') === 0)));
-
     const splittedTags = ImmutableEx.splitIntoChunks(levelOneTagsToCreate, 100);
 
     await BluebirdPromise.each(splittedTags.toArray(), tagsChunks =>
@@ -816,7 +819,6 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     const levelTwoStoreTags = storeTags.filter(storeTag => storeTag.get('level') === 2);
     const levelTwoTagsToCreate = levelTwoStoreTags.filterNot(storeTag =>
       levelTwoTags.find(tag => tag.get('key').localeCompare(storeTag.get('key') === 0)));
-
     const splittedTags = ImmutableEx.splitIntoChunks(levelTwoTagsToCreate, 100);
 
     await BluebirdPromise.each(splittedTags.toArray(), tagsChunks =>
@@ -844,7 +846,6 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     const levelThreeStoreTags = storeTags.filter(storeTag => storeTag.get('level') === 3);
     const levelThreeTagsToCreate = levelThreeStoreTags.filterNot(storeTag =>
       levelThreeTags.find(tag => tag.get('key').localeCompare(storeTag.get('key') === 0)));
-
     const splittedTags = ImmutableEx.splitIntoChunks(levelThreeTagsToCreate, 100);
 
     await BluebirdPromise.each(splittedTags.toArray(), tagsChunks =>

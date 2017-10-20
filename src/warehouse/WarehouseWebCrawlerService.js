@@ -3,7 +3,7 @@
 import Crawler from 'crawler';
 import { List, Map, Range, Set } from 'immutable';
 import moment from 'moment';
-import { StoreCrawlerServiceBase } from '../';
+import { TargetCrawledDataStoreType, StoreCrawlerServiceBase } from '../';
 
 export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase {
   constructor(context) {
@@ -549,12 +549,18 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
-      crawledStoreProductId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
         .filter(storeTag => storeTag),
-    }).merge(offerEndDate ? Map({ offerEndDate }) : Map());
+    })
+      .merge(offerEndDate ? Map({ offerEndDate }) : Map())
+      .set(
+        this.targetCrawledDataStoreType === TargetCrawledDataStoreType.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES
+          ? 'storeProductId'
+          : 'crawledStoreProductId',
+        crawledStoreProductId,
+      );
 
     return Promise.all([
       this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice),

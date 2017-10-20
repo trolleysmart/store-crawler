@@ -2,7 +2,7 @@
 
 import Crawler from 'crawler';
 import { List, Map, Set } from 'immutable';
-import { StoreCrawlerServiceBase } from '../';
+import { TargetCrawledDataStoreType, StoreCrawlerServiceBase } from '../';
 
 export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase {
   constructor(context) {
@@ -321,12 +321,16 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
-      crawledStoreProductId,
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
         .filter(storeTag => storeTag),
-    });
+    }).set(
+      this.targetCrawledDataStoreType === TargetCrawledDataStoreType.STORE_PRODUCT_AND_PRODUCT_PRICE_TABLES
+        ? 'storeProductId'
+        : 'crawledStoreProductId',
+      crawledStoreProductId,
+    );
 
     return Promise.all([
       this.createOrUpdateCrawledProductPrice(crawledStoreProductId, crawledProductPrice),
