@@ -553,7 +553,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               _context11.t4 = lastCrawlDateTime || undefined;
               _context11.t5 = {
                 storeId: _context11.t3,
-                lessThanOrEqualTo_lastCrawlDateTime: _context11.t4
+                lessThanOrEqualTo_lastCrawlDateTime: _context11.t4,
+                createdByCrawler: true
               };
               _context11.t6 = (0, _context11.t2)(_context11.t5);
               _context11.t7 = {
@@ -573,7 +574,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               _context11.t13 = _context11.sent;
               _context11.t14 = {
                 storeId: _context11.t13,
-                doesNotExist_lastCrawlDateTime: true
+                doesNotExist_lastCrawlDateTime: true,
+                createdByCrawler: true
               };
               _context11.t15 = (0, _context11.t12)(_context11.t14);
               _context11.t16 = {

@@ -264,6 +264,7 @@ export default class StoreCrawlerServiceBase {
         conditions: Map({
           storeId: await this.getStoreId(),
           lessThanOrEqualTo_lastCrawlDateTime: lastCrawlDateTime || undefined,
+          createdByCrawler: true,
         }),
       }),
       this.sessionToken,
@@ -274,6 +275,7 @@ export default class StoreCrawlerServiceBase {
         conditions: Map({
           storeId: await this.getStoreId(),
           doesNotExist_lastCrawlDateTime: true,
+          createdByCrawler: true,
         }),
       }),
       this.sessionToken,
