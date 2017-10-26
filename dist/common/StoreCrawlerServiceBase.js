@@ -715,7 +715,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 15:
               notMatchedProductPrices = productPrices.filterNot(function (_) {
-                return _.get('priceDetails').equals(priceDetails);
+                return _microBusinessCommonJavascript.ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(_microBusinessCommonJavascript.ImmutableEx.removeUndefinedProps(priceDetails));
               });
 
               if (notMatchedProductPrices.isEmpty()) {
@@ -730,7 +730,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 19:
               matchedProductPrices = productPrices.filter(function (_) {
-                return _.get('priceDetails').equals(priceDetails);
+                return _microBusinessCommonJavascript.ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(_microBusinessCommonJavascript.ImmutableEx.removeUndefinedProps(priceDetails));
               });
 
               if (!(matchedProductPrices.count() > 1)) {

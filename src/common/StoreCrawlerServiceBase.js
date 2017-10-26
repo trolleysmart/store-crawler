@@ -317,13 +317,15 @@ export default class StoreCrawlerServiceBase {
     if (productPrices.isEmpty()) {
       await service.create(productPrice.set('createdByCrawler', true), null, this.sessionToken);
     } else {
-      const notMatchedProductPrices = productPrices.filterNot(_ => _.get('priceDetails').equals(priceDetails));
+      const notMatchedProductPrices = productPrices.filterNot(_ =>
+        ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(ImmutableEx.removeUndefinedProps(priceDetails)));
 
       if (!notMatchedProductPrices.isEmpty()) {
         await Promise.all(notMatchedProductPrices.map(_ => service.update(_.merge(Map({ status: 'I', createdByCrawler: true })), this.sessionToken)).toArray());
       }
 
-      const matchedProductPrices = productPrices.filter(_ => _.get('priceDetails').equals(priceDetails));
+      const matchedProductPrices = productPrices.filter(_ =>
+        ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(ImmutableEx.removeUndefinedProps(priceDetails)));
 
       if (matchedProductPrices.count() > 1) {
         await Promise.all(matchedProductPrices
