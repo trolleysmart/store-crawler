@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-store-crawler",
-  "version": "1.0.0-alpha.49",
+  "version": "1.0.0-alpha.50",
   "description": "Trolley Smart Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
@@ -23,9 +23,9 @@
     "crawler": "^1.1.1",
     "immutable": "^4.0.0-rc.9",
     "micro-business-common-javascript": "^1.0.0-alpha.12",
-    "micro-business-parse-server-common": "^1.0.2-alpha.34",
+    "micro-business-parse-server-common": "^1.0.2-alpha.36",
     "moment": "^2.19.1",
-    "trolley-smart-parse-server-common": "^1.0.0-alpha.36",
+    "trolley-smart-parse-server-common": "^1.0.0-alpha.38",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
