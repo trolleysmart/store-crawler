@@ -649,7 +649,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag.get('tagId');
                   }).filter(function (storeTag) {
                     return storeTag;
-                  })
+                  }).toSet().toList()
                 }).merge(offerEndDate ? (0, _immutable.Map)({ offerEndDate: offerEndDate }) : (0, _immutable.Map)());
                 return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
@@ -663,7 +663,7 @@ var WarehouseWebCrawlerService = function (_StoreCrawlerServiceB) {
                     });
                   }).map(function (storeTag) {
                     return storeTag.get('id');
-                  })
+                  }).toSet().toList()
                 }))]));
 
               case 16:

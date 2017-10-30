@@ -333,7 +333,9 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
-        .filter(storeTag => storeTag),
+        .filter(storeTag => storeTag)
+        .toSet()
+        .toList(),
     });
 
     return Promise.all([
@@ -346,7 +348,9 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
         lastCrawlDateTime: new Date(),
         storeTagIds: storeTags
           .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-          .map(storeTag => storeTag.get('id')),
+          .map(storeTag => storeTag.get('id'))
+          .toSet()
+          .toList(),
       })),
     ]);
   };

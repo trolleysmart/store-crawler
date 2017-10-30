@@ -934,7 +934,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                     specialType: 'multiBuy'
                   });
 
-                  priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']) / productInfo.getIn(['multiBuyInfo', 'awardQuantity']);
+                  priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']);
                   productInfo = productInfo.set('wasPrice', productInfo.get('currentPrice')).set('currentPrice', priceToDisplay);
                 } else if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
                   priceDetails = (0, _immutable.Map)({
@@ -993,7 +993,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag.get('tagId');
                   }).filter(function (storeTag) {
                     return storeTag;
-                  })
+                  }).toSet().toList()
                 });
                 return _context10.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
@@ -1008,7 +1008,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                     });
                   }).map(function (storeTag) {
                     return storeTag.get('id');
-                  })
+                  }).toSet().toList()
                 }))]));
 
               case 16:

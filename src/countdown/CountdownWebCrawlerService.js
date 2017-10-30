@@ -712,7 +712,7 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         specialType: 'multiBuy',
       });
 
-      priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']) / productInfo.getIn(['multiBuyInfo', 'awardQuantity']);
+      priceToDisplay = productInfo.getIn(['multiBuyInfo', 'awardValue']);
       productInfo = productInfo.set('wasPrice', productInfo.get('currentPrice')).set('currentPrice', priceToDisplay);
     } else if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
       priceDetails = Map({
@@ -769,7 +769,9 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       tagIds: storeTags
         .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
         .map(storeTag => storeTag.get('tagId'))
-        .filter(storeTag => storeTag),
+        .filter(storeTag => storeTag)
+        .toSet()
+        .toList(),
     });
 
     return Promise.all([
@@ -783,7 +785,9 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
         lastCrawlDateTime: new Date(),
         storeTagIds: storeTags
           .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-          .map(storeTag => storeTag.get('id')),
+          .map(storeTag => storeTag.get('id'))
+          .toSet()
+          .toList(),
       })),
     ]);
   };
