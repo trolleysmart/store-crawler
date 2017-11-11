@@ -800,10 +800,15 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
     _this.getCurrentPrice = function (productPriceContent) {
       var currentPriceContent = productPriceContent.find('.price').text().trim();
-      var currentPriceTails = productPriceContent.find('.price .visible-phone').text().trim();
-      var currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
+      var spaceIdx = currentPriceContent.indexOf(' ');
+      var nonBreakableSaceIdx = currentPriceContent.indexOf(String.fromCharCode(160));
 
-      return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+      if (spaceIdx !== -1) {
+        return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContent.substring(0, spaceIdx));
+      } else if (nonBreakableSaceIdx !== -1) {
+        return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContent.substring(0, nonBreakableSaceIdx));
+      }
+      return undefined;
     };
 
     _this.getWasPrice = function (productPriceContent) {
@@ -881,10 +886,15 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
 
     _this.getClubPrice = function (productPriceContent) {
       var currentPriceContent = productPriceContent.text().trim();
-      var currentPriceTails = productPriceContent.find('.visible-phone').text().trim();
-      var currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
+      var spaceIdx = currentPriceContent.indexOf(' ');
+      var nonBreakableSaceIdx = currentPriceContent.indexOf(String.fromCharCode(160));
 
-      return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+      if (spaceIdx !== -1) {
+        return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContent.substring(0, spaceIdx));
+      } else if (nonBreakableSaceIdx !== -1) {
+        return _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContent.substring(0, nonBreakableSaceIdx));
+      }
+      return undefined;
     };
 
     _this.getBarcodeFromImageUrl = function (imageUrl) {

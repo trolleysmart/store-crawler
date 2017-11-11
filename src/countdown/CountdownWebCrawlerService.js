@@ -569,13 +569,15 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       .find('.price')
       .text()
       .trim();
-    const currentPriceTails = productPriceContent
-      .find('.price .visible-phone')
-      .text()
-      .trim();
-    const currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
+    const spaceIdx = currentPriceContent.indexOf(' ');
+    const nonBreakableSaceIdx = currentPriceContent.indexOf(String.fromCharCode(160));
 
-    return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+    if (spaceIdx !== -1) {
+      return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContent.substring(0, spaceIdx));
+    } else if (nonBreakableSaceIdx !== -1) {
+      return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContent.substring(0, nonBreakableSaceIdx));
+    }
+    return undefined;
   };
 
   getWasPrice = (productPriceContent) => {
@@ -662,13 +664,15 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
 
   getClubPrice = (productPriceContent) => {
     const currentPriceContent = productPriceContent.text().trim();
-    const currentPriceTails = productPriceContent
-      .find('.visible-phone')
-      .text()
-      .trim();
-    const currentPriceContentIncludingDollarSign = currentPriceContent.substring(0, currentPriceContent.indexOf(currentPriceTails));
+    const spaceIdx = currentPriceContent.indexOf(' ');
+    const nonBreakableSaceIdx = currentPriceContent.indexOf(String.fromCharCode(160));
 
-    return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContentIncludingDollarSign);
+    if (spaceIdx !== -1) {
+      return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContent.substring(0, spaceIdx));
+    } else if (nonBreakableSaceIdx !== -1) {
+      return StoreCrawlerServiceBase.removeDollarSignFromPrice(currentPriceContent.substring(0, nonBreakableSaceIdx));
+    }
+    return undefined;
   };
 
   getBarcodeFromImageUrl = (imageUrl) => {
