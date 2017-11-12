@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-store-crawler",
-  "version": "1.0.0-alpha.53",
+  "version": "1.0.0-alpha.54",
   "description": "Trolley Smart Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
@@ -9,12 +9,10 @@
     "lint": "eslint --ext .jsx --ext .js src",
     "fixlint": "eslint --fix --ext .jsx --ext .js src",
     "test": "jest",
-    "test:watch": "npm test -- --watch",
-    "test-verbose": "jest --verbose",
-    "test-verbose:watch": "npm run test-verbose -- --watch",
+    "test:watch": "jest --watch",
     "publish-package": "npm run build && npm publish",
     "flow": "flow",
-    "lint:staged": "lint-staged"
+    "precommit": "lint-staged && npm run fixlint"
   },
   "author": "Micro Business ltd<micro.business.ltd@gmail.com>",
   "homepage": "https://bitbucket.org/microbusiness/trolley-smart-store-crawler#readme",
@@ -24,8 +22,8 @@
     "immutable": "^4.0.0-rc.9",
     "micro-business-common-javascript": "^1.0.0-alpha.14",
     "micro-business-parse-server-common": "^1.0.2-alpha.37",
-    "moment": "^2.19.1",
-    "trolley-smart-parse-server-common": "^1.0.0-alpha.40",
+    "moment": "^2.19.2",
+    "trolley-smart-parse-server-common": "^1.0.0-alpha.42",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
@@ -42,7 +40,7 @@
     "eslint-plugin-react": "^7.4.0",
     "flow-bin": "^0.59.0",
     "jest": "^21.2.1",
-    "lint-staged": "^4.3.0",
+    "lint-staged": "^5.0.0",
     "parse": "^1.10.2",
     "prettier": "^1.8.2"
   },
@@ -55,7 +53,7 @@
     "url": "git+ssh://git@bitbucket.org:microbusiness/trolley-smart-store-crawler.git"
   },
   "lint-staged": {
-    "*.js": [
+    "src/**/*.{js,jsx,json,css}": [
       "prettier --write --single-quote true --trailing-comma all --print-width 150",
       "git add"
     ]
