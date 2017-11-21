@@ -122,7 +122,7 @@ export default class StoreCrawlerServiceBase {
     }
   };
 
-  createOrUpdateStoreProduct = async (productInfo) => {
+  createOrUpdateStoreProduct = async (productInfo, authorizedToDisplay) => {
     const storeId = await this.getStoreId();
     const service = new StoreProductService();
     const storeProducts = await service.search(
@@ -140,6 +140,7 @@ export default class StoreCrawlerServiceBase {
         productInfo.merge(Map({
           storeId,
           createdByCrawler: true,
+          authorizedToDisplay,
         })),
         null,
         this.sessionToken,
@@ -151,7 +152,8 @@ export default class StoreCrawlerServiceBase {
         storeProducts
           .first()
           .merge(productInfo)
-          .set('createdByCrawler', true),
+          .set('createdByCrawler', true)
+          .set('authorizedToDisplay', authorizedToDisplay),
         this.sessionToken,
       );
     }
@@ -297,31 +299,38 @@ export default class StoreCrawlerServiceBase {
     return new ProductPriceService().search(criteria, this.sessionToken);
   };
 
-  updateExistingStoreProduct = async (storeProduct) => {
-    await new StoreProductService().update(storeProduct.set('createdByCrawler', true), this.sessionToken);
+  updateExistingStoreProduct = async (storeProduct, authorizedToDisplay) => {
+    await new StoreProductService().update(
+      storeProduct.set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay),
+      this.sessionToken,
+    );
   };
 
-  createOrUpdateProductPrice = async (storeProductId, productPrice) => {
+  createOrUpdateProductPrice = async (storeProductId, productPrice, authorizedToDisplay) => {
     const productPrices = await this.getActiveProductPrices(storeProductId);
     const service = new ProductPriceService();
     const priceDetails = productPrice.get('priceDetails');
 
     if (!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice')) {
       if (!productPrices.isEmpty()) {
-        await Promise.all(productPrices.map(_ => service.update(_.merge(Map({ status: 'I', createdByCrawler: true })), this.sessionToken)).toArray());
+        await Promise.all(productPrices
+          .map(_ => service.update(_.merge(Map({ status: 'I', createdByCrawler: true, authorizedToDisplay })), this.sessionToken))
+          .toArray());
       }
 
       return;
     }
 
     if (productPrices.isEmpty()) {
-      await service.create(productPrice.set('createdByCrawler', true), null, this.sessionToken);
+      await service.create(productPrice.set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), null, this.sessionToken);
     } else {
       const notMatchedProductPrices = productPrices.filterNot(_ =>
         ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(ImmutableEx.removeUndefinedProps(priceDetails)));
 
       if (!notMatchedProductPrices.isEmpty()) {
-        await Promise.all(notMatchedProductPrices.map(_ => service.update(_.merge(Map({ status: 'I', createdByCrawler: true })), this.sessionToken)).toArray());
+        await Promise.all(notMatchedProductPrices
+          .map(_ => service.update(_.merge(Map({ status: 'I', createdByCrawler: true, authorizedToDisplay })), this.sessionToken))
+          .toArray());
       }
 
       const matchedProductPrices = productPrices.filter(_ =>
@@ -330,10 +339,10 @@ export default class StoreCrawlerServiceBase {
       if (matchedProductPrices.count() > 1) {
         await Promise.all(matchedProductPrices
           .skip(1)
-          .map(_ => service.update(_.merge(Map({ status: 'I', createdByCrawler: true })), this.sessionToken))
+          .map(_ => service.update(_.merge(Map({ status: 'I', createdByCrawler: true, authorizedToDisplay })), this.sessionToken))
           .toArray());
       } else if (matchedProductPrices.count() === 0) {
-        await service.create(productPrice.set('createdByCrawler', true), null, this.sessionToken);
+        await service.create(productPrice.set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), null, this.sessionToken);
       }
     }
   };

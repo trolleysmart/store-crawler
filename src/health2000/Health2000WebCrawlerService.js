@@ -119,7 +119,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
             .groupBy(productInfo => productInfo.get('productKey'))
             .map(_ => _.first())
             .valueSeq()
-            .map(productInfo => this.createOrUpdateStoreProductForHealth2000(productInfo)))
+            .map(productInfo => this.createOrUpdateStoreProductForHealth2000(productInfo, false)))
             .then(() => done())
             .catch((storeProductUpdateError) => {
               done();
@@ -133,7 +133,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     });
   };
 
-  createOrUpdateStoreProductForHealth2000 = async (productInfo) => {
+  createOrUpdateStoreProductForHealth2000 = async (productInfo, authorizedToDisplay) => {
     const storeId = await this.getStoreId();
     const service = new StoreProductService();
     const storeProducts = await service.search(
@@ -151,6 +151,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
         productInfo.merge(Map({
           storeId,
           createdByCrawler: true,
+          authorizedToDisplay,
         })),
         null,
         this.sessionToken,
@@ -160,7 +161,8 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
         storeProducts
           .first()
           .merge(productInfo)
-          .set('createdByCrawler', true),
+          .set('createdByCrawler', true)
+          .set('authorizedToDisplay', authorizedToDisplay),
         this.sessionToken,
       );
     }
@@ -339,19 +341,22 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
     });
 
     return Promise.all([
-      this.createOrUpdateProductPrice(storeProductId, productPrice),
-      this.updateExistingStoreProduct(product.merge({
-        name: productInfo.get('name'),
-        description: productInfo.get('description'),
-        barcode: productInfo.get('barcode'),
-        imageUrl: productInfo.get('imageUrl'),
-        lastCrawlDateTime: new Date(),
-        storeTagIds: storeTags
-          .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-          .map(storeTag => storeTag.get('id'))
-          .toSet()
-          .toList(),
-      })),
+      this.createOrUpdateProductPrice(storeProductId, productPrice, false),
+      this.updateExistingStoreProduct(
+        product.merge({
+          name: productInfo.get('name'),
+          description: productInfo.get('description'),
+          barcode: productInfo.get('barcode'),
+          imageUrl: productInfo.get('imageUrl'),
+          lastCrawlDateTime: new Date(),
+          storeTagIds: storeTags
+            .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+            .map(storeTag => storeTag.get('id'))
+            .toSet()
+            .toList(),
+        }),
+        false,
+      ),
     ]);
   };
 }

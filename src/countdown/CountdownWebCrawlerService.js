@@ -367,7 +367,9 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
 
           const productInfos = this.crawlProductInfo(config, res.$);
 
-          Promise.all(productInfos.filter(productInfo => productInfo.get('productPageUrl')).map(productInfo => this.createOrUpdateStoreProduct(productInfo)))
+          Promise.all(productInfos
+            .filter(productInfo => productInfo.get('productPageUrl'))
+            .map(productInfo => this.createOrUpdateStoreProduct(productInfo, false)))
             .then(() => done())
             .catch((storeProductUpdateError) => {
               done();
@@ -779,20 +781,23 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
     });
 
     return Promise.all([
-      this.createOrUpdateProductPrice(storeProductId, productPrice),
-      this.updateExistingStoreProduct(product.merge({
-        name: productInfo.get('name'),
-        description: productInfo.get('description'),
-        barcode: productInfo.get('barcode'),
-        imageUrl: productInfo.get('imageUrl'),
-        size: productInfo.get('size'),
-        lastCrawlDateTime: new Date(),
-        storeTagIds: storeTags
-          .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
-          .map(storeTag => storeTag.get('id'))
-          .toSet()
-          .toList(),
-      })),
+      this.createOrUpdateProductPrice(storeProductId, productPrice, false),
+      this.updateExistingStoreProduct(
+        product.merge({
+          name: productInfo.get('name'),
+          description: productInfo.get('description'),
+          barcode: productInfo.get('barcode'),
+          imageUrl: productInfo.get('imageUrl'),
+          size: productInfo.get('size'),
+          lastCrawlDateTime: new Date(),
+          storeTagIds: storeTags
+            .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
+            .map(storeTag => storeTag.get('id'))
+            .toSet()
+            .toList(),
+        }),
+        false,
+      ),
     ]);
   };
 
