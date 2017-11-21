@@ -185,7 +185,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                       }).map(function (_) {
                         return _.first();
                       }).valueSeq().map(function (productInfo) {
-                        return _this.createOrUpdateStoreProductForHealth2000(productInfo);
+                        return _this.createOrUpdateStoreProductForHealth2000(productInfo, false);
                       })).then(function () {
                         return done();
                       }).catch(function (storeProductUpdateError) {
@@ -219,7 +219,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
     }();
 
     _this.createOrUpdateStoreProductForHealth2000 = function () {
-      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(productInfo) {
+      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(productInfo, authorizedToDisplay) {
         var storeId, service, storeProducts;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
@@ -250,7 +250,8 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 _context3.next = 10;
                 return service.create(productInfo.merge((0, _immutable.Map)({
                   storeId: storeId,
-                  createdByCrawler: true
+                  createdByCrawler: true,
+                  authorizedToDisplay: authorizedToDisplay
                 })), null, _this.sessionToken);
 
               case 10:
@@ -264,7 +265,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 }
 
                 _context3.next = 15;
-                return service.update(storeProducts.first().merge(productInfo).set('createdByCrawler', true), _this.sessionToken);
+                return service.update(storeProducts.first().merge(productInfo).set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), _this.sessionToken);
 
               case 15:
               case 'end':
@@ -274,7 +275,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
         }, _callee3, _this2);
       }));
 
-      return function (_x2) {
+      return function (_x2, _x3) {
         return _ref3.apply(this, arguments);
       };
     }();
@@ -404,7 +405,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
         }, _callee4, _this2);
       }));
 
-      return function (_x3, _x4) {
+      return function (_x4, _x5) {
         return _ref4.apply(this, arguments);
       };
     }();
@@ -482,7 +483,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag;
                   }).toSet().toList()
                 });
-                return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
+                return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, false), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
@@ -495,7 +496,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                   }).map(function (storeTag) {
                     return storeTag.get('id');
                   }).toSet().toList()
-                }))]));
+                }), false)]));
 
               case 15:
               case 'end':
@@ -505,7 +506,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
         }, _callee5, _this2);
       }));
 
-      return function (_x5, _x6, _x7) {
+      return function (_x6, _x7, _x8) {
         return _ref5.apply(this, arguments);
       };
     }();

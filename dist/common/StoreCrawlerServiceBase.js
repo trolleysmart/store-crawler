@@ -278,7 +278,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
   }();
 
   this.createOrUpdateStoreProduct = function () {
-    var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(productInfo) {
+    var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(productInfo, authorizedToDisplay) {
       var storeId, service, storeProducts;
       return regeneratorRuntime.wrap(function _callee7$(_context7) {
         while (1) {
@@ -309,7 +309,8 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               _context7.next = 10;
               return service.create(productInfo.merge((0, _immutable.Map)({
                 storeId: storeId,
-                createdByCrawler: true
+                createdByCrawler: true,
+                authorizedToDisplay: authorizedToDisplay
               })), null, _this.sessionToken);
 
             case 10:
@@ -326,7 +327,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 16:
               _context7.next = 18;
-              return service.update(storeProducts.first().merge(productInfo).set('createdByCrawler', true), _this.sessionToken);
+              return service.update(storeProducts.first().merge(productInfo).set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), _this.sessionToken);
 
             case 18:
             case 'end':
@@ -336,7 +337,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee7, _this);
     }));
 
-    return function (_x5) {
+    return function (_x5, _x6) {
       return _ref9.apply(this, arguments);
     };
   }();
@@ -392,7 +393,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee8, _this);
     }));
 
-    return function (_x6, _x7) {
+    return function (_x7, _x8) {
       return _ref10.apply(this, arguments);
     };
   }();
@@ -459,7 +460,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee9, _this);
     }));
 
-    return function (_x8, _x9) {
+    return function (_x9, _x10) {
       return _ref11.apply(this, arguments);
     };
   }();
@@ -526,7 +527,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee10, _this);
     }));
 
-    return function (_x10, _x11) {
+    return function (_x11, _x12) {
       return _ref12.apply(this, arguments);
     };
   }();
@@ -640,19 +641,19 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee12, _this);
     }));
 
-    return function (_x13) {
+    return function (_x14) {
       return _ref15.apply(this, arguments);
     };
   }();
 
   this.updateExistingStoreProduct = function () {
-    var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(storeProduct) {
+    var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(storeProduct, authorizedToDisplay) {
       return regeneratorRuntime.wrap(function _callee13$(_context13) {
         while (1) {
           switch (_context13.prev = _context13.next) {
             case 0:
               _context13.next = 2;
-              return new _trolleySmartParseServerCommon.StoreProductService().update(storeProduct.set('createdByCrawler', true), _this.sessionToken);
+              return new _trolleySmartParseServerCommon.StoreProductService().update(storeProduct.set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), _this.sessionToken);
 
             case 2:
             case 'end':
@@ -662,13 +663,13 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee13, _this);
     }));
 
-    return function (_x14) {
+    return function (_x15, _x16) {
       return _ref16.apply(this, arguments);
     };
   }();
 
   this.createOrUpdateProductPrice = function () {
-    var _ref17 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(storeProductId, productPrice) {
+    var _ref17 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14(storeProductId, productPrice, authorizedToDisplay) {
       var productPrices, service, priceDetails, notMatchedProductPrices, matchedProductPrices;
       return regeneratorRuntime.wrap(function _callee14$(_context14) {
         while (1) {
@@ -694,7 +695,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
               _context14.next = 9;
               return Promise.all(productPrices.map(function (_) {
-                return service.update(_.merge((0, _immutable.Map)({ status: 'I', createdByCrawler: true })), _this.sessionToken);
+                return service.update(_.merge((0, _immutable.Map)({ status: 'I', createdByCrawler: true, authorizedToDisplay: authorizedToDisplay })), _this.sessionToken);
               }).toArray());
 
             case 9:
@@ -707,7 +708,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               }
 
               _context14.next = 13;
-              return service.create(productPrice.set('createdByCrawler', true), null, _this.sessionToken);
+              return service.create(productPrice.set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), null, _this.sessionToken);
 
             case 13:
               _context14.next = 28;
@@ -725,7 +726,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
               _context14.next = 19;
               return Promise.all(notMatchedProductPrices.map(function (_) {
-                return service.update(_.merge((0, _immutable.Map)({ status: 'I', createdByCrawler: true })), _this.sessionToken);
+                return service.update(_.merge((0, _immutable.Map)({ status: 'I', createdByCrawler: true, authorizedToDisplay: authorizedToDisplay })), _this.sessionToken);
               }).toArray());
 
             case 19:
@@ -740,7 +741,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
               _context14.next = 23;
               return Promise.all(matchedProductPrices.skip(1).map(function (_) {
-                return service.update(_.merge((0, _immutable.Map)({ status: 'I', createdByCrawler: true })), _this.sessionToken);
+                return service.update(_.merge((0, _immutable.Map)({ status: 'I', createdByCrawler: true, authorizedToDisplay: authorizedToDisplay })), _this.sessionToken);
               }).toArray());
 
             case 23:
@@ -754,7 +755,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
               }
 
               _context14.next = 28;
-              return service.create(productPrice.set('createdByCrawler', true), null, _this.sessionToken);
+              return service.create(productPrice.set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), null, _this.sessionToken);
 
             case 28:
             case 'end':
@@ -764,7 +765,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee14, _this);
     }));
 
-    return function (_x15, _x16) {
+    return function (_x17, _x18, _x19) {
       return _ref17.apply(this, arguments);
     };
   }();
@@ -786,7 +787,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee15, _this);
     }));
 
-    return function (_x17) {
+    return function (_x20) {
       return _ref18.apply(this, arguments);
     };
   }();
@@ -817,7 +818,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee16, _this);
     }));
 
-    return function (_x18) {
+    return function (_x21) {
       return _ref19.apply(this, arguments);
     };
   }();
@@ -848,7 +849,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee17, _this);
     }));
 
-    return function (_x19) {
+    return function (_x22) {
       return _ref20.apply(this, arguments);
     };
   }();
@@ -879,7 +880,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee18, _this);
     }));
 
-    return function (_x20) {
+    return function (_x23) {
       return _ref21.apply(this, arguments);
     };
   }();
@@ -1048,7 +1049,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
       }, _callee21, _this);
     }));
 
-    return function (_x21) {
+    return function (_x24) {
       return _ref24.apply(this, arguments);
     };
   }();

@@ -578,7 +578,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                       Promise.all(productInfos.filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
                       }).map(function (productInfo) {
-                        return _this.createOrUpdateStoreProduct(productInfo);
+                        return _this.createOrUpdateStoreProduct(productInfo, false);
                       })).then(function () {
                         return done();
                       }).catch(function (storeProductUpdateError) {
@@ -1005,7 +1005,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag;
                   }).toSet().toList()
                 });
-                return _context10.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice), _this.updateExistingStoreProduct(product.merge({
+                return _context10.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, false), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
                   barcode: productInfo.get('barcode'),
@@ -1019,7 +1019,7 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                   }).map(function (storeTag) {
                     return storeTag.get('id');
                   }).toSet().toList()
-                }))]));
+                }), false)]));
 
               case 16:
               case 'end':
