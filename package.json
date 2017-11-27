@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-store-crawler",
-  "version": "1.0.0-alpha.58",
+  "version": "1.0.0-alpha.59",
   "description": "Trolley Smart Store Crawler",
   "main": "./dist/index.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-stage-0": "^6.24.1",
-    "eslint": "^4.11.0",
+    "eslint": "^4.12.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "6.0.2",

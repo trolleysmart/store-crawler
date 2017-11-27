@@ -379,9 +379,8 @@ export default class CountdownWebCrawlerService extends StoreCrawlerServiceBase 
       });
 
       crawler.on('drain', () => resolve());
-      storeTags.forEach(productCategory =>
-        Range(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(offset =>
-          crawler.queue(`${productCategory.get('url')}?page=${offset + 1}`)));
+      storeTags.forEach(storeTag =>
+        Range(0, Math.ceil(storeTag.get('totalItems') / 24)).forEach(offset => crawler.queue(`${storeTag.get('url')}?page=${offset + 1}`)));
     });
   };
 

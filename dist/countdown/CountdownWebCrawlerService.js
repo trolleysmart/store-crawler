@@ -593,9 +593,9 @@ var CountdownWebCrawlerService = function (_StoreCrawlerServiceB) {
                   crawler.on('drain', function () {
                     return resolve();
                   });
-                  storeTags.forEach(function (productCategory) {
-                    return (0, _immutable.Range)(0, Math.ceil(productCategory.get('totalItems') / 24)).forEach(function (offset) {
-                      return crawler.queue(productCategory.get('url') + '?page=' + (offset + 1));
+                  storeTags.forEach(function (storeTag) {
+                    return (0, _immutable.Range)(0, Math.ceil(storeTag.get('totalItems') / 24)).forEach(function (offset) {
+                      return crawler.queue(storeTag.get('url') + '?page=' + (offset + 1));
                     });
                   });
                 }));

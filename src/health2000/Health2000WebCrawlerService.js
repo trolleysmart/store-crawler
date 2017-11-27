@@ -129,7 +129,7 @@ export default class Health2000WebCrawlerService extends StoreCrawlerServiceBase
       });
 
       crawler.on('drain', () => resolve());
-      storeTags.forEach(productCategory => crawler.queue(productCategory.get('url')));
+      storeTags.forEach(storeTag => crawler.queue(storeTag.get('url')));
     });
   };
 

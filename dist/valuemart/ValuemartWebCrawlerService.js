@@ -10,7 +10,7 @@ var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
 
-var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
+var _immutable2 = _interopRequireDefault(_immutable);
 
 var _2 = require('../');
 
@@ -24,15 +24,15 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
-  _inherits(Health2000WebCrawlerService, _StoreCrawlerServiceB);
+var ValuemartWebCrawlerService = function (_StoreCrawlerServiceB) {
+  _inherits(ValuemartWebCrawlerService, _StoreCrawlerServiceB);
 
-  function Health2000WebCrawlerService(context) {
+  function ValuemartWebCrawlerService(context) {
     var _this2 = this;
 
-    _classCallCheck(this, Health2000WebCrawlerService);
+    _classCallCheck(this, ValuemartWebCrawlerService);
 
-    var _this = _possibleConstructorReturn(this, (Health2000WebCrawlerService.__proto__ || Object.getPrototypeOf(Health2000WebCrawlerService)).call(this, 'health2000', context));
+    var _this = _possibleConstructorReturn(this, (ValuemartWebCrawlerService.__proto__ || Object.getPrototypeOf(ValuemartWebCrawlerService)).call(this, 'valuemart', context));
 
     _this.crawlAllProductCategories = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
       var config, productCategories;
@@ -67,7 +67,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                       return;
                     }
 
-                    productCategories = _this.crawlLevelOneProductCategories(config, res.$);
+                    productCategories = _this.crawlLevelOneProductCategoriesAndSubProductCategories(config, res.$);
                     done();
                   }
                 });
@@ -75,7 +75,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 crawler.on('drain', function () {
                   return resolve(productCategories);
                 });
-                crawler.queue(config.get('baseUrl') + '/maincategory');
+                crawler.queue(config.get('baseUrl'));
               }));
 
             case 5:
@@ -86,52 +86,89 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
       }, _callee, _this2);
     }));
 
-    _this.crawlLevelOneProductCategories = function (config, $) {
-      var productCategories = (0, _immutable.Set)();
+    _this.crawlLevelOneProductCategoriesAndSubProductCategories = function (config, $) {
+      var categories = (0, _immutable.List)();
 
-      $('.container .row .categoryNavigation .nav-stacked li a').each(function onEachNavigationLink() {
-        var navItem = $(this);
-        var name = navItem.text().trim();
-        var url = config.get('baseUrl') + navItem.attr('href');
-        var categoryKey = url.substring(url.lastIndexOf('/') + 1);
+      $('.sidebar .category_accordion').each(function onEachCategory() {
+        $(this).find('.cat-item .round').each(function onEachCategoryItem() {
+          var url = $(this).attr('href');
+          var name = $(this).text();
+          var keys = _immutable2.default.fromJS(url.substring(url.indexOf(config.get('baseUrl')) + config.get('baseUrl').length).split('/')).skip(1).filter(function (_) {
+            return _;
+          });
 
-        if (config.get('categoryKeysToExclude') && config.get('categoryKeysToExclude').find(function (_) {
-          return _.toLowerCase().trim().localeCompare(categoryKey.toLowerCase().trim()) === 0;
-        })) {
-          return 0;
-        }
-
-        productCategories = productCategories.add((0, _immutable.Map)({
-          categoryKey: categoryKey,
-          url: url,
-          name: name,
-          level: 1,
-          subCategories: (0, _immutable.List)()
-        }));
+          categories = categories.push((0, _immutable.Map)({
+            url: url,
+            categoryKey: keys.reduce(function (acc, key) {
+              return acc + '/' + key;
+            }),
+            name: name,
+            level: keys.count()
+          }));
+        });
 
         return 0;
       });
 
-      return productCategories;
+      if (config.get('categoryKeysToExclude')) {
+        categories = categories.filterNot(function (category) {
+          return config.get('categoryKeysToExclude').find(function (_) {
+            return _.toLowerCase().trim().localeCompare(category.get('categoryKey').toLowerCase().trim()) === 0;
+          });
+        });
+      }
+
+      var levelTwoCategories = categories.filter(function (_) {
+        return _.get('level') === 2;
+      }).map(function (category) {
+        return category.set('subCategories', categories.filter(function (_) {
+          return _.get('level') === category.get('level') + 1 && _.get('categoryKey').indexOf(category.get('categoryKey')) === 0;
+        }));
+      });
+
+      return categories.filter(function (_) {
+        return _.get('level') === 1;
+      }).map(function (category) {
+        return category.set('subCategories', levelTwoCategories.filter(function (_) {
+          return _.get('level') === category.get('level') + 1 && _.get('categoryKey').indexOf(category.get('categoryKey')) === 0;
+        }));
+      });
     };
 
-    _this.crawlStoreTagsTotalItemsInfo = function (storeTags) {
-      return storeTags;
-    };
-
-    _this.crawlProductsForEachStoreTag = function () {
+    _this.crawlStoreTagsTotalItemsInfo = function () {
       var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(storeTags) {
-        var config;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _context2.next = 2;
+                return _context2.abrupt('return', storeTags);
+
+              case 1:
+              case 'end':
+                return _context2.stop();
+            }
+          }
+        }, _callee2, _this2);
+      }));
+
+      return function (_x) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+
+    _this.crawlProductsForEachStoreTag = function () {
+      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(storeTags) {
+        var config;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
                 return _this.getConfig();
 
               case 2:
-                config = _context2.sent;
-                return _context2.abrupt('return', new Promise(function (resolve) {
+                config = _context3.sent;
+                return _context3.abrupt('return', new Promise(function (resolve) {
                   var crawler = new _crawler2.default({
                     rateLimit: config.get('rateLimit'),
                     maxConnections: config.get('maxConnections'),
@@ -151,41 +188,26 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
                         return;
                       }
-                      var url = _2.StoreCrawlerServiceBase.safeGetUri(res);
+
+                      var urlOffset = _2.StoreCrawlerServiceBase.safeGetUri(res).indexOf('?');
+                      var baseUrl = _2.StoreCrawlerServiceBase.safeGetUri(res).substring(0, urlOffset);
                       var productCategory = storeTags.find(function (_) {
-                        return _.get('url').localeCompare(url) === 0;
+                        return _.get('url').localeCompare(baseUrl) === 0;
                       });
 
                       if (!productCategory) {
                         done();
                         _this.logError(function () {
-                          return 'Failed to find product category page info for Url: ' + url;
+                          return 'Failed to find product category page info for Url: ' + baseUrl;
                         });
-
-                        return;
                       }
 
-                      var $ = res.$;
-
-                      var productInfos = (0, _immutable.List)();
-
-                      $('.js-productContent .row .productTitle a').each(function onEachNavigationLink() {
-                        var productTitle = $(this);
-                        var productPageUrl = '' + config.get('baseUrl') + productTitle.attr('href');
-
-                        productInfos = productInfos.push((0, _immutable.Map)({ productPageUrl: productPageUrl, productKey: productPageUrl.substring(productPageUrl.lastIndexOf('/') + 1) }));
-
-                        return 0;
-                      });
+                      var productInfos = _this.crawlProductInfo(config, res.$);
 
                       Promise.all(productInfos.filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
-                      }).groupBy(function (productInfo) {
-                        return productInfo.get('productKey');
-                      }).map(function (_) {
-                        return _.first();
-                      }).valueSeq().map(function (productInfo) {
-                        return _this.createOrUpdateStoreProductForHealth2000(productInfo, false);
+                      }).map(function (productInfo) {
+                        return _this.createOrUpdateStoreProduct(productInfo, true);
                       })).then(function () {
                         return done();
                       }).catch(function (storeProductUpdateError) {
@@ -201,73 +223,11 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                     return resolve();
                   });
                   storeTags.forEach(function (storeTag) {
-                    return crawler.queue(storeTag.get('url'));
+                    return crawler.queue(storeTag.get('url') + '?product_count=10000');
                   });
                 }));
 
               case 4:
-              case 'end':
-                return _context2.stop();
-            }
-          }
-        }, _callee2, _this2);
-      }));
-
-      return function (_x) {
-        return _ref2.apply(this, arguments);
-      };
-    }();
-
-    _this.createOrUpdateStoreProductForHealth2000 = function () {
-      var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(productInfo, authorizedToDisplay) {
-        var storeId, service, storeProducts;
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                _context3.next = 2;
-                return _this.getStoreId();
-
-              case 2:
-                storeId = _context3.sent;
-                service = new _trolleySmartParseServerCommon.StoreProductService();
-                _context3.next = 6;
-                return service.search((0, _immutable.Map)({
-                  conditions: (0, _immutable.Map)({
-                    endsWith_productPageUrl: productInfo.get('productKey'),
-                    storeId: storeId
-                  })
-                }), _this.sessionToken);
-
-              case 6:
-                storeProducts = _context3.sent;
-
-                if (!storeProducts.isEmpty()) {
-                  _context3.next = 12;
-                  break;
-                }
-
-                _context3.next = 10;
-                return service.create(productInfo.merge((0, _immutable.Map)({
-                  storeId: storeId,
-                  createdByCrawler: true,
-                  authorizedToDisplay: authorizedToDisplay
-                })), null, _this.sessionToken);
-
-              case 10:
-                _context3.next = 15;
-                break;
-
-              case 12:
-                if (!(storeProducts.count() === 1)) {
-                  _context3.next = 15;
-                  break;
-                }
-
-                _context3.next = 15;
-                return service.update(storeProducts.first().merge(productInfo).set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), _this.sessionToken);
-
-              case 15:
               case 'end':
                 return _context3.stop();
             }
@@ -275,10 +235,23 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
         }, _callee3, _this2);
       }));
 
-      return function (_x2, _x3) {
+      return function (_x2) {
         return _ref3.apply(this, arguments);
       };
     }();
+
+    _this.crawlProductInfo = function (config, $) {
+      var products = (0, _immutable.List)();
+      $('.products').children().filter(function filterSearchResultItems() {
+        var productPageUrl = $(this).find('.product-details .product-details-container .product-title a').attr('href');
+
+        products = products.push((0, _immutable.Map)({ productPageUrl: productPageUrl }));
+
+        return 0;
+      });
+
+      return products;
+    };
 
     _this.crawlProductDetails = function () {
       var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(product, storeTags) {
@@ -294,7 +267,6 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 config = _context4.sent;
                 return _context4.abrupt('return', new Promise(function (resolve) {
                   var productInfo = (0, _immutable.Map)();
-
                   var crawler = new _crawler2.default({
                     rateLimit: config.get('rateLimit'),
                     maxConnections: config.get('maxConnections'),
@@ -319,63 +291,44 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
                       var tagUrls = (0, _immutable.List)();
 
-                      $('.breadcrumb li a').each(function filterTags() {
-                        var tag = $(this);
+                      $('.fusion-breadcrumbs span a').each(function filterTags() {
+                        var tagUrl = $(this).attr('href');
 
-                        tagUrls = tagUrls.push(tag.attr('href'));
+                        tagUrls = tagUrls.push(tagUrl);
+                        return 0;
+                      });
+
+                      tagUrls = tagUrls.skip(1).butLast();
+
+                      productInfo = productInfo.merge({ tagUrls: tagUrls });
+
+                      $('.entry-summary .summary-container').filter(function () {
+                        $('.product_title').filter(function filterProductTitle() {
+                          var title = $(this).text();
+
+                          productInfo = productInfo.merge((0, _immutable.Map)({
+                            name: title.substring(0, title.lastIndexOf(' ')).trim(),
+                            size: title.substring(title.lastIndexOf(' ')).trim()
+                          }));
+
+                          return 0;
+                        });
+
+                        $('p').filter(function filterPrice() {
+                          var price = $(this).text();
+
+                          productInfo = productInfo.set('currentPrice', _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(price));
+
+                          return 0;
+                        });
 
                         return 0;
                       });
 
-                      tagUrls = tagUrls.skip(1).take(1).map(function (tagUrl) {
-                        return config.get('baseUrl') + tagUrl;
-                      });
+                      $('.woocommerce-container #content .product .avada-single-product-gallery-wrapper div figure div a').filter(function filterImage() {
+                        var imageUrl = $(this).attr('href');
 
-                      productInfo = productInfo.merge({ tagUrls: tagUrls });
-
-                      $('#ProductDisplay .js-productDetail').filter(function filterProductDetails() {
-                        var productDetails = $(this);
-
-                        productDetails.find('.productDetail .productTitle').filter(function filterName() {
-                          productInfo = productInfo.merge((0, _immutable.Map)({
-                            name: $(this).text().trim()
-                          }));
-
-                          return 0;
-                        });
-
-                        productDetails.find('.productAccordion .m0-sm').filter(function filterDescription() {
-                          productInfo = productInfo.merge((0, _immutable.Map)({
-                            description: $(this).text().trim()
-                          }));
-
-                          return 0;
-                        });
-
-                        productDetails.find('.productImages .mainImage .productMainImage img').filter(function filterMainImage() {
-                          productInfo = productInfo.merge((0, _immutable.Map)({ imageUrl: config.get('baseUrl') + $(this).attr('src') }));
-
-                          return 0;
-                        });
-
-                        productDetails.find('.productDetail .js-price').filter(function filterPrice() {
-                          $(this).find('.was').filter(function filterWasPrice() {
-                            var priceStr = $(this).text().trim();
-
-                            productInfo = productInfo.merge((0, _immutable.Map)({ wasPrice: _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(priceStr.substring(priceStr.lastIndexOf(' ') + 1)) }));
-
-                            return 0;
-                          });
-
-                          $(this).find('.is').filter(function filterIsPrice() {
-                            var priceStr = $(this).text().trim();
-
-                            productInfo = productInfo.merge((0, _immutable.Map)({ currentPrice: _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(priceStr.substring(priceStr.lastIndexOf(' ') + 1)) }));
-                            return 0;
-                          });
-
-                          return 0;
-                        });
+                        productInfo = productInfo.set('imageurl', imageUrl);
 
                         return 0;
                       });
@@ -405,7 +358,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
         }, _callee4, _this2);
       }));
 
-      return function (_x4, _x5) {
+      return function (_x3, _x4) {
         return _ref4.apply(this, arguments);
       };
     }();
@@ -422,24 +375,10 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
 
               case 2:
                 storeId = _context5.sent;
-                priceDetails = void 0;
-                priceToDisplay = void 0;
-
-
-                if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
-                  priceDetails = (0, _immutable.Map)({
-                    specialType: 'special'
-                  });
-
-                  priceToDisplay = productInfo.get('currentPrice');
-                } else {
-                  priceDetails = (0, _immutable.Map)({
-                    specialType: 'none'
-                  });
-
-                  priceToDisplay = productInfo.get('currentPrice');
-                }
-
+                priceDetails = (0, _immutable.Map)({
+                  specialType: 'none'
+                });
+                priceToDisplay = productInfo.get('currentPrice');
                 currentPrice = productInfo.get('currentPrice');
                 wasPrice = productInfo.get('wasPrice');
                 saving = 0;
@@ -460,9 +399,6 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 storeProductId = product.get('id');
                 productPrice = (0, _immutable.Map)({
                   name: productInfo.get('name'),
-                  description: productInfo.get('description'),
-                  barcode: productInfo.get('barcode'),
-                  size: productInfo.get('size'),
                   imageUrl: product.get('imageUrl'),
                   productPageUrl: product.get('productPageUrl'),
                   priceDetails: priceDetails,
@@ -485,8 +421,6 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                 });
                 return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, false), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
-                  description: productInfo.get('description'),
-                  barcode: productInfo.get('barcode'),
                   imageUrl: productInfo.get('imageUrl'),
                   lastCrawlDateTime: new Date(),
                   storeTagIds: storeTags.filter(function (storeTag) {
@@ -498,7 +432,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
                   }).toSet().toList()
                 }), false)]));
 
-              case 15:
+              case 14:
               case 'end':
                 return _context5.stop();
             }
@@ -506,7 +440,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
         }, _callee5, _this2);
       }));
 
-      return function (_x6, _x7, _x8) {
+      return function (_x5, _x6, _x7) {
         return _ref5.apply(this, arguments);
       };
     }();
@@ -514,7 +448,7 @@ var Health2000WebCrawlerService = function (_StoreCrawlerServiceB) {
     return _this;
   }
 
-  return Health2000WebCrawlerService;
+  return ValuemartWebCrawlerService;
 }(_2.StoreCrawlerServiceBase);
 
-exports.default = Health2000WebCrawlerService;
+exports.default = ValuemartWebCrawlerService;

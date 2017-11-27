@@ -275,8 +275,8 @@ export default class WarehouseWebCrawlerService extends StoreCrawlerServiceBase 
       });
 
       crawler.on('drain', () => resolve());
-      storeTags.forEach(productCategory =>
-        Range(0, productCategory.get('totalItems'), 24).forEach(offset => crawler.queue(`${productCategory.get('url')}?sz=24&start=${offset}`)));
+      storeTags.forEach(storeTag =>
+        Range(0, storeTag.get('totalItems'), 24).forEach(offset => crawler.queue(`${storeTag.get('url')}?sz=24&start=${offset}`)));
     });
   };
 

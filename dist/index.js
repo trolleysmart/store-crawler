@@ -31,6 +31,15 @@ Object.defineProperty(exports, 'Health2000WebCrawlerService', {
   }
 });
 
+var _valuemart = require('./valuemart');
+
+Object.defineProperty(exports, 'ValuemartWebCrawlerService', {
+  enumerable: true,
+  get: function get() {
+    return _valuemart.ValuemartWebCrawlerService;
+  }
+});
+
 var _warehouse = require('./warehouse');
 
 Object.defineProperty(exports, 'WarehouseWebCrawlerService', {
