@@ -419,7 +419,7 @@ var ValuemartWebCrawlerService = function (_StoreCrawlerServiceB) {
                     return storeTag;
                   }).toSet().toList()
                 });
-                return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, false), _this.updateExistingStoreProduct(product.merge({
+                return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, true), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   imageUrl: productInfo.get('imageUrl'),
                   lastCrawlDateTime: new Date(),
@@ -430,7 +430,7 @@ var ValuemartWebCrawlerService = function (_StoreCrawlerServiceB) {
                   }).map(function (storeTag) {
                     return storeTag.get('id');
                   }).toSet().toList()
-                }), false)]));
+                }), true)]));
 
               case 14:
               case 'end':

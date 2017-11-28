@@ -280,7 +280,7 @@ export default class ValuemartWebCrawlerService extends StoreCrawlerServiceBase 
     });
 
     return Promise.all([
-      this.createOrUpdateProductPrice(storeProductId, productPrice, false),
+      this.createOrUpdateProductPrice(storeProductId, productPrice, true),
       this.updateExistingStoreProduct(
         product.merge({
           name: productInfo.get('name'),
@@ -292,7 +292,7 @@ export default class ValuemartWebCrawlerService extends StoreCrawlerServiceBase 
             .toSet()
             .toList(),
         }),
-        false,
+        true,
       ),
     ]);
   };
