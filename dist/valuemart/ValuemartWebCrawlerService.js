@@ -305,11 +305,18 @@ var ValuemartWebCrawlerService = function (_StoreCrawlerServiceB) {
                       $('.entry-summary .summary-container').filter(function () {
                         $('.product_title').filter(function filterProductTitle() {
                           var title = $(this).text();
+                          var spaceIdx = title.lastIndexOf(' ');
 
-                          productInfo = productInfo.merge((0, _immutable.Map)({
-                            name: title.substring(0, title.lastIndexOf(' ')).trim(),
-                            size: title.substring(title.lastIndexOf(' ')).trim()
-                          }));
+                          if (spaceIdx === -1) {
+                            productInfo = productInfo.merge((0, _immutable.Map)({
+                              name: title.trim()
+                            }));
+                          } else {
+                            productInfo = productInfo.merge((0, _immutable.Map)({
+                              name: title.substring(0, spaceIdx).trim(),
+                              size: title.substring(spaceIdx).trim()
+                            }));
+                          }
 
                           return 0;
                         });

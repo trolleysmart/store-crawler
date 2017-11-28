@@ -191,11 +191,18 @@ export default class ValuemartWebCrawlerService extends StoreCrawlerServiceBase 
           $('.entry-summary .summary-container').filter(() => {
             $('.product_title').filter(function filterProductTitle() {
               const title = $(this).text();
+              const spaceIdx = title.lastIndexOf(' ');
 
-              productInfo = productInfo.merge(Map({
-                name: title.substring(0, title.lastIndexOf(' ')).trim(),
-                size: title.substring(title.lastIndexOf(' ')).trim(),
-              }));
+              if (spaceIdx === -1) {
+                productInfo = productInfo.merge(Map({
+                  name: title.trim(),
+                }));
+              } else {
+                productInfo = productInfo.merge(Map({
+                  name: title.substring(0, spaceIdx).trim(),
+                  size: title.substring(spaceIdx).trim(),
+                }));
+              }
 
               return 0;
             });
