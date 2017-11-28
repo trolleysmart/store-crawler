@@ -1,6 +1,6 @@
 {
   "name": "trolley-smart-store-crawler",
-  "version": "1.0.0-alpha.61",
+  "version": "1.0.0-alpha.62",
   "description": "Trolley Smart Store Crawler",
   "main": "./dist/index.js",
   "scripts": {

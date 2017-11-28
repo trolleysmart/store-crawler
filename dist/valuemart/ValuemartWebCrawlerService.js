@@ -328,7 +328,7 @@ var ValuemartWebCrawlerService = function (_StoreCrawlerServiceB) {
                       $('.woocommerce-container #content .product .avada-single-product-gallery-wrapper div figure div a').filter(function filterImage() {
                         var imageUrl = $(this).attr('href');
 
-                        productInfo = productInfo.set('imageurl', imageUrl);
+                        productInfo = productInfo.set('imageUrl', imageUrl);
 
                         return 0;
                       });
