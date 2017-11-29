@@ -761,7 +761,7 @@ export default class Countdown extends StoreCrawlerServiceBase {
       description: productInfo.get('description'),
       barcode: productInfo.get('barcode'),
       size: productInfo.get('size'),
-      imageUrl: product.get('imageUrl'),
+      imageUrl: productInfo.get('imageUrl'),
       productPageUrl: product.get('productPageUrl'),
       priceDetails,
       priceToDisplay,

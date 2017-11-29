@@ -271,7 +271,7 @@ export default class Valuemart extends StoreCrawlerServiceBase {
     const storeProductId = product.get('id');
     const productPrice = Map({
       name: productInfo.get('name'),
-      imageUrl: product.get('imageUrl'),
+      imageUrl: productInfo.get('imageUrl'),
       productPageUrl: product.get('productPageUrl'),
       priceDetails,
       priceToDisplay,
