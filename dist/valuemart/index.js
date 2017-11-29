@@ -407,7 +407,7 @@ var Valuemart = function (_StoreCrawlerServiceB) {
                 storeProductId = product.get('id');
                 productPrice = (0, _immutable.Map)({
                   name: productInfo.get('name'),
-                  imageUrl: product.get('imageUrl'),
+                  imageUrl: productInfo.get('imageUrl'),
                   productPageUrl: product.get('productPageUrl'),
                   priceDetails: priceDetails,
                   priceToDisplay: priceToDisplay,
