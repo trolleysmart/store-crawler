@@ -3,48 +3,27 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _common = require('./common');
-
-Object.defineProperty(exports, 'StoreCrawlerServiceBase', {
-  enumerable: true,
-  get: function get() {
-    return _common.StoreCrawlerServiceBase;
-  }
-});
+exports.WarehouseWebCrawlerService = exports.ValuemartWebCrawlerService = exports.Health2000WebCrawlerService = exports.CountdownWebCrawlerService = undefined;
 
 var _countdown = require('./countdown');
 
-Object.defineProperty(exports, 'CountdownWebCrawlerService', {
-  enumerable: true,
-  get: function get() {
-    return _countdown.CountdownWebCrawlerService;
-  }
-});
+var _countdown2 = _interopRequireDefault(_countdown);
 
 var _health = require('./health2000');
 
-Object.defineProperty(exports, 'Health2000WebCrawlerService', {
-  enumerable: true,
-  get: function get() {
-    return _health.Health2000WebCrawlerService;
-  }
-});
+var _health2 = _interopRequireDefault(_health);
 
 var _valuemart = require('./valuemart');
 
-Object.defineProperty(exports, 'ValuemartWebCrawlerService', {
-  enumerable: true,
-  get: function get() {
-    return _valuemart.ValuemartWebCrawlerService;
-  }
-});
+var _valuemart2 = _interopRequireDefault(_valuemart);
 
 var _warehouse = require('./warehouse');
 
-Object.defineProperty(exports, 'WarehouseWebCrawlerService', {
-  enumerable: true,
-  get: function get() {
-    return _warehouse.WarehouseWebCrawlerService;
-  }
-});
+var _warehouse2 = _interopRequireDefault(_warehouse);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.CountdownWebCrawlerService = _countdown2.default;
+exports.Health2000WebCrawlerService = _health2.default;
+exports.ValuemartWebCrawlerService = _valuemart2.default;
+exports.WarehouseWebCrawlerService = _warehouse2.default;
