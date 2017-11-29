@@ -311,20 +311,24 @@ var ValuemartWebCrawlerService = function (_StoreCrawlerServiceB) {
                             productInfo = productInfo.merge((0, _immutable.Map)({
                               name: title.trim()
                             }));
-                          } else {
+                          } else if (title.endsWith('g') || title.endsWith('KG')) {
                             productInfo = productInfo.merge((0, _immutable.Map)({
                               name: title.substring(0, spaceIdx).trim(),
                               size: title.substring(spaceIdx).trim()
+                            }));
+                          } else {
+                            productInfo = productInfo.merge((0, _immutable.Map)({
+                              name: title.trim()
                             }));
                           }
 
                           return 0;
                         });
 
-                        $('p').filter(function filterPrice() {
+                        $('p span').filter(function filterPrice() {
                           var price = $(this).text();
 
-                          productInfo = productInfo.set('currentPrice', _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(price));
+                          productInfo = productInfo.has('currentPrice') ? productInfo : productInfo.set('currentPrice', _2.StoreCrawlerServiceBase.removeDollarSignFromPrice(price));
 
                           return 0;
                         });

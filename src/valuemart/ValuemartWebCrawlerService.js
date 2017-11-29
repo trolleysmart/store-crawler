@@ -197,20 +197,26 @@ export default class ValuemartWebCrawlerService extends StoreCrawlerServiceBase 
                 productInfo = productInfo.merge(Map({
                   name: title.trim(),
                 }));
-              } else {
+              } else if (title.endsWith('g') || title.endsWith('KG')) {
                 productInfo = productInfo.merge(Map({
                   name: title.substring(0, spaceIdx).trim(),
                   size: title.substring(spaceIdx).trim(),
+                }));
+              } else {
+                productInfo = productInfo.merge(Map({
+                  name: title.trim(),
                 }));
               }
 
               return 0;
             });
 
-            $('p').filter(function filterPrice() {
+            $('p span').filter(function filterPrice() {
               const price = $(this).text();
 
-              productInfo = productInfo.set('currentPrice', StoreCrawlerServiceBase.removeDollarSignFromPrice(price));
+              productInfo = productInfo.has('currentPrice')
+                ? productInfo
+                : productInfo.set('currentPrice', StoreCrawlerServiceBase.removeDollarSignFromPrice(price));
 
               return 0;
             });
