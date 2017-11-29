@@ -4,9 +4,9 @@ import Crawler from 'crawler';
 import Immutable, { List, Map, Set } from 'immutable';
 import { StoreCrawlerServiceBase } from '../common';
 
-export default class Valuemart extends StoreCrawlerServiceBase {
+export default class Guruji extends StoreCrawlerServiceBase {
   constructor(context) {
-    super('valuemart', context);
+    super('guruji', context);
   }
 
   crawlAllProductCategories = async () => {
@@ -41,24 +41,19 @@ export default class Valuemart extends StoreCrawlerServiceBase {
   crawlLevelOneProductCategoriesAndSubProductCategories = (config, $) => {
     let categories = List();
 
-    $('.sidebar .category_accordion').each(function onEachCategory() {
-      $(this)
-        .find('.cat-item .round')
-        .each(function onEachCategoryItem() {
-          const url = $(this).attr('href');
-          const name = $(this).text();
-          const keys = Immutable.fromJS(url.substring(url.indexOf(config.get('baseUrl')) + config.get('baseUrl').length).split('/'))
-            .skip(1)
-            .filter(_ => _);
+    $('.container .navbar-collapse .navbar-nav .dropdown .dropdown-submenu a').filter(function onEachCategory() {
+      const url = $(this).attr('href');
+      const name = $(this).text();
+      const keys = Immutable.fromJS(url.substring(url.indexOf(config.get('baseUrl')) + config.get('baseUrl').length).split('/'))
+        .skip(3)
+        .filter(_ => _);
 
-          categories = categories.push(Map({
-            url,
-            categoryKey: keys.reduce((acc, key) => `${acc}/${key}`),
-            name,
-            level: keys.count(),
-          }));
-        });
-
+      categories = categories.push(Map({
+        url,
+        categoryKey: keys.reduce((acc, key) => `${acc}/${key}`),
+        name,
+        level: keys.count(),
+      }));
       return 0;
     });
 
@@ -120,7 +115,7 @@ export default class Valuemart extends StoreCrawlerServiceBase {
             this.logError(() => `Failed to find product category page info for Url: ${baseUrl}`);
           }
 
-          const productInfos = this.crawlProductInfo(res.$);
+          const productInfos = this.crawlProductInfo(config, res.$);
 
           Promise.all(productInfos
             .filter(productInfo => productInfo.get('productPageUrl'))
@@ -134,21 +129,21 @@ export default class Valuemart extends StoreCrawlerServiceBase {
       });
 
       crawler.on('drain', () => resolve());
-      storeTags.forEach(storeTag => crawler.queue(`${storeTag.get('url')}?product_count=10000`));
+      storeTags.forEach(storeTag => crawler.queue(`${storeTag.get('url')}?shop_page=view-all`));
     });
   };
 
-  crawlProductInfo = ($) => {
+  crawlProductInfo = (config, $) => {
     let products = Set();
 
     $('.products')
       .children()
       .filter(function filterSearchResultItems() {
         const productPageUrl = $(this)
-          .find('.product-details .product-details-container .product-title a')
+          .find('.product .text a')
           .attr('href');
 
-        products = products.add(Map({ productPageUrl }));
+        products = products.add(Map({ productPageUrl: config.get('baseUrl') + productPageUrl }));
 
         return 0;
       });
@@ -177,59 +172,74 @@ export default class Valuemart extends StoreCrawlerServiceBase {
 
           const { $ } = res;
           let tagUrls = List();
+          let stopFindingTags = false;
 
-          $('.fusion-breadcrumbs span a').each(function filterTags() {
-            const tagUrl = $(this).attr('href');
+          $('.sidebar-menu .panel-body .category-menu').children(function filterTags() {
+            if (stopFindingTags) {
+              return 0;
+            }
 
-            tagUrls = tagUrls.push(tagUrl);
+            const tagUrl = $(this)
+              .find('a')
+              .attr('href');
+
+            if (!tagUrl) {
+              stopFindingTags = true;
+
+              return 0;
+            }
+
+            tagUrls = tagUrls.push(config.get('baseUrl') + tagUrl);
             return 0;
           });
-
-          tagUrls = tagUrls.skip(1).butLast();
 
           productInfo = productInfo.merge({ tagUrls });
 
-          $('.entry-summary .summary-container').filter(() => {
-            $('.product_title').filter(function filterProductTitle() {
-              const title = $(this).text();
-              const spaceIdx = title.lastIndexOf(' ');
-
-              if (spaceIdx === -1) {
-                productInfo = productInfo.set('name', title.trim());
-              } else if (title.endsWith('g') || title.endsWith('KG')) {
-                productInfo = productInfo.merge(Map({
-                  name: title.substring(0, spaceIdx).trim(),
-                  size: title.substring(spaceIdx).trim(),
-                }));
-              } else {
-                productInfo = productInfo.set('name', title.trim());
-              }
-
-              return 0;
-            });
-
-            $('p span').filter(function filterPrice() {
-              const price = $(this).text();
-
-              productInfo = productInfo.has('currentPrice')
-                ? productInfo
-                : productInfo.set('currentPrice', StoreCrawlerServiceBase.removeDollarSignFromPrice(price));
-
-              return 0;
-            });
+          $('.container .product-name h2').filter(function filterProductName() {
+            productInfo = productInfo.set(
+              'name',
+              $(this)
+                .text()
+                .trim(),
+            );
 
             return 0;
           });
 
-          $('.woocommerce-container #content .product .avada-single-product-gallery-wrapper div figure div a').filter(function filterImage() {
-            const imageUrl = $(this).attr('href');
-
-            productInfo = productInfo.set('imageUrl', imageUrl);
+          $('.container .product-slider img').filter(function filterProductName() {
+            productInfo = productInfo.set('imageUrl', config.get('baseUrl') + $(this).attr('src'));
 
             return 0;
           });
 
-          this.updateProductDetails(product, storeTags, productInfo)
+          let differentProductsFound = List();
+
+          $('.container').each(function filterContainer() {
+            const linePrefixToFind = "var variants = $.parseJSON('";
+            const content = $(this).text();
+            const linePrefixToFindIdx = content.indexOf(linePrefixToFind);
+            const endOfLinePrefixToFindIdx = content.indexOf("');", linePrefixToFindIdx);
+
+            if (linePrefixToFindIdx >= 0 && endOfLinePrefixToFindIdx >= 0) {
+              const products = Immutable.fromJS(JSON.parse(content.substring(linePrefixToFindIdx + linePrefixToFind.length, endOfLinePrefixToFindIdx))).remove('child');
+
+              differentProductsFound = products.valueSeq().map((_) => {
+                const price = parseFloat(_.get('product_attributes_price'));
+                const discountedPrice = parseFloat(_.get('product_attributes_disc_price'));
+
+                return Map({
+                  size: _.get('product_attributes_value'),
+                  currentPrice: discountedPrice === 0.0 ? price : discountedPrice,
+                  wasPrice: discountedPrice === 0.0 ? undefined : price,
+                });
+              });
+            }
+
+            return 0;
+          });
+
+          // TODO: 20171129 - Morteza: Only now reading the first product. In future, need to create extra product for each listed item
+          this.updateProductDetails(product, storeTags, differentProductsFound.map(_ => productInfo.merge(_)).first())
             .then(() => done())
             .catch((internalError) => {
               done();
@@ -245,10 +255,22 @@ export default class Valuemart extends StoreCrawlerServiceBase {
 
   updateProductDetails = async (product, storeTags, productInfo) => {
     const storeId = await this.getStoreId();
-    let priceDetails = Map({
-      specialType: 'none',
-    });
-    const priceToDisplay = productInfo.get('currentPrice');
+    let priceDetails;
+    let priceToDisplay;
+
+    if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
+      priceDetails = Map({
+        specialType: 'special',
+      });
+
+      priceToDisplay = productInfo.get('currentPrice');
+    } else {
+      priceDetails = Map({
+        specialType: 'none',
+      });
+
+      priceToDisplay = productInfo.get('currentPrice');
+    }
 
     const currentPrice = productInfo.get('currentPrice');
     const wasPrice = productInfo.get('wasPrice');

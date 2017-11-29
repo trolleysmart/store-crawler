@@ -3,11 +3,15 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.WarehouseWebCrawlerService = exports.ValuemartWebCrawlerService = exports.Health2000WebCrawlerService = exports.CountdownWebCrawlerService = undefined;
+exports.Warehouse = exports.Valuemart = exports.Health2000 = exports.Guruji = exports.Countdown = undefined;
 
 var _countdown = require('./countdown');
 
 var _countdown2 = _interopRequireDefault(_countdown);
+
+var _guruji = require('./guruji');
+
+var _guruji2 = _interopRequireDefault(_guruji);
 
 var _health = require('./health2000');
 
@@ -23,7 +27,8 @@ var _warehouse2 = _interopRequireDefault(_warehouse);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.CountdownWebCrawlerService = _countdown2.default;
-exports.Health2000WebCrawlerService = _health2.default;
-exports.ValuemartWebCrawlerService = _valuemart2.default;
-exports.WarehouseWebCrawlerService = _warehouse2.default;
+exports.Countdown = _countdown2.default;
+exports.Guruji = _guruji2.default;
+exports.Health2000 = _health2.default;
+exports.Valuemart = _valuemart2.default;
+exports.Warehouse = _warehouse2.default;

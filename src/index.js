@@ -1,6 +1,7 @@
 // @flow
 
-export CountdownWebCrawlerService from './countdown';
-export Health2000WebCrawlerService from './health2000';
-export ValuemartWebCrawlerService from './valuemart';
-export WarehouseWebCrawlerService from './warehouse';
+export Countdown from './countdown';
+export Guruji from './guruji';
+export Health2000 from './health2000';
+export Valuemart from './valuemart';
+export Warehouse from './warehouse';

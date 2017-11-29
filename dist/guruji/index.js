@@ -24,15 +24,15 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Valuemart = function (_StoreCrawlerServiceB) {
-  _inherits(Valuemart, _StoreCrawlerServiceB);
+var Guruji = function (_StoreCrawlerServiceB) {
+  _inherits(Guruji, _StoreCrawlerServiceB);
 
-  function Valuemart(context) {
+  function Guruji(context) {
     var _this2 = this;
 
-    _classCallCheck(this, Valuemart);
+    _classCallCheck(this, Guruji);
 
-    var _this = _possibleConstructorReturn(this, (Valuemart.__proto__ || Object.getPrototypeOf(Valuemart)).call(this, 'valuemart', context));
+    var _this = _possibleConstructorReturn(this, (Guruji.__proto__ || Object.getPrototypeOf(Guruji)).call(this, 'guruji', context));
 
     _this.crawlAllProductCategories = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
       var config, productCategories;
@@ -89,24 +89,21 @@ var Valuemart = function (_StoreCrawlerServiceB) {
     _this.crawlLevelOneProductCategoriesAndSubProductCategories = function (config, $) {
       var categories = (0, _immutable.List)();
 
-      $('.sidebar .category_accordion').each(function onEachCategory() {
-        $(this).find('.cat-item .round').each(function onEachCategoryItem() {
-          var url = $(this).attr('href');
-          var name = $(this).text();
-          var keys = _immutable2.default.fromJS(url.substring(url.indexOf(config.get('baseUrl')) + config.get('baseUrl').length).split('/')).skip(1).filter(function (_) {
-            return _;
-          });
-
-          categories = categories.push((0, _immutable.Map)({
-            url: url,
-            categoryKey: keys.reduce(function (acc, key) {
-              return acc + '/' + key;
-            }),
-            name: name,
-            level: keys.count()
-          }));
+      $('.container .navbar-collapse .navbar-nav .dropdown .dropdown-submenu a').filter(function onEachCategory() {
+        var url = $(this).attr('href');
+        var name = $(this).text();
+        var keys = _immutable2.default.fromJS(url.substring(url.indexOf(config.get('baseUrl')) + config.get('baseUrl').length).split('/')).skip(3).filter(function (_) {
+          return _;
         });
 
+        categories = categories.push((0, _immutable.Map)({
+          url: url,
+          categoryKey: keys.reduce(function (acc, key) {
+            return acc + '/' + key;
+          }),
+          name: name,
+          level: keys.count()
+        }));
         return 0;
       });
 
@@ -202,7 +199,7 @@ var Valuemart = function (_StoreCrawlerServiceB) {
                         });
                       }
 
-                      var productInfos = _this.crawlProductInfo(res.$);
+                      var productInfos = _this.crawlProductInfo(config, res.$);
 
                       Promise.all(productInfos.filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
@@ -223,7 +220,7 @@ var Valuemart = function (_StoreCrawlerServiceB) {
                     return resolve();
                   });
                   storeTags.forEach(function (storeTag) {
-                    return crawler.queue(storeTag.get('url') + '?product_count=10000');
+                    return crawler.queue(storeTag.get('url') + '?shop_page=view-all');
                   });
                 }));
 
@@ -240,13 +237,13 @@ var Valuemart = function (_StoreCrawlerServiceB) {
       };
     }();
 
-    _this.crawlProductInfo = function ($) {
+    _this.crawlProductInfo = function (config, $) {
       var products = (0, _immutable.Set)();
 
       $('.products').children().filter(function filterSearchResultItems() {
-        var productPageUrl = $(this).find('.product-details .product-details-container .product-title a').attr('href');
+        var productPageUrl = $(this).find('.product .text a').attr('href');
 
-        products = products.add((0, _immutable.Map)({ productPageUrl: productPageUrl }));
+        products = products.add((0, _immutable.Map)({ productPageUrl: config.get('baseUrl') + productPageUrl }));
 
         return 0;
       });
@@ -291,57 +288,69 @@ var Valuemart = function (_StoreCrawlerServiceB) {
                       var $ = res.$;
 
                       var tagUrls = (0, _immutable.List)();
+                      var stopFindingTags = false;
 
-                      $('.fusion-breadcrumbs span a').each(function filterTags() {
-                        var tagUrl = $(this).attr('href');
+                      $('.sidebar-menu .panel-body .category-menu').children(function filterTags() {
+                        if (stopFindingTags) {
+                          return 0;
+                        }
 
-                        tagUrls = tagUrls.push(tagUrl);
+                        var tagUrl = $(this).find('a').attr('href');
+
+                        if (!tagUrl) {
+                          stopFindingTags = true;
+
+                          return 0;
+                        }
+
+                        tagUrls = tagUrls.push(config.get('baseUrl') + tagUrl);
                         return 0;
                       });
-
-                      tagUrls = tagUrls.skip(1).butLast();
 
                       productInfo = productInfo.merge({ tagUrls: tagUrls });
 
-                      $('.entry-summary .summary-container').filter(function () {
-                        $('.product_title').filter(function filterProductTitle() {
-                          var title = $(this).text();
-                          var spaceIdx = title.lastIndexOf(' ');
-
-                          if (spaceIdx === -1) {
-                            productInfo = productInfo.set('name', title.trim());
-                          } else if (title.endsWith('g') || title.endsWith('KG')) {
-                            productInfo = productInfo.merge((0, _immutable.Map)({
-                              name: title.substring(0, spaceIdx).trim(),
-                              size: title.substring(spaceIdx).trim()
-                            }));
-                          } else {
-                            productInfo = productInfo.set('name', title.trim());
-                          }
-
-                          return 0;
-                        });
-
-                        $('p span').filter(function filterPrice() {
-                          var price = $(this).text();
-
-                          productInfo = productInfo.has('currentPrice') ? productInfo : productInfo.set('currentPrice', _common.StoreCrawlerServiceBase.removeDollarSignFromPrice(price));
-
-                          return 0;
-                        });
+                      $('.container .product-name h2').filter(function filterProductName() {
+                        productInfo = productInfo.set('name', $(this).text().trim());
 
                         return 0;
                       });
 
-                      $('.woocommerce-container #content .product .avada-single-product-gallery-wrapper div figure div a').filter(function filterImage() {
-                        var imageUrl = $(this).attr('href');
-
-                        productInfo = productInfo.set('imageUrl', imageUrl);
+                      $('.container .product-slider img').filter(function filterProductName() {
+                        productInfo = productInfo.set('imageUrl', config.get('baseUrl') + $(this).attr('src'));
 
                         return 0;
                       });
 
-                      _this.updateProductDetails(product, storeTags, productInfo).then(function () {
+                      var differentProductsFound = (0, _immutable.List)();
+
+                      $('.container').each(function filterContainer() {
+                        var linePrefixToFind = "var variants = $.parseJSON('";
+                        var content = $(this).text();
+                        var linePrefixToFindIdx = content.indexOf(linePrefixToFind);
+                        var endOfLinePrefixToFindIdx = content.indexOf("');", linePrefixToFindIdx);
+
+                        if (linePrefixToFindIdx >= 0 && endOfLinePrefixToFindIdx >= 0) {
+                          var products = _immutable2.default.fromJS(JSON.parse(content.substring(linePrefixToFindIdx + linePrefixToFind.length, endOfLinePrefixToFindIdx))).remove('child');
+
+                          differentProductsFound = products.valueSeq().map(function (_) {
+                            var price = parseFloat(_.get('product_attributes_price'));
+                            var discountedPrice = parseFloat(_.get('product_attributes_disc_price'));
+
+                            return (0, _immutable.Map)({
+                              size: _.get('product_attributes_value'),
+                              currentPrice: discountedPrice === 0.0 ? price : discountedPrice,
+                              wasPrice: discountedPrice === 0.0 ? undefined : price
+                            });
+                          });
+                        }
+
+                        return 0;
+                      });
+
+                      // TODO: 20171129 - Morteza: Only now reading the first product. In future, need to create extra product for each listed item
+                      _this.updateProductDetails(product, storeTags, differentProductsFound.map(function (_) {
+                        return productInfo.merge(_);
+                      }).first()).then(function () {
                         return done();
                       }).catch(function (internalError) {
                         done();
@@ -383,10 +392,24 @@ var Valuemart = function (_StoreCrawlerServiceB) {
 
               case 2:
                 storeId = _context5.sent;
-                priceDetails = (0, _immutable.Map)({
-                  specialType: 'none'
-                });
-                priceToDisplay = productInfo.get('currentPrice');
+                priceDetails = void 0;
+                priceToDisplay = void 0;
+
+
+                if (productInfo.has('wasPrice') && productInfo.get('wasPrice')) {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'special'
+                  });
+
+                  priceToDisplay = productInfo.get('currentPrice');
+                } else {
+                  priceDetails = (0, _immutable.Map)({
+                    specialType: 'none'
+                  });
+
+                  priceToDisplay = productInfo.get('currentPrice');
+                }
+
                 currentPrice = productInfo.get('currentPrice');
                 wasPrice = productInfo.get('wasPrice');
                 saving = 0;
@@ -440,7 +463,7 @@ var Valuemart = function (_StoreCrawlerServiceB) {
                   }).toSet().toList()
                 }), true)]));
 
-              case 14:
+              case 15:
               case 'end':
                 return _context5.stop();
             }
@@ -456,7 +479,7 @@ var Valuemart = function (_StoreCrawlerServiceB) {
     return _this;
   }
 
-  return Valuemart;
+  return Guruji;
 }(_common.StoreCrawlerServiceBase);
 
-exports.default = Valuemart;
+exports.default = Guruji;
