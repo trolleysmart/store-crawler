@@ -239,7 +239,9 @@ export default class Guruji extends StoreCrawlerServiceBase {
           });
 
           // TODO: 20171129 - Morteza: Only now reading the first product. In future, need to create extra product for each listed item
-          this.updateProductDetails(product, storeTags, differentProductsFound.map(_ => productInfo.merge(_)).first())
+          productInfo = productInfo.merge(differentProductsFound.first());
+
+          this.updateProductDetails(product, storeTags, productInfo)
             .then(() => done())
             .catch((internalError) => {
               done();

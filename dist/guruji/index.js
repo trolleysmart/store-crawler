@@ -348,9 +348,9 @@ var Guruji = function (_StoreCrawlerServiceB) {
                       });
 
                       // TODO: 20171129 - Morteza: Only now reading the first product. In future, need to create extra product for each listed item
-                      _this.updateProductDetails(product, storeTags, differentProductsFound.map(function (_) {
-                        return productInfo.merge(_);
-                      }).first()).then(function () {
+                      productInfo = productInfo.merge(differentProductsFound.first());
+
+                      _this.updateProductDetails(product, storeTags, productInfo).then(function () {
                         return done();
                       }).catch(function (internalError) {
                         done();
