@@ -1,7 +1,9 @@
 // @flow
 
+import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Set } from 'immutable';
+import { ImmutableEx } from 'micro-business-common-javascript';
 import { StoreCrawlerServiceBase } from '../common';
 
 export default class Valuemart extends StoreCrawlerServiceBase {
@@ -120,11 +122,11 @@ export default class Valuemart extends StoreCrawlerServiceBase {
             this.logError(() => `Failed to find product category page info for Url: ${baseUrl}`);
           }
 
-          const productInfos = this.crawlProductInfo(res.$);
+          const productInfos = this.crawlProductInfo(res.$).filter(productInfo => productInfo.get('productPageUrl'));
+          const splittedProductInfo = ImmutableEx.splitIntoChunks(productInfos, 100);
 
-          Promise.all(productInfos
-            .filter(productInfo => productInfo.get('productPageUrl'))
-            .map(productInfo => this.createOrUpdateStoreProduct(productInfo, true)))
+          BluebirdPromise.each(splittedProductInfo.toArray(), productInfosChunks =>
+            Promise.all(productInfosChunks.map(productInfo => this.createOrUpdateStoreProduct(productInfo, true))))
             .then(() => done())
             .catch((storeProductUpdateError) => {
               done();

@@ -1,7 +1,9 @@
 // @flow
 
+import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Set } from 'immutable';
+import { ImmutableEx } from 'micro-business-common-javascript';
 import { StoreCrawlerServiceBase } from '../common';
 
 export default class Guruji extends StoreCrawlerServiceBase {
@@ -116,10 +118,10 @@ export default class Guruji extends StoreCrawlerServiceBase {
           }
 
           const productInfos = this.crawlProductInfo(config, res.$);
+          const splittedProductInfo = ImmutableEx.splitIntoChunks(productInfos, 100);
 
-          Promise.all(productInfos
-            .filter(productInfo => productInfo.get('productPageUrl'))
-            .map(productInfo => this.createOrUpdateStoreProduct(productInfo, true)))
+          BluebirdPromise.each(splittedProductInfo.toArray(), productInfosChunks =>
+            Promise.all(productInfosChunks.map(productInfo => this.createOrUpdateStoreProduct(productInfo, true))))
             .then(() => done())
             .catch((storeProductUpdateError) => {
               done();

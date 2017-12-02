@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _bluebird = require('bluebird');
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
 var _crawler = require('crawler');
 
 var _crawler2 = _interopRequireDefault(_crawler);
@@ -11,6 +15,8 @@ var _crawler2 = _interopRequireDefault(_crawler);
 var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
+
+var _microBusinessCommonJavascript = require('micro-business-common-javascript');
 
 var _common = require('../common');
 
@@ -202,13 +208,16 @@ var Valuemart = function (_StoreCrawlerServiceB) {
                         });
                       }
 
-                      var productInfos = _this.crawlProductInfo(res.$);
-
-                      Promise.all(productInfos.filter(function (productInfo) {
+                      var productInfos = _this.crawlProductInfo(res.$).filter(function (productInfo) {
                         return productInfo.get('productPageUrl');
-                      }).map(function (productInfo) {
-                        return _this.createOrUpdateStoreProduct(productInfo, true);
-                      })).then(function () {
+                      });
+                      var splittedProductInfo = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(productInfos, 100);
+
+                      _bluebird2.default.each(splittedProductInfo.toArray(), function (productInfosChunks) {
+                        return Promise.all(productInfosChunks.map(function (productInfo) {
+                          return _this.createOrUpdateStoreProduct(productInfo, true);
+                        }));
+                      }).then(function () {
                         return done();
                       }).catch(function (storeProductUpdateError) {
                         done();
