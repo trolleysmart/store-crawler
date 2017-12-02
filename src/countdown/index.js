@@ -756,6 +756,12 @@ export default class Countdown extends StoreCrawlerServiceBase {
       .merge(Map({ saving, savingPercentage }));
 
     const storeProductId = product.get('id');
+    const tagIds = storeTags
+      .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
+      .map(storeTag => storeTag.get('tagId'))
+      .filter(storeTag => storeTag)
+      .toSet()
+      .toList();
     const productPrice = Map({
       name: productInfo.get('name'),
       description: productInfo.get('description'),
@@ -769,14 +775,9 @@ export default class Countdown extends StoreCrawlerServiceBase {
       savingPercentage,
       status: 'A',
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
-      storeProductId,
       storeId,
-      tagIds: storeTags
-        .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
-        .map(storeTag => storeTag.get('tagId'))
-        .filter(storeTag => storeTag)
-        .toSet()
-        .toList(),
+      storeProductId,
+      tagIds,
     });
 
     return Promise.all([
@@ -789,6 +790,7 @@ export default class Countdown extends StoreCrawlerServiceBase {
           imageUrl: productInfo.get('imageUrl'),
           size: productInfo.get('size'),
           lastCrawlDateTime: new Date(),
+          tagIds,
           storeTagIds: storeTags
             .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
             .map(storeTag => storeTag.get('id'))

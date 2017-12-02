@@ -317,6 +317,12 @@ export default class Health2000 extends StoreCrawlerServiceBase {
       .merge(Map({ saving, savingPercentage }));
 
     const storeProductId = product.get('id');
+    const tagIds = storeTags
+      .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
+      .map(storeTag => storeTag.get('tagId'))
+      .filter(storeTag => storeTag)
+      .toSet()
+      .toList();
     const productPrice = Map({
       name: productInfo.get('name'),
       description: productInfo.get('description'),
@@ -332,12 +338,7 @@ export default class Health2000 extends StoreCrawlerServiceBase {
       special: priceDetails.get('specialType').localeCompare('none') !== 0,
       storeId,
       storeProductId,
-      tagIds: storeTags
-        .filter(storeTag => product.get('storeTagIds').find(_ => _.localeCompare(storeTag.get('id')) === 0))
-        .map(storeTag => storeTag.get('tagId'))
-        .filter(storeTag => storeTag)
-        .toSet()
-        .toList(),
+      tagIds,
     });
 
     return Promise.all([
@@ -349,6 +350,7 @@ export default class Health2000 extends StoreCrawlerServiceBase {
           barcode: productInfo.get('barcode'),
           imageUrl: productInfo.get('imageUrl'),
           lastCrawlDateTime: new Date(),
+          tagIds,
           storeTagIds: storeTags
             .filter(storeTag => productInfo.get('tagUrls').find(tagUrl => tagUrl.localeCompare(storeTag.get('url')) === 0))
             .map(storeTag => storeTag.get('id'))

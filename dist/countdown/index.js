@@ -922,7 +922,7 @@ var Countdown = function (_StoreCrawlerServiceB) {
 
     _this.updateProductDetails = function () {
       var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(product, storeTags, originalProductInfo) {
-        var storeId, productInfo, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, storeProductId, productPrice;
+        var storeId, productInfo, priceDetails, priceToDisplay, currentPrice, wasPrice, multiBuyInfo, unitPrice, saving, savingPercentage, temp, storeProductId, tagIds, productPrice;
         return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
             switch (_context10.prev = _context10.next) {
@@ -980,6 +980,15 @@ var Countdown = function (_StoreCrawlerServiceB) {
                 priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge(multiBuyInfo ? (0, _immutable.Map)({ multiBuyInfo: multiBuyInfo }) : (0, _immutable.Map)()).merge(unitPrice ? (0, _immutable.Map)({ unitPrice: unitPrice }) : (0, _immutable.Map)()).merge((0, _immutable.Map)({ saving: saving, savingPercentage: savingPercentage }));
 
                 storeProductId = product.get('id');
+                tagIds = storeTags.filter(function (storeTag) {
+                  return product.get('storeTagIds').find(function (_) {
+                    return _.localeCompare(storeTag.get('id')) === 0;
+                  });
+                }).map(function (storeTag) {
+                  return storeTag.get('tagId');
+                }).filter(function (storeTag) {
+                  return storeTag;
+                }).toSet().toList();
                 productPrice = (0, _immutable.Map)({
                   name: productInfo.get('name'),
                   description: productInfo.get('description'),
@@ -993,17 +1002,9 @@ var Countdown = function (_StoreCrawlerServiceB) {
                   savingPercentage: savingPercentage,
                   status: 'A',
                   special: priceDetails.get('specialType').localeCompare('none') !== 0,
-                  storeProductId: storeProductId,
                   storeId: storeId,
-                  tagIds: storeTags.filter(function (storeTag) {
-                    return product.get('storeTagIds').find(function (_) {
-                      return _.localeCompare(storeTag.get('id')) === 0;
-                    });
-                  }).map(function (storeTag) {
-                    return storeTag.get('tagId');
-                  }).filter(function (storeTag) {
-                    return storeTag;
-                  }).toSet().toList()
+                  storeProductId: storeProductId,
+                  tagIds: tagIds
                 });
                 return _context10.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, false), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
@@ -1012,6 +1013,7 @@ var Countdown = function (_StoreCrawlerServiceB) {
                   imageUrl: productInfo.get('imageUrl'),
                   size: productInfo.get('size'),
                   lastCrawlDateTime: new Date(),
+                  tagIds: tagIds,
                   storeTagIds: storeTags.filter(function (storeTag) {
                     return productInfo.get('tagUrls').find(function (tagUrl) {
                       return tagUrl.localeCompare(storeTag.get('url')) === 0;
@@ -1021,7 +1023,7 @@ var Countdown = function (_StoreCrawlerServiceB) {
                   }).toSet().toList()
                 }), false)]));
 
-              case 16:
+              case 17:
               case 'end':
                 return _context10.stop();
             }

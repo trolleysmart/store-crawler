@@ -389,7 +389,7 @@ var Guruji = function (_StoreCrawlerServiceB) {
 
     _this.updateProductDetails = function () {
       var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(product, storeTags, productInfo) {
-        var storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, saving, savingPercentage, temp, storeProductId, productPrice;
+        var storeId, priceDetails, priceToDisplay, currentPrice, wasPrice, saving, savingPercentage, temp, storeProductId, tagIds, productPrice;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
@@ -435,6 +435,15 @@ var Guruji = function (_StoreCrawlerServiceB) {
                 priceDetails = priceDetails.merge(currentPrice ? (0, _immutable.Map)({ currentPrice: currentPrice }) : (0, _immutable.Map)()).merge(wasPrice ? (0, _immutable.Map)({ wasPrice: wasPrice }) : (0, _immutable.Map)()).merge((0, _immutable.Map)({ saving: saving, savingPercentage: savingPercentage }));
 
                 storeProductId = product.get('id');
+                tagIds = storeTags.filter(function (storeTag) {
+                  return product.get('storeTagIds').find(function (_) {
+                    return _.localeCompare(storeTag.get('id')) === 0;
+                  });
+                }).map(function (storeTag) {
+                  return storeTag.get('tagId');
+                }).filter(function (storeTag) {
+                  return storeTag;
+                }).toSet().toList();
                 productPrice = (0, _immutable.Map)({
                   name: productInfo.get('name'),
                   imageUrl: productInfo.get('imageUrl'),
@@ -447,20 +456,13 @@ var Guruji = function (_StoreCrawlerServiceB) {
                   special: priceDetails.get('specialType').localeCompare('none') !== 0,
                   storeId: storeId,
                   storeProductId: storeProductId,
-                  tagIds: storeTags.filter(function (storeTag) {
-                    return product.get('storeTagIds').find(function (_) {
-                      return _.localeCompare(storeTag.get('id')) === 0;
-                    });
-                  }).map(function (storeTag) {
-                    return storeTag.get('tagId');
-                  }).filter(function (storeTag) {
-                    return storeTag;
-                  }).toSet().toList()
+                  tagIds: tagIds
                 });
                 return _context5.abrupt('return', Promise.all([_this.createOrUpdateProductPrice(storeProductId, productPrice, true), _this.updateExistingStoreProduct(product.merge({
                   name: productInfo.get('name'),
                   imageUrl: productInfo.get('imageUrl'),
                   lastCrawlDateTime: new Date(),
+                  tagIds: tagIds,
                   storeTagIds: storeTags.filter(function (storeTag) {
                     return productInfo.get('tagUrls').find(function (tagUrl) {
                       return tagUrl.localeCompare(storeTag.get('url')) === 0;
@@ -470,7 +472,7 @@ var Guruji = function (_StoreCrawlerServiceB) {
                   }).toSet().toList()
                 }), true)]));
 
-              case 15:
+              case 16:
               case 'end':
                 return _context5.stop();
             }
