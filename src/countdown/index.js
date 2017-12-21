@@ -3,7 +3,7 @@
 import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import { List, Map, Range, Set } from 'immutable';
-import { ImmutableEx } from 'micro-business-common-javascript';
+import { ImmutableEx } from '@microbusiness/common-javascript';
 import { StoreCrawlerServiceBase } from '../common';
 
 export default class Countdown extends StoreCrawlerServiceBase {

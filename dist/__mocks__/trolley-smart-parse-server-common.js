@@ -14,7 +14,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var trolleySmartParseServerCommon = jest.genMockFromModule('trolley-smart-parse-server-common');
+var trolleySmartParseServerCommon = jest.genMockFromModule('@trolleysmart/parse-server-common');
 var storeServiceMockTracker = void 0;
 var finalStoreInfo = void 0;
 var finalStoreInfos = void 0;

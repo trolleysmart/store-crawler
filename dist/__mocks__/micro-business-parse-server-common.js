@@ -14,7 +14,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var microBusinessParseServerCommon = jest.genMockFromModule('micro-business-parse-server-common');
+var microBusinessParseServerCommon = jest.genMockFromModule('@microbusiness/parse-server-common');
 var parseWrapperServiceMockTracker = void 0;
 var finalKeyValues = void 0;
 

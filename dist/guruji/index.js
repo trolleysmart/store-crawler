@@ -16,7 +16,7 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
-var _microBusinessCommonJavascript = require('micro-business-common-javascript');
+var _commonJavascript = require('@microbusiness/common-javascript');
 
 var _common = require('../common');
 
@@ -206,7 +206,7 @@ var Guruji = function (_StoreCrawlerServiceB) {
                       }
 
                       var productInfos = _this.crawlProductInfo(config, res.$);
-                      var splittedProductInfo = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(productInfos, 100);
+                      var splittedProductInfo = _commonJavascript.ImmutableEx.splitIntoChunks(productInfos, 100);
 
                       _bluebird2.default.each(splittedProductInfo.toArray(), function (productInfosChunks) {
                         return Promise.all(productInfosChunks.map(function (productInfo) {

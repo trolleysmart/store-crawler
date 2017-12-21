@@ -2,9 +2,9 @@
 
 import BluebirdPromise from 'bluebird';
 import Immutable, { List, Map } from 'immutable';
-import { ImmutableEx } from 'micro-business-common-javascript';
-import { ParseWrapperService } from 'micro-business-parse-server-common';
-import { ProductPriceService, StoreProductService, StoreService, StoreTagService, TagService } from 'trolley-smart-parse-server-common';
+import { ImmutableEx } from '@microbusiness/common-javascript';
+import { ParseWrapperService } from '@microbusiness/parse-server-common';
+import { ProductPriceService, StoreProductService, StoreService, StoreTagService, TagService } from '@trolleysmart/parse-server-common';
 
 export default class StoreCrawlerServiceBase {
   static removeDollarSignFromPrice = priceWithDollarSign =>

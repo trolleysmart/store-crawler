@@ -3,7 +3,7 @@
 import Config from './Config';
 import ParseWrapperServiceMockTrackerk from './ParseWrapperServiceMockTracker';
 
-const microBusinessParseServerCommon = jest.genMockFromModule('micro-business-parse-server-common');
+const microBusinessParseServerCommon = jest.genMockFromModule('@microbusiness/parse-server-common');
 let parseWrapperServiceMockTracker;
 let finalKeyValues;
 

@@ -3,7 +3,7 @@
 import BluebirdPromise from 'bluebird';
 import Crawler from 'crawler';
 import Immutable, { List, Map, Set } from 'immutable';
-import { ImmutableEx } from 'micro-business-common-javascript';
+import { ImmutableEx } from '@microbusiness/common-javascript';
 import { StoreCrawlerServiceBase } from '../common';
 
 export default class Guruji extends StoreCrawlerServiceBase {

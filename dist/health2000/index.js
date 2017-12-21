@@ -10,7 +10,7 @@ var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
 
-var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
+var _parseServerCommon = require('@trolleysmart/parse-server-common');
 
 var _common = require('../common');
 
@@ -230,7 +230,7 @@ var Health2000 = function (_StoreCrawlerServiceB) {
 
               case 2:
                 storeId = _context3.sent;
-                service = new _trolleySmartParseServerCommon.StoreProductService();
+                service = new _parseServerCommon.StoreProductService();
                 _context3.next = 6;
                 return service.search((0, _immutable.Map)({
                   conditions: (0, _immutable.Map)({

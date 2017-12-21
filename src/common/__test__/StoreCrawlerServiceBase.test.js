@@ -4,8 +4,8 @@ import { List, Map } from 'immutable';
 import uuid from 'uuid/v4';
 import { StoreCrawlerServiceBase } from '../';
 
-const MicroBusinessParseServerCommon = require('micro-business-parse-server-common');
-const TrolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
+const MicroBusinessParseServerCommon = require('@microbusiness/parse-server-common');
+const TrolleySmartParseServerCommon = require('@trolleysmart/parse-server-common');
 
 const createNewStoreCrawlerServiceBase = () => new StoreCrawlerServiceBase('countdown');
 const keyValues = Map({ countdown: Map({ val1: uuid(), val2: uuid() }) });

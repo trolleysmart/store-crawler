@@ -2,7 +2,7 @@
 
 import Crawler from 'crawler';
 import { List, Map, Set } from 'immutable';
-import { StoreProductService } from 'trolley-smart-parse-server-common';
+import { StoreProductService } from '@trolleysmart/parse-server-common';
 import { StoreCrawlerServiceBase } from '../common';
 
 export default class Health2000 extends StoreCrawlerServiceBase {

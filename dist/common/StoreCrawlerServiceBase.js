@@ -12,11 +12,11 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
-var _microBusinessCommonJavascript = require('micro-business-common-javascript');
+var _commonJavascript = require('@microbusiness/common-javascript');
 
-var _microBusinessParseServerCommon = require('micro-business-parse-server-common');
+var _parseServerCommon = require('@microbusiness/parse-server-common');
 
-var _trolleySmartParseServerCommon = require('trolley-smart-parse-server-common');
+var _parseServerCommon2 = require('@trolleysmart/parse-server-common');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -53,7 +53,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
           case 2:
             _context.next = 4;
-            return _microBusinessParseServerCommon.ParseWrapperService.getConfig();
+            return _parseServerCommon.ParseWrapperService.getConfig();
 
           case 4:
             configs = _context.sent;
@@ -97,7 +97,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
                 key: _this.storeKey
               })
             });
-            storeService = new _trolleySmartParseServerCommon.StoreService();
+            storeService = new _parseServerCommon2.StoreService();
             _context2.next = 6;
             return storeService.search(criteria, _this.sessionToken);
 
@@ -180,7 +180,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               storeId = _context4.sent;
-              result = new _trolleySmartParseServerCommon.StoreTagService().searchAll((0, _immutable.Map)({ include_tag: !!includeTag, conditions: (0, _immutable.Map)({ storeId: storeId }) }), _this.sessionToken);
+              result = new _parseServerCommon2.StoreTagService().searchAll((0, _immutable.Map)({ include_tag: !!includeTag, conditions: (0, _immutable.Map)({ storeId: storeId }) }), _this.sessionToken);
               _context4.prev = 4;
               storeTags = (0, _immutable.List)();
 
@@ -221,7 +221,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
           switch (_context5.prev = _context5.next) {
             case 0:
               _context5.next = 2;
-              return new _trolleySmartParseServerCommon.StoreTagService().update(storeTag, _this.sessionToken);
+              return new _parseServerCommon2.StoreTagService().update(storeTag, _this.sessionToken);
 
             case 2:
             case 'end':
@@ -243,7 +243,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
         while (1) {
           switch (_context6.prev = _context6.next) {
             case 0:
-              result = new _trolleySmartParseServerCommon.TagService().searchAll((0, _immutable.Map)({ conditions: (0, _immutable.Map)({ level: level || undefined }) }), _this.sessionToken);
+              result = new _parseServerCommon2.TagService().searchAll((0, _immutable.Map)({ conditions: (0, _immutable.Map)({ level: level || undefined }) }), _this.sessionToken);
               _context6.prev = 1;
               tags = (0, _immutable.List)();
 
@@ -289,7 +289,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               storeId = _context7.sent;
-              service = new _trolleySmartParseServerCommon.StoreProductService();
+              service = new _parseServerCommon2.StoreProductService();
               _context7.next = 6;
               return service.search((0, _immutable.Map)({
                 conditions: (0, _immutable.Map)({
@@ -354,7 +354,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               storeId = _context8.sent;
-              storeTagService = new _trolleySmartParseServerCommon.StoreTagService();
+              storeTagService = new _parseServerCommon2.StoreTagService();
               foundStoreTag = storeTags.find(function (storeTag) {
                 return storeTag.get('key').localeCompare(productCategory.get('categoryKey')) === 0;
               });
@@ -410,7 +410,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               storeId = _context9.sent;
-              storeTagService = new _trolleySmartParseServerCommon.StoreTagService();
+              storeTagService = new _parseServerCommon2.StoreTagService();
               foundStoreTag = storeTags.find(function (storeTag) {
                 return storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0;
               });
@@ -477,7 +477,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               storeId = _context10.sent;
-              storeTagService = new _trolleySmartParseServerCommon.StoreTagService();
+              storeTagService = new _parseServerCommon2.StoreTagService();
               foundStoreTag = storeTags.find(function (storeTag) {
                 return storeTag.get('key').localeCompare(productCategory.first().get('categoryKey')) === 0;
               });
@@ -542,7 +542,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
         while (1) {
           switch (_context11.prev = _context11.next) {
             case 0:
-              service = new _trolleySmartParseServerCommon.StoreProductService();
+              service = new _parseServerCommon2.StoreProductService();
               _context11.t0 = service;
               _context11.t1 = _immutable.Map;
               _context11.t2 = _immutable.Map;
@@ -631,7 +631,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
                 conditions: _context12.t5
               };
               criteria = (0, _context12.t0)(_context12.t6);
-              return _context12.abrupt('return', new _trolleySmartParseServerCommon.ProductPriceService().search(criteria, _this.sessionToken));
+              return _context12.abrupt('return', new _parseServerCommon2.ProductPriceService().search(criteria, _this.sessionToken));
 
             case 11:
             case 'end':
@@ -653,7 +653,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
           switch (_context13.prev = _context13.next) {
             case 0:
               _context13.next = 2;
-              return new _trolleySmartParseServerCommon.StoreProductService().update(storeProduct.set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), _this.sessionToken);
+              return new _parseServerCommon2.StoreProductService().update(storeProduct.set('createdByCrawler', true).set('authorizedToDisplay', authorizedToDisplay), _this.sessionToken);
 
             case 2:
             case 'end':
@@ -680,7 +680,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 2:
               productPrices = _context14.sent;
-              service = new _trolleySmartParseServerCommon.ProductPriceService();
+              service = new _parseServerCommon2.ProductPriceService();
               priceDetails = productPrice.get('priceDetails');
 
               if (!(!priceDetails.has('currentPrice') || !priceDetails.get('currentPrice'))) {
@@ -716,7 +716,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 15:
               notMatchedProductPrices = productPrices.filterNot(function (_) {
-                return _microBusinessCommonJavascript.ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(_microBusinessCommonJavascript.ImmutableEx.removeUndefinedProps(priceDetails));
+                return _commonJavascript.ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(_commonJavascript.ImmutableEx.removeUndefinedProps(priceDetails));
               });
 
               if (notMatchedProductPrices.isEmpty()) {
@@ -731,7 +731,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 19:
               matchedProductPrices = productPrices.filter(function (_) {
-                return _microBusinessCommonJavascript.ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(_microBusinessCommonJavascript.ImmutableEx.removeUndefinedProps(priceDetails));
+                return _commonJavascript.ImmutableEx.removeUndefinedProps(_.get('priceDetails')).equals(_commonJavascript.ImmutableEx.removeUndefinedProps(priceDetails));
               });
 
               if (!(matchedProductPrices.count() > 1)) {
@@ -777,7 +777,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
           switch (_context15.prev = _context15.next) {
             case 0:
               _context15.next = 2;
-              return new _trolleySmartParseServerCommon.TagService().create(tagInfo, null, _this.sessionToken);
+              return new _parseServerCommon2.TagService().create(tagInfo, null, _this.sessionToken);
 
             case 2:
             case 'end':
@@ -901,7 +901,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
           case 5:
             storeTags = _context19.sent;
-            splittedLevelOneProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(productCategories, 100);
+            splittedLevelOneProductCategories = _commonJavascript.ImmutableEx.splitIntoChunks(productCategories, 100);
             _context19.next = 9;
             return _bluebird2.default.each(splittedLevelOneProductCategories.toArray(), function (productCategoryChunks) {
               return Promise.all(productCategoryChunks.map(function (productCategory) {
@@ -927,7 +927,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             levelTwoProductCategoriesGroupedByCategoryKey = levelTwoProductCategories.groupBy(function (productCategory) {
               return productCategory.get('categoryKey');
             });
-            splittedLevelTwoProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+            splittedLevelTwoProductCategories = _commonJavascript.ImmutableEx.splitIntoChunks(levelTwoProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
             _context19.next = 17;
             return _bluebird2.default.each(splittedLevelTwoProductCategories.toArray(), function (productCategoryChunks) {
               return Promise.all(productCategoryChunks.map(function (productCategory) {
@@ -955,7 +955,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
             levelThreeProductCategoriesGroupedByCategoryKey = levelThreeProductCategories.groupBy(function (productCategory) {
               return productCategory.get('categoryKey');
             });
-            splittedLevelThreeProductCategories = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
+            splittedLevelThreeProductCategories = _commonJavascript.ImmutableEx.splitIntoChunks(levelThreeProductCategoriesGroupedByCategoryKey.valueSeq(), 100);
             _context19.next = 25;
             return _bluebird2.default.each(splittedLevelThreeProductCategories.toArray(), function (productCategoryChunks) {
               return Promise.all(productCategoryChunks.map(function (productCategory) {
@@ -1030,7 +1030,7 @@ var StoreCrawlerServiceBase = function StoreCrawlerServiceBase(storeKey) {
 
             case 10:
               products = _context21.sent;
-              splittedProducts = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(products, _this.concurrentCrawlingCount);
+              splittedProducts = _commonJavascript.ImmutableEx.splitIntoChunks(products, _this.concurrentCrawlingCount);
               _context21.next = 14;
               return _bluebird2.default.each(splittedProducts.toArray(), function (productChunk) {
                 return Promise.all(productChunk.map(function (product) {

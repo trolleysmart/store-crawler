@@ -3,7 +3,7 @@
 import uuid from 'uuid/v4';
 import StoreServiceMockTracker from './StoreServiceMockTracker';
 
-const trolleySmartParseServerCommon = jest.genMockFromModule('trolley-smart-parse-server-common');
+const trolleySmartParseServerCommon = jest.genMockFromModule('@trolleysmart/parse-server-common');
 let storeServiceMockTracker;
 let finalStoreInfo;
 let finalStoreInfos;

@@ -14,7 +14,7 @@ var _crawler2 = _interopRequireDefault(_crawler);
 
 var _immutable = require('immutable');
 
-var _microBusinessCommonJavascript = require('micro-business-common-javascript');
+var _commonJavascript = require('@microbusiness/common-javascript');
 
 var _common = require('../common');
 
@@ -83,7 +83,7 @@ var Countdown = function (_StoreCrawlerServiceB) {
 
             case 5:
               tags = _context2.sent;
-              splittedStoreTags = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(storeTags, 100);
+              splittedStoreTags = _commonJavascript.ImmutableEx.splitIntoChunks(storeTags, 100);
               _context2.next = 9;
               return _bluebird2.default.each(splittedStoreTags.toArray(), function (storeTagsChunks) {
                 return Promise.all(storeTagsChunks.map(function (storeTag) {
@@ -1056,7 +1056,7 @@ var Countdown = function (_StoreCrawlerServiceB) {
                     return tag.get('key').localeCompare(storeTag.get('key') === 0);
                   });
                 });
-                splittedTags = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(levelOneTagsToCreate, 100);
+                splittedTags = _commonJavascript.ImmutableEx.splitIntoChunks(levelOneTagsToCreate, 100);
                 _context11.next = 8;
                 return _bluebird2.default.each(splittedTags.toArray(), function (tagsChunks) {
                   return Promise.all(tagsChunks.map(function (tag) {
@@ -1105,7 +1105,7 @@ var Countdown = function (_StoreCrawlerServiceB) {
                     return tag.get('key').localeCompare(storeTag.get('key') === 0);
                   });
                 });
-                splittedTags = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(levelTwoTagsToCreate, 100);
+                splittedTags = _commonJavascript.ImmutableEx.splitIntoChunks(levelTwoTagsToCreate, 100);
                 _context12.next = 12;
                 return _bluebird2.default.each(splittedTags.toArray(), function (tagsChunks) {
                   return Promise.all(tagsChunks.map(function (tag) {
@@ -1163,7 +1163,7 @@ var Countdown = function (_StoreCrawlerServiceB) {
                     return tag.get('key').localeCompare(storeTag.get('key') === 0);
                   });
                 });
-                splittedTags = _microBusinessCommonJavascript.ImmutableEx.splitIntoChunks(levelThreeTagsToCreate, 100);
+                splittedTags = _commonJavascript.ImmutableEx.splitIntoChunks(levelThreeTagsToCreate, 100);
                 _context13.next = 12;
                 return _bluebird2.default.each(splittedTags.toArray(), function (tagsChunks) {
                   return Promise.all(tagsChunks.map(function (tag) {
